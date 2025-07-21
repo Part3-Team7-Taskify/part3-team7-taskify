@@ -49,7 +49,7 @@ const Dashboard = () => {
   }, [router]);
 
   if (loading) return <div>로딩중...</div>;
-  if (error) return <div>{error}</div>;
+  if (error) return <div>에러 사유:{error}</div>;
 
   return (
     <div>

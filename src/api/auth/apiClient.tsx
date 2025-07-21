@@ -3,7 +3,7 @@ import { getAccessToken } from '@/utils/tokenhandler';
 
 export const apiClient = axios.create({
   baseURL: 'https://sp-taskify-api.vercel.app/16-7/',
-  timeout: 10000,
+  timeout: 3000,
 });
 
 apiClient.interceptors.request.use(
