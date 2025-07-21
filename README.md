@@ -33,3 +33,30 @@
 ## API
 
 [🔗Swagger](https://sp-taskify-api.vercel.app/docs/#/)
+
+## 폴더 구조
+```
+📦public
+ ┣ 📂icon
+ ┗ 📂images
+ 📦src
+ ┣ 📂api
+ ┣ 📂app
+ ┃ ┣ 📂dashboard
+ ┃ ┃ ┗ 📜page.tsx
+ ┃ ┣ 📂landing
+ ┃ ┃ ┗ 📜page.tsx
+ ┃ ┣ 📂login
+ ┃ ┃ ┗ 📜page.tsx
+ ┃ ┣ 📂signup
+ ┃ ┃ ┗ 📜page.tsx
+ ┃ ┣ 📜globals.css
+ ┃ ┣ 📜layout.tsx
+ ┃ ┗ 📜page.tsx
+ ┣ 📂assets
+ ┃ ┗ 📂fonts
+ ┣ 📂components
+ ┣ 📂contexts
+ ┣ 📂function
+ ┗ 📂hooks
+```
