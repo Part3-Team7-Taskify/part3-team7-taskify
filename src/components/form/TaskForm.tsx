@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { apiClient } from '@/api/auth/apiClient';
-import { useAuth } from '@/contexts/AuthContext';
+// import { useAuth } from '@/contexts/AuthContext';
 
 interface TaskFormProps {
   id: number; //카드 id
@@ -15,6 +15,7 @@ interface TaskFormProps {
   onCancel: () => void; //취소버튼 함수
   memberList: string[]; //담당자 목록
   member: Member[]; //담당자들
+  token: string;
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({
@@ -23,6 +24,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   dashboardId,
   onSubmit,
   onCancel,
+  token,
   // memberList,
   initialValues,
 }) => {
@@ -37,7 +39,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [newTag, setNewTag] = useState<string>('');
   const [imageUrl, setImageUrl] = useState<string>(initialValues?.imageUrl || '');
   const [memberList, setMemberList] = useState<string[]>([]); // 담당자 목록 상태
-  const { token } = useAuth();
 
   useEffect(() => {
     // 담당자 목록 가져오는 함수
