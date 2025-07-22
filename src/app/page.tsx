@@ -1,9 +1,9 @@
-import FormCompo from '@/components/form/FormCompo';
+import TaskForm from '@/components/form/TaskForm';
 
 export default function Home() {
   return (
     <div>
-      <FormCompo />
+      <TaskForm />
     </div>
   );
 }
