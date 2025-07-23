@@ -2,9 +2,10 @@
 import { TaskFormValues, Member } from '@/components/form/formTypes';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { apiClient } from '@/api/auth/apiClient';
 // import { useAuth } from '@/contexts/AuthContext';
+import { formatDueDate } from '@/utils/formatDueDate';
 
 interface TaskFormProps {
   id: number; //카드 id
@@ -22,8 +23,8 @@ interface TaskFormProps {
 
 const TaskForm: React.FC<TaskFormProps> = ({
   id,
-  columnId,
-  dashboardId, //상위 컴포넌트에서 받는 프롭스
+  columnId = 52456,
+  dashboardId = 15559, //상위 컴포넌트에서 받는 프롭스
   onSubmit,
   onCancel,
   token,
@@ -36,12 +37,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [assigneeUserId, setAssigneeUserId] = useState<number>(initialValues?.assigneeUserId || 0);
   const [title, setTitle] = useState<string>(initialValues?.title || '');
   const [description, setDescription] = useState<string>(initialValues?.description || '');
-  const [dueDate, setDueDate] = useState<Date | null>(
-    initialValues?.dueDate ? new Date(initialValues.dueDate) : null,
-  );
+  const [dueDate, setDueDate] = useState<Date | null>(null);
   const [tags, setTags] = useState<string[]>(initialValues?.tags || []);
   const [newTag, setNewTag] = useState<string>('');
-  const [imageUrl, setImageUrl] = useState<string>(initialValues?.imageUrl || '');
+  const [imageUrl, setImageUrl] = useState<string | null>(initialValues?.imageUrl || '');
   const [memberList, setMemberList] = useState<string[]>([]); // 담당자 목록 상태
 
   useEffect(() => {
@@ -85,10 +84,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
     setDescription(e.target.value);
   };
 
-  const handleDueDateChange = (date: Date | null) => {
-    setDueDate(date);
-  };
-
   const handleNewTagChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewTag(e.target.value);
   };
@@ -104,33 +99,40 @@ const TaskForm: React.FC<TaskFormProps> = ({
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleImageUrlChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setImageUrl(e.target.value);
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0]; // 선택된 첫 번째 파일
+      setImageUrl(URL.createObjectURL(file)); // 이미지 URL을 상태에 저장
+    } else {
+      setImageUrl(null);
+    }
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const formattedDueDate = formatDueDate(dueDate);
+    console.log('포맷된 dueDate:', formattedDueDate);
     e.preventDefault();
 
     const taskData: TaskFormValues = {
       id: initialValues?.id, // 수정 시 ID 전달
       dashboardId: initialValues?.dashboardId ?? 0, // 대시보드 ID를 전달하거나 기본값 사용
-      columnId: columnId,
+      columnId,
       assigneeUserId: assigneeUserId,
       title,
       description,
-      dueDate,
+      dueDate: formattedDueDate,
       tags,
-      imageUrl,
+      ...(imageUrl && { imageUrl: imageUrl }), //컨디셔널 오브젝트 리터럴?
     };
 
-    onSubmit(taskData);
+    await apiClient.post('/cards', taskData);
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <div>
         <label htmlFor='assigneeUserId'>담당자</label>
-        <select id='assigneeUserId' value='assigneeUserId' onChange={handleAssigneeChange}>
+        <select id='assigneeUserId' value={assigneeUserId} onChange={handleAssigneeChange}>
           <option>선택</option>
           {memberList.map((member) => (
             <option key={member} value={member}>
@@ -165,9 +167,14 @@ const TaskForm: React.FC<TaskFormProps> = ({
         <label htmlFor='dueDate'>마감일</label>
         <DatePicker
           className='border'
+          onChange={(e) => {
+            setDueDate(e);
+          }}
           selected={dueDate}
-          onChange={handleDueDateChange}
-          dateFormat='yyyy-MM-dd'
+          showTimeSelect // 시간 선택 기능 활성화
+          timeFormat='HH:mm' // 시간 포맷 (기본값이 HH:mm)
+          timeIntervals={30} // 15분 간격으로 선택 가능
+          dateFormat='yyyy-MM-dd HH:mm' // 보여주는 포맷
         />
       </div>
 
@@ -202,8 +209,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
         </div>
 
         <div>
-          <label htmlFor='imageUrl'>이미지</label>
-          <input className='border' type='file' id={imageUrl} onChange={handleImageUrlChange} />
+          <label htmlFor='imageFile'>이미지</label>
+          <input className='border' type='file' onChange={handleFileChange} />
           {imageUrl && <img src={imageUrl} alt='Upload' />}
         </div>
 

@@ -4,9 +4,10 @@ export interface TaskFormValues {
   columnId: number;
   title: string;
   description: string;
-  dueDate: Date | null; // 왜 string 이지 ? Date|null
+  dueDate: string; // 왜 string 이지 ? Date|null
   tags: string[];
-  imageUrl: string; //?? file | null 아님?
+  imageUrl?: string | null; // 서버에 업로드한 후 저장하는 값
+  imageFile?: File; // 클라이언트에서 파일 업로드 시 사용
   id?: number; // 카드 id (수정 시 필요)
 }
 
