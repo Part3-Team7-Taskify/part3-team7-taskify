@@ -71,6 +71,25 @@ const TaskForm: React.FC<TaskFormProps> = ({
     fetchMembers();
   }, [token, dashboardId, page, size]);
 
+  //이미지 업로드 함수
+  const uploadImage = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    // 서버에 'image'라는 이름으로 파일 업로드
+    formData.append('image', file);
+
+    try {
+      const response = await apiClient.post('/columns/52453/card-image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data.url;
+    } catch (error) {
+      console.error('이미지 업로드 실패:', error);
+      throw error;
+    }
+  };
+
   // 이벤트 핸들러
   const handleAssigneeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setAssigneeUserId(parseInt(e.target.value, 10));
@@ -99,10 +118,19 @@ const TaskForm: React.FC<TaskFormProps> = ({
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0]; // 선택된 첫 번째 파일
-      setImageUrl(URL.createObjectURL(file)); // 이미지 URL을 상태에 저장
+      try {
+        // 서버에 이미지 업로드 후 URL 받기
+        const uploadedImageUrl = await uploadImage(file);
+        // 이미지 URL을 상태에 저장
+        setImageUrl(uploadedImageUrl);
+      } catch (err) {
+        console.error('이미지 업로드 실패:', err);
+        // 실패 시 처리
+        setImageUrl(null);
+      }
     } else {
       setImageUrl(null);
     }
