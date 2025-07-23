@@ -16,15 +16,19 @@ interface TaskFormProps {
   memberList: string[]; //담당자 목록
   member: Member[]; //담당자들
   token: string;
+  page?: number;
+  size?: number;
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({
   id,
   columnId,
-  dashboardId,
+  dashboardId, //상위 컴포넌트에서 받는 프롭스
   onSubmit,
   onCancel,
   token,
+  page = 1,
+  size = 20,
   // memberList,
   initialValues,
 }) => {
@@ -41,22 +45,32 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [memberList, setMemberList] = useState<string[]>([]); // 담당자 목록 상태
 
   useEffect(() => {
-    // 담당자 목록 가져오는 함수
-    const fetchMemberList = async () => {
+    const fetchMembers = async () => {
+      const token = sessionStorage.getItem('accessToken');
+
       try {
-        const response = await apiClient.get(`/members?page=1&size=20&dashboardId=${dashboardId}`, {
+        const dashboardIdNumber = Number(dashboardId);
+        if (isNaN(dashboardIdNumber)) {
+          throw new Error('Invalid dashboardId');
+        }
+
+        const res = await apiClient.get('/members', {
           headers: {
-            Authorization: `Bearer ${token}`, //토큰 추가요
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            page,
+            size,
+            dashboardId: dashboardIdNumber, //대시보드아이디숫자로리퀘스트되도록
           },
         });
-        setMemberList(response.data.members);
+        setMemberList(res.data.members);
       } catch (error) {
-        console.error('Failed to fetch member list:', error);
+        console.error('Error fetching members:', error);
       }
     };
-
-    fetchMemberList();
-  }, [dashboardId, token]);
+    fetchMembers();
+  }, [token, dashboardId, page, size]);
 
   // 이벤트 핸들러
   const handleAssigneeChange = (e: ChangeEvent<HTMLSelectElement>) => {
