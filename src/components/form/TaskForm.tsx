@@ -103,7 +103,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       tags,
       ...(imageUrl && { imageUrl: imageUrl }), //컨디셔널 오브젝트 리터럴?
     };
-    await onSubmit(taskData);
+    onSubmit(taskData);
   };
 
   return (
@@ -169,7 +169,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
               tags={tags}
               newTag={newTag}
               handleNewTagChange={handleNewTagChange}
-              handleAddTag={addTag}
+              addTag={addTag}
               handleRemoveTag={removeTag}
             />
           </div>

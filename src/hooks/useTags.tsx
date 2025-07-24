@@ -7,14 +7,15 @@ export const useTags = (initialTags: string[]) => {
   const [newTag, setNewTag] = useState<string>('');
 
   const addTag = () => {
-    if (newTag.trim() !== '' && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()]);
-      setNewTag('');
+    const trimmedTag = newTag.trim();
+    if (trimmedTag !== '' && !tags.includes(trimmedTag)) {
+      setTags((prevTags) => [...prevTags, trimmedTag]);
     }
+    setNewTag('');
   };
 
   const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove));
+    setTags((prev) => prev.filter((tag) => tag !== tagToRemove));
   };
 
   const handleNewTagChange = (value: string) => {

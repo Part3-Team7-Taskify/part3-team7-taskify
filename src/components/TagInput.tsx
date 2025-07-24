@@ -2,7 +2,7 @@ interface TagInputProps {
   tags: string[];
   newTag: string;
   handleNewTagChange: (value: string) => void;
-  handleAddTag: () => void;
+  addTag: () => void;
   handleRemoveTag: (tag: string) => void;
 }
 
@@ -10,7 +10,7 @@ const TagInput: React.FC<TagInputProps> = ({
   tags,
   newTag,
   handleNewTagChange,
-  handleAddTag,
+  addTag,
   handleRemoveTag,
 }) => (
   <div>
@@ -22,7 +22,7 @@ const TagInput: React.FC<TagInputProps> = ({
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
-            handleAddTag();
+            addTag();
           }
         }}
         className='w-full border border-gray-400 p-2'
