@@ -25,10 +25,8 @@ const TagInput: React.FC<TagInputProps> = ({
             handleAddTag();
           }
         }}
+        className='w-full border border-gray-400 p-2'
       />
-      <button type='button' onClick={handleAddTag}>
-        추가
-      </button>
     </div>
 
     <div>

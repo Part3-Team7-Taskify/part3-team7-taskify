@@ -5,18 +5,23 @@ interface ImageUploadProps {
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ imageUrl, handleFileChange }) => (
   <div>
-    <label htmlFor='file'>이미지</label>
-    <input
-      id='file'
-      type='file'
-      onChange={(e) => {
-        if (e.target.files && e.target.files[0]) {
-          handleFileChange(e.target.files[0]);
-        }
-      }}
-      className='w-[76px] h-[107px]'
-    />
-    {imageUrl && <img src={imageUrl} alt='Upload' className='w-[76px] h-[107px]' />}
+    <div className='relative'>
+      <input
+        id='file'
+        type='file'
+        onChange={(e) => {
+          if (e.target.files && e.target.files[0]) {
+            handleFileChange(e.target.files[0]);
+          }
+        }}
+        className='absolute inset-0 opacity-0 cursor-pointer'
+      />
+      <div>
+        <div className='w-[76px] h-[76px] bg-gray-400'></div>
+      </div>
+    </div>
+
+    {imageUrl && <img src={imageUrl} alt='Upload' />}
   </div>
 );
 export default ImageUpload;
