@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAccessToken } from '@/utils/tokenhandler';
+import { getAccessToken } from '@/utils/tokenHandler';
 
 export const apiClient = axios.create({
   baseURL: 'https://sp-taskify-api.vercel.app/16-7/',

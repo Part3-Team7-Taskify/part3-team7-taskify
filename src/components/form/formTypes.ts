@@ -1,4 +1,5 @@
 export interface TaskFormValues {
+  id: number;
   assigneeUserId: number;
   dashboardId: number;
   columnId: number;
@@ -8,7 +9,6 @@ export interface TaskFormValues {
   tags: string[];
   imageUrl?: string | null; // 서버에 업로드한 후 저장하는 값
   imageFile?: File; // 클라이언트에서 파일 업로드 시 사용
-  id?: number; // 카드 id (수정 시 필요)
 }
 
 export interface Member {
@@ -21,6 +21,7 @@ export interface Member {
   createdAt: string;
   updatedAt: string;
   isOwner: boolean;
+  name: string;
 }
 
 export interface MemberListResponse {

@@ -2,7 +2,7 @@
 import { apiClient } from '@/api/auth/apiClient';
 import { useState } from 'react';
 import Image from 'next/image';
-import { setAccessToken } from '@/utils/tokenhandler';
+import { setAccessToken } from '@/utils/tokenHandler';
 import { useRouterContext } from '@/contexts/RouterContext';
 
 interface LoginResponse {
