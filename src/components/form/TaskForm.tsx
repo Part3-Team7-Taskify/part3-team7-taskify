@@ -10,6 +10,7 @@ import TagInput from '@/components/TagInput';
 import 'react-datepicker/dist/react-datepicker.css';
 import { apiClient } from '@/api/auth/apiClient';
 import ImageUpload from '@/components/ImageUpload';
+import { Button } from '@/components/button/Button';
 
 interface TaskFormProps {
   id: number;
@@ -41,11 +42,11 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [description, setDescription] = useState<string>(initialValues?.description || '');
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [memberList, setMemberList] = useState<string[]>([]);
-
   const { tags, newTag, addTag, removeTag, handleNewTagChange } = useTags(
     initialValues?.tags ?? [],
   );
   const { imageUrl, handleFileChange } = useImageUpload(columnId);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   useEffect(() => {
     if (initialValues?.assigneeUserId) {
@@ -72,6 +73,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
     fetchMembers();
   }, [dashboardId, page, size]);
 
+  useEffect(() => {
+    setIsFormValid(title.trim() !== '' && description.trim() !== '' && dueDate !== null);
+  }, [title, description, dueDate]);
+
   // 아래로 이벤트 핸들러
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -89,8 +94,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
     setDueDate(date);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     const formattedDueDate = formatDueDate(dueDate);
     const taskData: TaskFormValues = {
       id,
@@ -110,7 +114,13 @@ const TaskForm: React.FC<TaskFormProps> = ({
     <div className='mx-auto px-4 max-w-[520px] min-w-[295px]'>
       <h1 className='text-[24px]'>할일 생성</h1>
       <div className='w-full h-auto '>
-        <form onSubmit={handleSubmit} className='flex flex-col space-y-4'>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+          className='flex flex-col space-y-4'
+        >
           <label htmlFor='assigneeUserId' className='block mb-1 font-semibold text-gray-700'>
             담당자
           </label>
@@ -177,6 +187,25 @@ const TaskForm: React.FC<TaskFormProps> = ({
           <div className='mb-4'>
             <label className='block mb-1 font-semibold text-gray-700'>이미지 업로드</label>
             <ImageUpload imageUrl={imageUrl} handleFileChange={handleFileChange} />
+          </div>
+          <div className='flex justify-end gap-2'>
+            <Button
+              size='small'
+              type='primary'
+              onClick={onCancel} // 여기에 모달 닫힘 넣어야함
+              className='bg-white text-zinc-500 w-full border border-gray-600'
+            >
+              취소
+            </Button>
+            <Button
+              size='small'
+              type={!isFormValid ? 'disabled' : 'primary'}
+              onClick={handleSubmit}
+              disabled={!isFormValid}
+              className='w-full'
+            >
+              생성
+            </Button>
           </div>
         </form>
       </div>
