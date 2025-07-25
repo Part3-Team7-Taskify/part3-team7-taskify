@@ -188,6 +188,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
             <label className='block mb-1 font-semibold text-gray-700'>이미지 업로드</label>
             <ImageUpload imageUrl={imageUrl} handleFileChange={handleFileChange} />
           </div>
+
           <div className='flex justify-end gap-2'>
             <Button
               size='small'
