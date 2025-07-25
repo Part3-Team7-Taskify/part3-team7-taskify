@@ -1,7 +1,7 @@
 'use client';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { useTags } from '@/hooks/useTags';
-import { useEffect, useState, ChangeEvent } from 'react';
+import React, { useEffect, useState, ChangeEvent } from 'react';
 import { TaskFormValues, Member } from '@/components/form/formTypes';
 import { formatDueDate } from '@/utils/formatDueDate';
 import InputField from '@/components/inputField';
@@ -24,18 +24,52 @@ interface TaskFormProps {
   token: string;
   page?: number;
   size?: number;
+  cards: CardType[];
+  setCards: React.Dispatch<React.SetStateAction<string[]>>;
+  onClose: () => void;
+}
+interface CardType {
+  id: number;
+  title: string;
+  description: string;
+  tags: string[];
+  dueDate: string;
+  assignee: {
+    profileImageUrl: string;
+    nickname: string;
+    id: number;
+  };
+  imageUrl: string;
+  teamId: string;
+  columnId: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface CreateCardRequest {
+  assigneeUserId: number;
+  dashboardId: number;
+  columnId: number;
+  title: string;
+  description: string;
+  dueDate: string;
+  tags: string[];
+  imageUrl?: string;
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({
-  id,
-  columnId,
-  dashboardId,
+  id = 5941,
+  columnId = 52453,
+  dashboardId = 15559,
   initialValues,
   onSubmit,
   onCancel,
   member,
   page = 1,
   size = 20,
+  cards,
+  setCards,
+  onClose,
 }) => {
   const [assigneeUserId, setAssigneeUserId] = useState<number>(initialValues?.assigneeUserId || 0);
   const [title, setTitle] = useState<string>(initialValues?.title || '');
@@ -47,7 +81,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
   );
   const { imageUrl, handleFileChange } = useImageUpload(columnId);
   const [isFormValid, setIsFormValid] = useState(false);
-
   useEffect(() => {
     if (initialValues?.assigneeUserId) {
       setAssigneeUserId(initialValues.assigneeUserId);
@@ -63,7 +96,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
         const res = await apiClient.get('/members', {
           headers: { Authorization: `Bearer ${token}` },
-          data: { page, size, dashboardId: dashboardIdNumber },
+          params: { page, size, dashboardId: dashboardIdNumber },
         });
         setMemberList(res.data.members);
       } catch (error) {
@@ -96,18 +129,49 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   const handleSubmit = async () => {
     const formattedDueDate = formatDueDate(dueDate);
-    const taskData: TaskFormValues = {
-      id,
-      dashboardId: initialValues?.dashboardId ?? 0, // 대시보드 ID를 전달하거나 기본값 사용
-      columnId,
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      console.error('토큰이 없습니다.');
+      return;
+    }
+
+    const requestData: CreateCardRequest = {
       assigneeUserId: assigneeUserId,
-      title,
-      description,
+      dashboardId: dashboardId,
+      columnId: columnId,
+      title: title,
+      description: description,
       dueDate: formattedDueDate,
-      tags,
-      ...(imageUrl && { imageUrl: imageUrl }), //컨디셔널 오브젝트 리터럴?
+      tags: tags,
+      ...(imageUrl && { imageUrl: imageUrl }),
     };
-    onSubmit(taskData);
+
+    try {
+      const res = await apiClient.post('/cards', requestData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      //새로운 카드 추가 상태
+      setCards([...cards, res.data]);
+
+      //모달 닫기
+      // onclose();
+
+      //생성 성공후 콜백 호출(선택):부모컴포넌트에서 onSubmit={handleTaskSubmit}
+      onSubmit({
+        id,
+        dashboardId: dashboardId,
+        columnId: columnId,
+        assigneeUserId: assigneeUserId,
+        title: title,
+        description: description,
+        dueDate: formattedDueDate,
+        tags: tags,
+        imageUrl: imageUrl,
+      });
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
   };
 
   return (
@@ -131,11 +195,15 @@ const TaskForm: React.FC<TaskFormProps> = ({
             className='block w-full border border-gray-400 rounded p-2'
           >
             <option>선택</option>
-            {memberList.map((memberId) => (
-              <option key={memberId} value={parseInt(memberId, 10)}>
-                {member.find((m) => m.id === parseInt(memberId, 10))?.name || memberId}
-              </option>
-            ))}
+            {member ? (
+              memberList.map((memberId) => (
+                <option key={memberId} value={parseInt(memberId, 10)}>
+                  {member.find((m) => m.id === parseInt(memberId, 10))?.name || memberId}
+                </option>
+              ))
+            ) : (
+              <option>Loading...</option>
+            )}
           </select>
 
           <div>
@@ -186,7 +254,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
           <div className='mb-4'>
             <label className='block mb-1 font-semibold text-gray-700'>이미지 업로드</label>
-            <ImageUpload imageUrl={imageUrl} handleFileChange={handleFileChange} />
+            <ImageUpload previewUrl={imageUrl} handleFileChange={handleFileChange} />
           </div>
 
           <div className='flex justify-end gap-2'>
