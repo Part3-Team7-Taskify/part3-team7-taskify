@@ -22,7 +22,7 @@ export const UserChip = ({ user, size }: { user: UserType; size: SizeType }) => 
         alt={`${user.nickname}의 프로필 사진`}
         className={`rounded-full ${sizeClasses[size]}`}
       />
-      <span className='ml-2'>{user.nickname}</span>
+      <span className='ml-2 hidden md:block lg:block'>{user.nickname}</span>
     </div>
   );
 };
