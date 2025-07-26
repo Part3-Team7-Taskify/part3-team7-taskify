@@ -1,26 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/api/auth/apiClient';
 import { GnbMyDashboard } from '@/components/gnb/Gnb';
 import SnbNav from '@/components/SnbNav';
 import ProfileSection from '@/components/ProfileSection';
 import PasswordChangeSection from '@/components/PasswordChangeSection';
-
-// 인터페이스 정의
-interface User {
-  id: number;
-  email: string;
-  nickname: string;
-  profileImageUrl: string | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { useUserStore } from '@/store/LoginStore';
 
 const MyPage = () => {
   const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { user, addCurrentUser } = useUserStore();
 
   // 현재 사용자 정보 가져오기
   useEffect(() => {
@@ -28,13 +19,18 @@ const MyPage = () => {
       try {
         const response = await apiClient.get('users/me');
         console.log('현재 사용자 정보:', response.data);
-        setCurrentUser(response.data);
+        // Zustand 스토어에 사용자 정보 저장
+        addCurrentUser(response.data);
       } catch (err) {
         console.error('사용자 정보 조회 실패:', err);
       }
     };
-    fetchCurrentUser();
-  }, []);
+
+    // 스토어에 사용자 정보가 없거나 기본값인 경우에만 API 호출
+    if (!user || user.id === 0) {
+      fetchCurrentUser();
+    }
+  }, [user, addCurrentUser]);
 
   const handleGoBack = () => {
     router.back();
@@ -45,17 +41,17 @@ const MyPage = () => {
     console.log('프로필 저장:', { nickname, profileImage });
 
     // ProfileSection에서 이미 API 호출을 완료했으므로
-    // 여기서는 최신 사용자 정보를 다시 가져오기만 하면 됨
+    // 여기서는 최신 사용자 정보를 다시 가져와서 스토어 업데이트
     try {
       const response = await apiClient.get('users/me');
       console.log('사용자 정보 새로고침:', response.data);
-      setCurrentUser(response.data);
+      addCurrentUser(response.data);
     } catch (err) {
       console.error('사용자 정보 새로고침 실패:', err);
     }
   };
 
-  /// 비밀번호 변경 처리 (실제 API 연결)
+  // 비밀번호 변경 처리 (실제 API 연결)
   const handlePasswordChange = async (currentPassword: string, newPassword: string) => {
     console.log('비밀번호 변경 시도');
 
@@ -79,18 +75,25 @@ const MyPage = () => {
     }
   };
 
+  // 사용자 정보가 로딩 중인 경우
+  if (!user || user.id === 0) {
+    return (
+      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+        <div>사용자 정보를 불러오는 중...</div>
+      </div>
+    );
+  }
+
   return (
     <div className='min-h-screen bg-gray-50 flex flex-col'>
       {/* 상단 Gnb */}
-      {currentUser && (
-        <GnbMyDashboard
-          user={{
-            id: currentUser.id,
-            nickname: currentUser.nickname,
-            profileImageUrl: currentUser.profileImageUrl || '',
-          }}
-        />
-      )}
+      <GnbMyDashboard
+        user={{
+          id: user.id,
+          nickname: user.nickname,
+          profileImageUrl: user.profileImageUrl || '',
+        }}
+      />
 
       {/* 아래 영역 */}
       <div className='flex flex-1 h-[calc(100vh-70px)]'>
@@ -109,12 +112,8 @@ const MyPage = () => {
           </button>
 
           {/* 프로필, 비밀번호 변경 섹션 */}
-          {currentUser && (
-            <>
-              <ProfileSection user={currentUser} onSave={handleProfileSave} />
-              <PasswordChangeSection onPasswordChange={handlePasswordChange} />
-            </>
-          )}
+          <ProfileSection user={user} onSave={handleProfileSave} />
+          <PasswordChangeSection onPasswordChange={handlePasswordChange} />
         </div>
       </div>
     </div>
