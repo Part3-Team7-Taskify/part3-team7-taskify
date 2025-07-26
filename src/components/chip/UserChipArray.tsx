@@ -1,6 +1,7 @@
 'use client';
 
-import { UserChip, UserType } from './UserChip';
+import { UserType } from '@/types/UserTypes';
+import { UserChip } from './UserChip';
 
 export const UserChipArray = ({
   users,
