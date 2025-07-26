@@ -6,11 +6,12 @@ import InviteIcon from '../../../public/icon/invitation.svg';
 import CrownIcon from '../../../public/icon/crown.svg';
 import LogoWhite from '../../../public/images/images_logo_white.png';
 import LogoWhiteSmall from '../../../public/images/image_smallLogo_white.png';
-import { UserChip, UserType } from '../chip/UserChip';
+import { UserChip } from '../chip/UserChip';
 import { UserChipArray } from '../chip/UserChipArray';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useWindowSize } from '@/hooks/useWindowSize';
+import { UserType } from '@/types/UserTypes';
 
 const SMALL_DISPLAY = 768;
 const BIG_DISPLAY = 1024;
@@ -19,7 +20,7 @@ const BIGGER_USERS_DISPLAY = 4;
 
 const GnbWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
-    <nav className='w-full h-[70px] flex items-center px-6 py-3 gap-4 md:gap-8 lg:gap-8 border-b border-b-gray-200'>
+    <nav className='w-full h-[70px] flex items-center px-6 py-3 gap-4 md:gap-8 lg:gap-8 border-b border-b-gray-300'>
       {children}
     </nav>
   );
@@ -69,7 +70,7 @@ export const GnbMyDashboard = ({ user }: { user: UserType }) => {
       </div>
       <div className='border-l border-l-gray-200 h-full' />
       <div>
-        <UserChip user={user} size='large' />
+        <UserChip user={user} size='large' hideName={width > SMALL_DISPLAY ? false : true} />
       </div>
     </GnbWrapper>
   );
@@ -95,10 +96,14 @@ export const GnbMyDashboardWithUsers = ({ user, users }: { user: UserType; users
           초대하기
         </Button>
       </div>
-      <UserChipArray users={users} maxVisible={maxVisible} />
+      <UserChipArray
+        users={users}
+        maxVisible={maxVisible}
+        size={width > SMALL_DISPLAY ? 'large' : 'small'}
+      />
       <div className='border-l border-l-gray-200 h-full' />
       <div>
-        <UserChip user={user} size='large' />
+        <UserChip user={user} size='large' hideName={width > SMALL_DISPLAY ? false : true} />
       </div>
     </GnbWrapper>
   );
@@ -139,10 +144,18 @@ export const GnbDashboard = ({
           초대하기
         </Button>
       </div>
-      <UserChipArray users={users} maxVisible={maxVisible} />
+      <UserChipArray
+        users={users}
+        maxVisible={maxVisible}
+        size={width > SMALL_DISPLAY ? 'large' : 'small'}
+      />
       <div className='border-l border-l-gray-200 h-full' />
       <div>
-        <UserChip user={user} size='large' />
+        <UserChip
+          user={user}
+          size={width > SMALL_DISPLAY ? 'large' : 'small'}
+          hideName={width > SMALL_DISPLAY ? false : true}
+        />
       </div>
     </GnbWrapper>
   );

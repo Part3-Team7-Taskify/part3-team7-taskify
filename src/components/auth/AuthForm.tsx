@@ -5,10 +5,7 @@ import Image from 'next/image';
 import { setAccessToken } from '@/utils/tokenhandler';
 import { useRouterContext } from '@/contexts/RouterContext';
 import { ROUTES } from '@/constants/router';
-
-interface ResponseData {
-  accessToken?: string;
-}
+import { LoginResponse } from '@/types/UserTypes';
 
 interface FormField {
   label: string;
@@ -21,7 +18,7 @@ interface AuthFormProps {
   apiEndpoint: string;
   redirectPath: string;
   fields: FormField[];
-  onSuccess?: (responseData: ResponseData) => void;
+  onSuccess?: (responseData: LoginResponse) => void;
 }
 
 export const AuthForm = ({ title, apiEndpoint, fields, onSuccess }: AuthFormProps) => {

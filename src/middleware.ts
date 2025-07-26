@@ -9,7 +9,10 @@ export default function middleware(request: NextRequest) {
   ) {
     return NextResponse.redirect(new URL('/mydashboard', request.url));
   }
-  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
+  if (
+    (!token && request.nextUrl.pathname.startsWith('/dashboard')) ||
+    (!token && request.nextUrl.pathname.startsWith('/mydashboard'))
+  ) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 }
