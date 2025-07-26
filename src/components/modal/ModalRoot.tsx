@@ -65,10 +65,10 @@ export const ModalRoot: FC<ModalPropsType> = ({
 
 const ModalWrapper = () => {
   return (
-    <>
+    <div className='fixed'>
       <ModalBackdrop />
       <ModalWindow />
-    </>
+    </div>
   );
 };
 
