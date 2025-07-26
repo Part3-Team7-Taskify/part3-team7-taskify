@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiClient } from '@/api/auth/apiClient';
 import DashboardEditForm from '@/components/DashboardEditForm';
 import MembersSection from '@/components/MembersSection';
 import InvitationsSection from '@/components/InvitationsSection';
 import { GnbDashboard } from '@/components/gnb/Gnb';
+import SnbNav from '@/components/SnbNav';
+import { useUserStore } from '@/store/LoginStore';
+import { useState } from 'react';
 
 interface DashboardInfo {
   title: string;
@@ -19,25 +22,31 @@ const DashboardEditPage = () => {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Zustand 스토어 사용
+  const { user, addCurrentUser } = useUserStore();
+
   // 실제 데이터 state들
-  const [currentUser, setCurrentUser] = useState(null);
   const [dashboardMembers, setDashboardMembers] = useState([]);
   const [dashboardInfo, setDashboardInfo] = useState<DashboardInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 현재 사용자 정보 가져오기
+  // 현재 사용자 정보 가져오기 (Zustand 적용)
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
         const response = await apiClient.get('users/me');
         console.log('현재 사용자 정보:', response.data);
-        setCurrentUser(response.data);
+        addCurrentUser(response.data);
       } catch (err) {
         console.error('사용자 정보 조회 실패:', err);
       }
     };
-    fetchCurrentUser();
-  }, []);
+
+    // 스토어에 사용자 정보가 없거나 기본값인 경우에만 API 호출
+    if (!user || user.id === 0) {
+      fetchCurrentUser();
+    }
+  }, [user, addCurrentUser]);
 
   // 대시보드 정보 가져오기
   useEffect(() => {
@@ -101,7 +110,7 @@ const DashboardEditPage = () => {
   };
 
   // 로딩 중일 때
-  if (loading || !currentUser || !dashboardInfo) {
+  if (loading || !user || user.id === 0 || !dashboardInfo) {
     return (
       <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
         <div>로딩 중...</div>
@@ -110,17 +119,26 @@ const DashboardEditPage = () => {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-gray-50 flex flex-col'>
       {/* 상단 Gnb */}
       <GnbDashboard
-        user={currentUser}
+        user={{
+          id: user.id,
+          nickname: user.nickname,
+          profileImageUrl: user.profileImageUrl || '',
+        }}
         users={dashboardMembers}
         title={dashboardInfo.title}
         createdByMe={dashboardInfo.createdByMe}
       />
 
-      <div className='flex'>
-        <div className='flex-1 p-8'>
+      {/* 아래 영역 */}
+      <div className='flex flex-1 h-[calc(100vh-70px)]'>
+        {/* 좌측 SnbNav 추가 */}
+        <SnbNav />
+
+        {/* 메인 영역 */}
+        <div className='flex-1 p-8 overflow-y-auto'>
           <button
             onClick={handleGoBack}
             disabled={isDeleting}
