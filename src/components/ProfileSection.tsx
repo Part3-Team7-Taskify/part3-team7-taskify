@@ -3,6 +3,7 @@
 import { apiClient } from '@/api/auth/apiClient';
 import { useState, useRef } from 'react';
 import Image from 'next/image';
+import { ModalRoot } from '@/components/modal/ModalRoot';
 
 interface ProfileSectionProps {
   user: {
@@ -22,6 +23,11 @@ const ProfileSection = ({ user, onSave }: ProfileSectionProps) => {
   );
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 모달 상태 관리
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // 이미지 업로드 처리
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,14 +66,13 @@ const ProfileSection = ({ user, onSave }: ProfileSectionProps) => {
         });
 
         console.log('이미지 업로드 성공:', imageResponse.data);
-        // 서버에서 받은 새로운 이미지 URL 사용
         updatedProfileImageUrl = imageResponse.data.profileImageUrl;
       }
 
       // 2. 닉네임과 프로필 이미지 URL 함께 수정
       const updateResponse = await apiClient.put('users/me', {
         nickname: nickname,
-        profileImageUrl: updatedProfileImageUrl, // 새로운 이미지 URL도 함께 전송!
+        profileImageUrl: updatedProfileImageUrl,
       });
 
       console.log('프로필 수정 성공:', updateResponse.data);
@@ -75,10 +80,12 @@ const ProfileSection = ({ user, onSave }: ProfileSectionProps) => {
       // 3. 성공 시 부모 컴포넌트에 업데이트된 정보 전달
       await onSave(nickname, profileImage);
 
-      alert('프로필이 성공적으로 수정되었습니다.');
-    } catch {
-      console.error('프로필 수정 실패');
-      alert('프로필 수정에 실패했습니다.');
+      // 성공 모달 표시
+      setIsSuccessModalOpen(true);
+    } catch (error) {
+      console.error('프로필 수정 실패:', error);
+      setErrorMessage('프로필 수정에 실패했습니다.');
+      setIsErrorModalOpen(true);
     } finally {
       setIsSaving(false);
     }
@@ -88,77 +95,137 @@ const ProfileSection = ({ user, onSave }: ProfileSectionProps) => {
   const hasChanges = nickname !== user.nickname || profileImage !== null;
 
   return (
-    <div className='bg-white rounded-lg p-6 mb-6'>
-      <h2 className='text-xl font-bold mb-6'>프로필</h2>
+    <>
+      <div className='bg-white rounded-lg p-6 mb-6'>
+        <h2 className='text-xl font-bold mb-6'>프로필</h2>
 
-      {/* 프로필 이미지 */}
-      <div className='mb-6 flex items-center gap-4'>
-        <div className='relative'>
-          {profileImagePreview ? (
-            <Image
-              src={profileImagePreview}
-              alt='프로필 이미지'
-              width={80}
-              height={80}
-              className='rounded-full object-cover'
-            />
-          ) : (
-            <div className='w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center text-2xl font-bold text-white'>
-              {user.nickname.charAt(0).toUpperCase()}
-            </div>
-          )}
+        {/* 프로필 이미지 */}
+        <div className='mb-6 flex items-center gap-4'>
+          <div className='relative'>
+            {profileImagePreview ? (
+              <Image
+                src={profileImagePreview}
+                alt='프로필 이미지'
+                width={80}
+                height={80}
+                className='rounded-full object-cover'
+              />
+            ) : (
+              <div className='w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center text-2xl font-bold text-white'>
+                {user.nickname.charAt(0).toUpperCase()}
+              </div>
+            )}
 
-          {/* + 버튼 */}
-          <button
-            onClick={handleImageClick}
-            className='absolute -bottom-2 -right-2 w-8 h-8 bg-violet-500 text-white rounded-full flex items-center justify-center text-xl hover:bg-violet-600'
-          >
-            +
-          </button>
+            {/* + 버튼 */}
+            <button
+              onClick={handleImageClick}
+              className='absolute -bottom-2 -right-2 w-8 h-8 bg-violet-500 text-white rounded-full flex items-center justify-center text-xl hover:bg-violet-600'
+            >
+              +
+            </button>
+          </div>
+
+          {/* 숨겨진 파일 입력 */}
+          <input
+            ref={fileInputRef}
+            type='file'
+            accept='image/*'
+            onChange={handleImageUpload}
+            className='hidden'
+          />
         </div>
 
-        {/* 숨겨진 파일 입력 */}
-        <input
-          ref={fileInputRef}
-          type='file'
-          accept='image/*'
-          onChange={handleImageUpload}
-          className='hidden'
-        />
+        {/* 이메일 (읽기 전용) */}
+        <div className='mb-4'>
+          <label className='block text-sm font-medium text-gray-700 mb-2'>이메일</label>
+          <input
+            type='email'
+            value={user.email}
+            disabled
+            className='w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-200'
+          />
+        </div>
+
+        {/* 닉네임 */}
+        <div className='mb-6'>
+          <label className='block text-sm font-medium text-gray-700 mb-2'>닉네임</label>
+          <input
+            type='text'
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            className='w-full p-3 border border-gray-300 rounded-lg focus:border-violet-500 focus:outline-none'
+            placeholder='닉네임을 입력하세요'
+          />
+        </div>
+
+        {/* 저장 버튼 */}
+        <button
+          onClick={handleSave}
+          disabled={!hasChanges || isSaving || !nickname.trim()}
+          className='px-6 py-3 bg-violet-500 text-white rounded-lg hover:bg-violet-600 disabled:opacity-50 disabled:cursor-not-allowed'
+        >
+          {isSaving ? '저장 중...' : '저장'}
+        </button>
       </div>
 
-      {/* 이메일 (읽기 전용) */}
-      <div className='mb-4'>
-        <label className='block text-sm font-medium text-gray-700 mb-2'>이메일</label>
-        <input
-          type='email'
-          value={user.email}
-          disabled
-          className='w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-200'
-        />
-      </div>
-
-      {/* 닉네임 */}
-      <div className='mb-6'>
-        <label className='block text-sm font-medium text-gray-700 mb-2'>닉네임</label>
-        <input
-          type='text'
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-          className='w-full p-3 border border-gray-300 rounded-lg focus:border-violet-500 focus:outline-none'
-          placeholder='닉네임을 입력하세요'
-        />
-      </div>
-
-      {/* 저장 버튼 */}
-      <button
-        onClick={handleSave}
-        disabled={!hasChanges || isSaving || !nickname.trim()}
-        className='px-6 py-3 bg-violet-500 text-white rounded-lg hover:bg-violet-600 disabled:opacity-50 disabled:cursor-not-allowed'
+      {/* 성공 모달 */}
+      <ModalRoot
+        modalOpenState={isSuccessModalOpen}
+        modalOpenSetState={setIsSuccessModalOpen}
+        title='성공!'
+        meatballMenu={false}
+        modalButtonType='one'
+        buttonCallback={() => setIsSuccessModalOpen(false)}
       >
-        {isSaving ? '저장 중...' : '저장'}
-      </button>
-    </div>
+        <div className='text-center py-4'>
+          <div className='w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center'>
+            <svg
+              className='w-8 h-8 text-green-600'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M5 13l4 4L19 7'
+              />
+            </svg>
+          </div>
+          <p className='text-gray-700'>프로필이 성공적으로 수정되었습니다.</p>
+        </div>
+      </ModalRoot>
+
+      {/* 실패 모달 */}
+      <ModalRoot
+        modalOpenState={isErrorModalOpen}
+        modalOpenSetState={setIsErrorModalOpen}
+        title='오류'
+        meatballMenu={false}
+        modalButtonType='one'
+        buttonCallback={() => setIsErrorModalOpen(false)}
+      >
+        <div className='text-center py-4'>
+          <div className='w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center'>
+            <svg
+              className='w-8 h-8 text-red-600'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M6 18L18 6M6 6l12 12'
+              />
+            </svg>
+          </div>
+          <p className='text-gray-700'>{errorMessage}</p>
+        </div>
+      </ModalRoot>
+    </>
   );
 };
 
