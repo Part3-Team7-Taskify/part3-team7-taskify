@@ -1,5 +1,5 @@
+import { getCookie } from '@/utils/getCookie';
 import axios from 'axios';
-import { getAccessToken } from '@/utils/tokenhandler';
 
 export const apiClient = axios.create({
   baseURL: 'https://sp-taskify-api.vercel.app/16-7/',
@@ -7,8 +7,9 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken();
+  async (config) => {
+    // const token = getAccessToken();
+    const token = await getCookie('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

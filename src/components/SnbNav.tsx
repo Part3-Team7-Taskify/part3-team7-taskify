@@ -83,7 +83,7 @@ const SnbNav = () => {
   }
 
   return (
-    <section>
+    <aside>
       <nav className='transition-[width] ease-in-out bg-white sm:w-[160px] lg:w-[300px] sm:items-start sm:px-[13px] sm:h-full flex flex-col gap-[17px] items-center w-[68px] px-[12px] py-[20px] h-screen border-r-1 border-gray-300'>
         <h1>
           <Image
@@ -193,7 +193,7 @@ const SnbNav = () => {
       {isModalOpen && (
         <DashboardCreateModal modalOpenState={isModalOpen} modalOpenSetState={setIsModalOpen} />
       )}
-    </section>
+    </aside>
   );
 };
 

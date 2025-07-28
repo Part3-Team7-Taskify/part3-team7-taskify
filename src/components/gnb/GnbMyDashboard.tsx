@@ -1,0 +1,35 @@
+import { useWindowSize } from '@/hooks/useWindowSize';
+import GnbWrapper from './GnbWrapper';
+import { Button } from '../button/Button';
+import { SMALL_DISPLAY } from '@/constants/windowWidth';
+import { UserChip } from '../chip/UserChip';
+import SettingIcon from '../../../public/icon/settings.svg';
+import InviteIcon from '../../../public/icon/invitation.svg';
+import { UserType } from '@/types/UserTypes';
+
+export const GnbMyDashboard = ({ user }: { user: UserType }) => {
+  const { width } = useWindowSize();
+  if (width === undefined) return;
+
+  return (
+    <GnbWrapper>
+      <div className='flex-1'>
+        <h1 className='font-bold text-md md:text-xl'>내 대시보드</h1>
+      </div>
+      <div className='flex gap-2'>
+        <Button size='extraSmall' type='gnb'>
+          {width > SMALL_DISPLAY && <SettingIcon />}
+          관리
+        </Button>
+        <Button size='extraSmall' type='gnb'>
+          {width > SMALL_DISPLAY && <InviteIcon />}
+          초대하기
+        </Button>
+      </div>
+      <div className='border-l border-l-gray-200 h-full' />
+      <div>
+        <UserChip user={user} size='large' hideName={width > SMALL_DISPLAY ? false : true} />
+      </div>
+    </GnbWrapper>
+  );
+};

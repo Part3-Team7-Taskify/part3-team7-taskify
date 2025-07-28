@@ -5,6 +5,19 @@ import { useEffect, useState } from 'react';
 
 type SizeType = 'large' | 'small';
 
+const colors = [
+  'bg-[#9ECAD6]',
+  'bg-[#748DAE]',
+  'bg-[#F5CBCB]',
+  'bg-[#FFEAEA]',
+  'bg-[#A3DC9A]',
+  'bg-[#DEE791]',
+  'bg-[#FFF9BD]',
+  'bg-[#FFD6BA]',
+];
+
+const BRIGHTNESS_MEDIAN = 127;
+
 export const UserChip = ({
   user,
   size,
@@ -26,17 +39,6 @@ export const UserChip = ({
     small: smallClasses,
   };
 
-  const colors = [
-    'bg-[#9ECAD6]',
-    'bg-[#748DAE]',
-    'bg-[#F5CBCB]',
-    'bg-[#FFEAEA]',
-    'bg-[#A3DC9A]',
-    'bg-[#DEE791]',
-    'bg-[#FFF9BD]',
-    'bg-[#FFD6BA]',
-  ];
-
   const isBright = (color: string) => {
     const redHex = color.substring(5, 7);
     const greenHex = color.substring(7, 9);
@@ -46,7 +48,7 @@ export const UserChip = ({
     const greenNumber = parseInt(greenHex, 16);
     const blueNumber = parseInt(blueHex, 16);
 
-    if ((redNumber + greenNumber + blueNumber) / 3 > 127) {
+    if ((redNumber + greenNumber + blueNumber) / 3 > BRIGHTNESS_MEDIAN) {
       return true;
     } else {
       return false;

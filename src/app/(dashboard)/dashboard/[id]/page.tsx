@@ -14,7 +14,6 @@ const DashboardDetailPage = () => {
   const params = useParams();
   const { initializeColumns, columns } = useColumnStore();
   const dashboardId = Number(params.id);
-  // const [columns, setColumns] = useState<Column[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const fetchColumns = async () => {
@@ -50,8 +49,8 @@ const DashboardDetailPage = () => {
   };
 
   return (
-    <section className='flex grow-1 bg-gray-500 h-screen'>
-      <div className='lg:flex-row lg:w-fit lg:overflow-x-scroll overflow-y-auto sm:m-[20px] flex m-[12px] flex-col w-full'>
+    <section className='flex grow-1 bg-gray-500 h-full'>
+      <div className='lg:flex-row lg:w-fit lg:overflow-x-scroll overflow-y-auto sm:p-[20px] flex p-[12px] flex-col w-full'>
         <Suspense fallback={<Loading />}>
           {columns.map((column) => (
             <ColumnComponent
