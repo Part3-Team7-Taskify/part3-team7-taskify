@@ -1,4 +1,4 @@
-import { UserType } from '../chip/UserChip';
+import { UserType } from '@/types/UserTypes';
 
 export interface DropdownContextType {
   isOpen: boolean;
