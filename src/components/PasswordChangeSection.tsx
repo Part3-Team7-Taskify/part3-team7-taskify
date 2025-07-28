@@ -13,7 +13,18 @@ const PasswordChangeSection = ({ onPasswordChange }: PasswordChangeSectionProps)
   const [passwordError, setPasswordError] = useState('');
   const [isChanging, setIsChanging] = useState(false);
 
-  // 새 비밀번호 확인 필드에서 focus out 시 검증
+  // 새 비밀번호 확인 필드에서 onChange 처리
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setConfirmPassword(value);
+
+    // 일치할 때 즉시 에러 제거
+    if (newPassword === value) {
+      setPasswordError('');
+    }
+  };
+
+  // 새 비밀번호 확인 필드에서 focus out 시 검증 (기존 로직 유지)
   const handleConfirmPasswordBlur = () => {
     if (confirmPassword && newPassword !== confirmPassword) {
       setPasswordError('비밀번호가 일치하지 않습니다.');
@@ -41,6 +52,7 @@ const PasswordChangeSection = ({ onPasswordChange }: PasswordChangeSectionProps)
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      setPasswordError('');
     } catch (error: unknown) {
       const errorObj = error as { message?: string };
       if (errorObj.message === 'INVALID_CURRENT_PASSWORD') {
@@ -87,16 +99,20 @@ const PasswordChangeSection = ({ onPasswordChange }: PasswordChangeSectionProps)
         <input
           type='password'
           value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          onChange={handleConfirmPasswordChange}
           onBlur={handleConfirmPasswordBlur}
           placeholder='새 비밀번호 입력'
-          className={`w-full p-3 border rounded-lg focus:outline-none ${
+          className={`w-full p-3 border rounded-lg focus:outline-none transition-colors ${
             passwordError
               ? 'border-red-500 focus:border-red-500'
               : 'border-gray-300 focus:border-violet-500'
           }`}
         />
-        {passwordError && <p className='mt-2 text-sm text-red-500'>{passwordError}</p>}
+        {passwordError && (
+          <p className='mt-2 text-sm text-red-500 transition-opacity duration-300'>
+            {passwordError}
+          </p>
+        )}
       </div>
 
       {/* 변경 버튼 */}
