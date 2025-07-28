@@ -88,6 +88,9 @@ const MyPage = () => {
             id: currentUser.id,
             nickname: currentUser.nickname,
             profileImageUrl: currentUser.profileImageUrl || '',
+            email: currentUser.email,
+            createdAt: currentUser.createdAt || '',
+            updatedAt: currentUser.updatedAt || '',
           }}
         />
       )}
