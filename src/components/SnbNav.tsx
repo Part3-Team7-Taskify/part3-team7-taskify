@@ -7,16 +7,17 @@ import { useRouterContext } from '@/contexts/RouterContext';
 import DashboardCreateModal from './DashboardCreateModal';
 import { useDashboardStore } from '@/store/DashboardStore';
 
+const ITEMS_PER_PAGE = 10;
+
 const SnbNav = () => {
   const [selectDashboard, setSelectDashboard] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<null | string>(null);
-  const { router } = useRouterContext();
   const [page, setPage] = useState(1);
-  const [perPage] = useState(10);
   const { initializeDashboard, initializeTotalCount, dashboards, totalCount } = useDashboardStore();
-  const totalPages = Math.ceil(totalCount / perPage);
+  const { router } = useRouterContext();
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   // 대시보드 데이터를 가져오는 함수 (재사용을 위해 분리)
   const fetchDashboards = async () => {
@@ -34,13 +35,6 @@ const SnbNav = () => {
       setLoading(false); // 로딩 완료
     }
   };
-  const goToPrevPage = () => {
-    if (page > 1) setPage((prev) => prev - 1);
-  };
-
-  const goToNextPage = () => {
-    if (page < totalPages) setPage((prev) => prev + 1);
-  };
 
   useEffect(() => {
     fetchDashboards();
@@ -51,9 +45,30 @@ const SnbNav = () => {
     router.push(`/dashboard/${id}`);
   };
 
-  const handleNewDashboardAdd = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleNewDashboardAdd = () => {
     console.log('대시보드를 추가하는 모달이 띄워져야함');
     setIsModalOpen(true);
+  };
+
+  const handlePaginationNextButtonClick = async () => {
+    if (page >= 1) {
+      const data = await getDashboards(page + 1);
+      initializeDashboard(data.dashboards);
+      initializeTotalCount(data.totalCount);
+      setPage((prev) => prev + 1);
+    } else if (page === totalPages) {
+      return;
+    }
+  };
+  const handlePaginationPrevButtonClick = async () => {
+    if (page <= totalPages) {
+      const data = await getDashboards(page - 1);
+      initializeDashboard(data.dashboards);
+      initializeTotalCount(data.totalCount);
+      setPage((prev) => prev - 1);
+    } else if (page === 1) {
+      return;
+    }
   };
 
   // 모달이 닫히고 새 대시보드가 성공적으로 추가되었을 때 호출될 함수
@@ -136,7 +151,7 @@ const SnbNav = () => {
             >
               <div className='flex justify-center items-center gap-[14px] sm:justify-start'>
                 <span
-                  className='w-[8px] h-[8px] rounded-full block rounded-sm'
+                  className='w-[8px] h-[8px] rounded-full block'
                   style={{ backgroundColor: dashboard.color }}
                 ></span>
 
@@ -162,7 +177,7 @@ const SnbNav = () => {
         <div className='hidden sm:flex mt-[11px]'>
           <button
             disabled={page === 1}
-            onClick={goToPrevPage}
+            onClick={handlePaginationPrevButtonClick}
             className='p-[11px] border disabled:opacity-50 border-gray-300 rounded-l-sm cursor-pointer'
           >
             <Image
@@ -175,7 +190,7 @@ const SnbNav = () => {
             />
           </button>
           <button
-            onClick={goToNextPage}
+            onClick={handlePaginationNextButtonClick}
             disabled={totalPages === page}
             className='p-[11px] disabled:opacity-50 border border-gray-300 rounded-r-sm cursor-pointer'
           >
