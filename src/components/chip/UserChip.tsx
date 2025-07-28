@@ -55,14 +55,14 @@ export const UserChip = ({
     }
   };
 
+  const bgColorIndex = user.id % 8;
+
   useEffect(() => {
     setBgColor(colors[bgColorIndex]);
   }, []);
 
-  const bgColorIndex = Math.floor(Math.random() * 8);
-
   return (
-    <div className={`flex items-center ${className}`}>
+    <div className={`flex items-center${className ? className : ''}`}>
       {user.profileImageUrl ? (
         <img
           src={user.profileImageUrl}
@@ -78,7 +78,7 @@ export const UserChip = ({
           </span>
         </div>
       )}
-      {!hideName && <span className='ml-2 hidden md:block lg:block'>{user.nickname}</span>}
+      {!hideName && <span className='ml-2'>{user.nickname}</span>}
     </div>
   );
 };

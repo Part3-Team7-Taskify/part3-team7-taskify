@@ -9,6 +9,7 @@ import {
   SMALLER_USERS_DISPLAY,
 } from '@/constants/windowWidth';
 
+
 export const UserChipArray = ({ users }: { users: UserType[] }) => {
   const { width } = useWindowSize();
   if (!width) return;
