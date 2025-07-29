@@ -35,7 +35,7 @@ export const ModalRoot: FC<ModalPropsType> = ({
   meatballMenu,
   modalButtonType = 'one',
   buttonCallback,
-  buttonCallbackVer2,
+  buttonCallbackVer2, //칼럼 수정용 콜백
 }) => {
   const [portalElement, setPortalElement] = useState<Element | null>(null);
 
@@ -152,7 +152,7 @@ const ModalButtons = () => {
           </Button>
           <Button
             type='primary'
-            className='px-4 py-2 w-1/2 bg-[#5534DA] hover:bg-[#3a3063] text-white rounded'
+            className='px-4 py-2 w-1/2 bg-pri hover:bg-[#3a3063] text-white rounded'
             onClick={buttonCallback}
           >
             변경

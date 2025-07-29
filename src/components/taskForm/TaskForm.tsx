@@ -1,131 +1,47 @@
 'use client';
 import { useImageUpload } from '@/hooks/useImageUpload';
-import { useTags } from '@/hooks/useTags';
-import React, { useEffect, useState, ChangeEvent } from 'react';
-import { TaskFormValues, Member } from '@/components/taskForm/formTypes';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { TaskFormValues } from '@/components/taskform/formTypes';
 import { formatDueDate } from '@/utils/formatDueDate';
-import InputField from '@/components/taskForm/InputField';
+import InputField from '@/components/taskform/InputField';
 import DatePicker from 'react-datepicker';
-import TagInput from '@/components/taskForm/TagInput';
 import 'react-datepicker/dist/react-datepicker.css';
 import { apiClient } from '@/api/auth/apiClient';
-import ImageUpload from '@/components/taskForm/ImageUpload';
-import { Button } from '@/components/button/Button';
+import ImageUpload from '@/components/taskform/ImageUpload';
+import UserDropdown from '../dropdown/UserDropdown';
+import { Members } from '@/components/taskform/formTypes';
+import { UserType } from '@/types/UserTypes';
+import { CardRequest } from '@/api/cards/apis';
+import { getMembersApi, getUserMeAPI } from '@/api/cards/apis';
 
 interface TaskFormProps {
-  id: number;
   columnId: number;
   dashboardId: number;
-  initialValues?: TaskFormValues;
-  onSubmit: (values: TaskFormValues) => void;
-  onCancel: () => void;
-  memberList: string[];
-  member: Member[];
-  token: string;
-  page?: number;
-  size?: number;
-  cards: CardType[];
-  setCards: React.Dispatch<React.SetStateAction<string[]>>;
-  onClose: () => void;
+  modalOpenSetState: (state: boolean) => void;
+  initialValues?: TaskFormValues | undefined;
+  onCreated?: () => void;
 }
-interface CardType {
-  id: number;
-  title: string;
-  description: string;
-  tags: string[];
-  dueDate: string;
-  assignee: {
-    profileImageUrl: string;
-    nickname: string;
-    id: number;
-  };
-  imageUrl: string;
-  teamId: string;
-  columnId: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface CreateCardRequest {
-  assigneeUserId: number;
-  dashboardId: number;
-  columnId: number;
-  title: string;
-  description: string;
-  dueDate: string;
-  tags: string[];
-  imageUrl?: string;
+interface UserTypeAddUserId extends UserType {
+  userId: number;
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({
-  id = 5941,
-  columnId = 52453,
-  dashboardId = 15559,
+  dashboardId,
+  columnId,
+  onCreated,
+  modalOpenSetState,
   initialValues,
-  onSubmit,
-  onCancel,
-  member,
-  page = 1,
-  size = 20,
-  cards,
-  setCards,
-  onClose,
-}) => {
-  const [assigneeUserId, setAssigneeUserId] = useState<number>(initialValues?.assigneeUserId || 0);
+}: TaskFormProps): React.ReactNode => {
+  const [members, setMembers] = useState<Members[]>([]);
   const [title, setTitle] = useState<string>(initialValues?.title || '');
   const [description, setDescription] = useState<string>(initialValues?.description || '');
   const [dueDate, setDueDate] = useState<Date | null>(null);
-  const [memberList, setMemberList] = useState<string[]>([]);
-  const { tags, newTag, addTag, removeTag, handleNewTagChange } = useTags(
-    initialValues?.tags ?? [],
-  );
+  const [userData, setUserData] = useState<UserType | null>(null);
+
+  const [tags, setTags] = useState<string[]>([]);
+  const [inputValue, setInputValue] = useState<string>('');
+  const inputRef = useRef<HTMLInputElement>(null);
   const { imageUrl, handleFileChange } = useImageUpload(columnId);
-  const [isFormValid, setIsFormValid] = useState(false);
-  useEffect(() => {
-    if (initialValues?.assigneeUserId) {
-      setAssigneeUserId(initialValues.assigneeUserId);
-    }
-  }, [initialValues]);
-
-  useEffect(() => {
-    const fetchMembers = async () => {
-      const token = localStorage.getItem('accessToken');
-      try {
-        const dashboardIdNumber = Number(dashboardId);
-        if (isNaN(dashboardIdNumber)) throw new Error('Invalid dashboardId');
-
-        const res = await apiClient.get('/members', {
-          headers: { Authorization: `Bearer ${token}` },
-          params: { page, size, dashboardId: dashboardIdNumber },
-        });
-        setMemberList(res.data.members);
-      } catch (error) {
-        console.error('Error fetching members:', error);
-      }
-    };
-    fetchMembers();
-  }, [dashboardId, page, size]);
-
-  useEffect(() => {
-    setIsFormValid(title.trim() !== '' && description.trim() !== '' && dueDate !== null);
-  }, [title, description, dueDate]);
-
-  // 아래로 이벤트 핸들러
-  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
-  };
-
-  const handleAssigneeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setAssigneeUserId(parseInt(e.target.value, 10));
-  };
-
-  const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setDescription(e.target.value);
-  };
-
-  const handleDueDateChange = (date: Date | null) => {
-    setDueDate(date);
-  };
 
   const handleSubmit = async () => {
     const formattedDueDate = formatDueDate(dueDate);
@@ -134,122 +50,178 @@ const TaskForm: React.FC<TaskFormProps> = ({
       console.error('토큰이 없습니다.');
       return;
     }
-
-    const requestData: CreateCardRequest = {
-      assigneeUserId: assigneeUserId,
+    if (!userData?.id || !dashboardId || !columnId || !title) {
+      console.error('필수 정보를 입력 해 주세요.');
+      return;
+    }
+    const cardData: CardRequest = {
+      assigneeUserId: userData.id,
       dashboardId: dashboardId,
       columnId: columnId,
       title: title,
       description: description,
       dueDate: formattedDueDate,
       tags: tags,
-      ...(imageUrl && { imageUrl: imageUrl }),
+      imageUrl: imageUrl,
     };
-
     try {
-      const res = await apiClient.post('/cards', requestData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      //새로운 카드 추가 상태
-      setCards([...cards, res.data]);
-
-      //모달 닫기
-      // onclose();
-
-      //생성 성공후 콜백 호출(선택):부모컴포넌트에서 onSubmit={handleTaskSubmit}
-      onSubmit({
-        id,
-        dashboardId: dashboardId,
-        columnId: columnId,
-        assigneeUserId: assigneeUserId,
-        title: title,
-        description: description,
-        dueDate: formattedDueDate,
-        tags: tags,
-        imageUrl: imageUrl,
-      });
+      await apiClient.post('/cards', cardData);
+      if (onCreated) onCreated();
     } catch (error) {
-      console.error('Error creating task:', error);
+      console.error('할 일 생성 실패:', error);
+      alert('할 일 생성 실패');
+    }
+  };
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (inputValue.trim() !== '') {
+        setTags([...tags, inputValue.trim()]);
+        setInputValue('');
+      }
+      e.preventDefault(); //엔터키 등 기본 제출 방지 추가
+    } else if (e.key === 'Backspace') {
+      if (inputValue === '' && tags.length > 0) {
+        setTags(tags.slice(0, tags.length - 1));
+        e.preventDefault(); // 백스페이스 뒤로가기 등 방지 추가
+      }
     }
   };
 
+  useEffect(() => {
+    //멤버 정보 받아오기
+    const handleGetMembers = async () => {
+      try {
+        const [membersRes, userMeRes] = await Promise.all([
+          getMembersApi(dashboardId),
+          getUserMeAPI(),
+        ]);
+
+        const membersData: Members[] = membersRes.members.map((member) => ({
+          id: member.id,
+          nickname: member.nickname,
+          profileImageUrl: member.profileImageUrl,
+          userId: member.userId,
+          email: member.email,
+          createdAt: member.createdAt,
+          updatedAt: member.updatedAt,
+          isOwner: member.isOwner,
+        }));
+        const userMeData: UserType = {
+          id: userMeRes.id,
+          nickname: userMeRes.nickname,
+          profileImageUrl: userMeRes.profileImageUrl,
+          email: userMeRes.email,
+          createdAt: userMeRes.createdAt,
+          updatedAt: userMeRes.updatedAt,
+        };
+
+        setMembers(membersData);
+        setUserData(userMeData);
+      } catch (err) {
+        console.error('멤버 가져오기 실패:', err);
+      }
+    };
+    handleGetMembers();
+  }, []);
+
+  const titleSetting = (e: ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+  };
+
+  const handleDueDateChange = (date: Date | null) => {
+    setDueDate(date);
+  };
+
   return (
-    <div className='mx-auto px-4 max-w-[520px] min-w-[295px]'>
-      <h1 className='text-[24px]'>할일 생성</h1>
-      <div className='w-full h-auto '>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit();
-          }}
-          className='flex flex-col space-y-4'
-        >
+    <form onSubmit={handleSubmit}>
+      <div className='mx-auto px-4 max-w-[520px] min-w-[295px]'>
+        <h1 className='text-[24px]'>할일 생성</h1>
+        <div className='w-full h-auto '>
           <label htmlFor='assigneeUserId' className='block mb-1 font-semibold text-gray-700'>
             담당자
           </label>
-          <select
-            id='assigneeUserId'
-            value={assigneeUserId}
-            onChange={handleAssigneeChange}
-            className='block w-full border border-gray-400 rounded p-2'
+          <UserDropdown.Root
+            valueCallback={(selectedUser) => {
+              console.log(selectedUser);
+            }}
           >
-            <option>선택</option>
-            {member ? (
-              memberList.map((memberId) => (
-                <option key={memberId} value={parseInt(memberId, 10)}>
-                  {member.find((m) => m.id === parseInt(memberId, 10))?.name || memberId}
-                </option>
-              ))
-            ) : (
-              <option>Loading...</option>
-            )}
-          </select>
+            <UserDropdown.Trigger>이름을 입력해 주세요</UserDropdown.Trigger>
+            <UserDropdown.Content>
+              {members.map((user) => {
+                const converted: UserTypeAddUserId = {
+                  id: user.id,
+                  email: user.email,
+                  createdAt: user.createdAt,
+                  updatedAt: user.updatedAt,
+                  nickname: user.nickname,
+                  profileImageUrl: user.profileImageUrl,
+                  userId: user.userId,
+                };
+                return <UserDropdown.Item key={user.id}>{converted}</UserDropdown.Item>;
+              })}
+            </UserDropdown.Content>
+          </UserDropdown.Root>
 
-          <div>
-            <label htmlFor='title' className='block mb-1 font-semibold text-gray-700'>
-              제목*
-            </label>
-            <InputField label='' id='title' value={title} onChange={handleTitleChange} />
-          </div>
+          <label htmlFor='title' className='block mb-1 font-semibold text-gray-700'>
+            제목<span className='text-pri'>*</span>
+          </label>
+          <InputField
+            label=''
+            type='text'
+            placeholder='제목을 입력해 주세요'
+            onChange={(e) => titleSetting(e)}
+          ></InputField>
 
-          <div>
-            <label htmlFor='description' className='block mb-1 font-semibold text-gray-700'>
-              설명*
-            </label>
-            <textarea
-              id='description'
-              value={description}
-              onChange={handleDescriptionChange}
-              className='border border-gray-400 rounded p-2 w-full h-24 resize-none'
-            />
-          </div>
+          <label htmlFor='description' className='block mb-1 font-semibold text-gray-700'>
+            설명<span className='text-pri'>*</span>
+          </label>
+          <textarea
+            onChange={(e) => setDescription(e.target.value)}
+            value={description}
+            placeholder='설명을 입력해 주세요'
+            className='border border-gray-400 rounded p-2 w-full h-24 resize-none'
+          ></textarea>
 
-          <div>
-            <label htmlFor='dueDate' className='block mb-1 font-semibold text-gray-700'>
-              마감일
-            </label>
-            <DatePicker
-              id='dueDate'
-              className='border border-gray-400 rounded p-2 w-full'
-              onChange={handleDueDateChange}
-              selected={dueDate}
-              showTimeSelect // 시간 선택 기능 활성화
-              timeFormat='HH:mm' // 시간 포맷 (기본값이 HH:mm)
-              timeIntervals={30} // 15분 간격으로 선택 가능
-              dateFormat='yyyy-MM-dd HH:mm' // 보여주는 포맷
-            />
-          </div>
+          <label htmlFor='dueDate' className='block mb-1 font-semibold text-gray-700'>
+            마감일
+          </label>
+          <DatePicker
+            id='dueDate'
+            shouldCloseOnSelect
+            onChange={handleDueDateChange}
+            selected={dueDate}
+            showTimeSelect // 시간 선택 기능 활성화
+            timeFormat='HH:mm' // 시간 포맷 (기본값이 HH:mm)
+            timeIntervals={30} // 15분 간격으로 선택 가능
+            dateFormat='yyyy-MM-dd HH:mm' // 보여주는 포맷
+            className='border border-gray-400 rounded p-2 w-full'
+          />
 
-          <div>
-            <label className='block mb-1 font-semibold text-gray-700'>태그</label>
-            <TagInput
-              tags={tags}
-              newTag={newTag}
-              handleNewTagChange={handleNewTagChange}
-              addTag={addTag}
-              handleRemoveTag={removeTag}
-            />
+          <label className='block mb-1 font-semibold text-gray-700'>태그</label>
+          <div className='flex flex-wrap items-center gap-2 p-3 border border-gray-300 rounded-lg shadow-sm bg-white min-h-[44px] w-full max-w-md cursor-text focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-200 transition-all duration-200'>
+            {tags.map((tag, index) => (
+              <span
+                key={index}
+                className='flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-1 rounded-full whitespace-nowrap'
+              >
+                {tag}
+              </span>
+            ))}
+            <div>
+              <input
+                ref={inputRef} // inputRef 연결
+                type='text'
+                value={inputValue}
+                onChange={handleInputChange}
+                onKeyUp={handleInputKeyDown}
+                placeholder={tags.length === 0 ? '태그를 입력하고 Enter를 누르세요' : ''} // 태그가 없을 때만 플레이스홀더 표시
+                className='flex-grow min-w-[80px] p-0 border-none outline-none bg-transparent text-gray-800 text-base'
+              />
+            </div>
           </div>
 
           <div className='mb-4'>
@@ -257,29 +229,15 @@ const TaskForm: React.FC<TaskFormProps> = ({
             <ImageUpload previewUrl={imageUrl} handleFileChange={handleFileChange} />
           </div>
 
-          <div className='flex justify-end gap-2'>
-            <Button
-              size='small'
-              type='primary'
-              onClick={onCancel} // 여기에 모달 닫힘 넣어야함
-              className='bg-white text-zinc-500 w-full border border-gray-600'
-            >
-              취소
-            </Button>
-            <Button
-              size='small'
-              type={!isFormValid ? 'disabled' : 'primary'}
-              onClick={handleSubmit}
-              disabled={!isFormValid}
-              className='w-full'
-            >
-              생성
-            </Button>
+          <div>
+            <button>취소</button>
+            <button type='submit'>생성</button>
           </div>
-        </form>
+        </div>
       </div>
-    </div>
+    </form>
   );
 };
 
 export default TaskForm;
+export type { TaskFormProps };
