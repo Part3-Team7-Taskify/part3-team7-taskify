@@ -1,6 +1,6 @@
-import { ModalRoot } from '@/components/modal/ModalRoot';
-import TaskForm from '@/components/taskform/TaskForm';
-import { TaskFormValues } from '@/components/taskform/formTypes';
+import { ModalRoot } from '../modal/ModalRoot';
+import TaskForm from '../taskForm/TaskForm';
+import { TaskFormValues } from '../taskForm/formTypes';
 
 interface Props {
   modalOpenSetState: (state: boolean) => void;
@@ -19,8 +19,6 @@ const CardCreateModal = ({
   columnId,
   initialValues,
 }: Props) => {
-  // TaskForm으로 옮겨진 상태 및 로직 제거
-
   return (
     <ModalRoot
       modalButtonType='two'

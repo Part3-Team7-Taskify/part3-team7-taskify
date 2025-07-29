@@ -1,21 +1,22 @@
 'use client';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { TaskFormValues } from '@/components/taskform/formTypes';
+import { TaskFormValues } from '@/components/taskForm/formTypes';
 import { formatDueDate } from '@/utils/formatDueDate';
-import InputField from '@/components/taskform/InputField';
+import InputField from '@/components/taskForm/InputField';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { apiClient } from '@/api/auth/apiClient';
-import ImageUpload from '@/components/taskform/ImageUpload';
+import ImageUpload from '@/components/taskForm/ImageUpload';
 import UserDropdown from '../dropdown/UserDropdown';
-import { Members } from '@/components/taskform/formTypes';
+import { Members } from '@/components/taskForm/formTypes';
 import { UserType } from '@/types/UserTypes';
 import { CardRequest } from '@/api/cards/apis';
 import { getMembersApi, getUserMeAPI } from '@/api/cards/apis';
 import { Button } from '../button/Button';
+import { backgroundColors, colorMap } from '@/components/taskForm/tagColors';
 
-// // 수정시 부모 컴포넌트에 반영할 내용
+// 부모 컴포넌트에서 반영할 "수정하기 클릭시" 참고하세요
 // const handleEditClick = (cardData) => {
 //   setSelectedCard(cardData);
 //   setModalOpen(true);
@@ -33,7 +34,8 @@ interface TaskFormProps {
   dashboardId: number;
   modalOpenSetState: (state: boolean) => void;
   initialValues?: TaskFormValues | undefined;
-  onCreated?: () => void;
+  onCreated?: (newCardData: string) => void;
+  onUpdated?: (updatedCardData: string) => void;
 }
 interface UserTypeAddUserId extends UserType {
   userId: number;
@@ -43,6 +45,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   dashboardId,
   columnId,
   onCreated,
+  onUpdated,
   modalOpenSetState,
   initialValues,
 }: TaskFormProps): React.ReactNode => {
@@ -82,8 +85,18 @@ const TaskForm: React.FC<TaskFormProps> = ({
       imageUrl: imageUrl,
     };
     try {
-      await apiClient.post('/cards', cardData);
-      if (onCreated) onCreated();
+      let res;
+      if (initialValues && initialValues.id) {
+        res = await apiClient.put(`/cards/${initialValues.id}`, cardData);
+        if (onUpdated && res?.data) {
+          onUpdated(res.data);
+        }
+      } else {
+        await apiClient.post('/cards', cardData);
+      }
+      if (onCreated && res?.data) {
+        onCreated(res.data);
+      }
     } catch (error) {
       console.error('할 일 생성 실패:', error);
       alert('할 일 생성 실패');
@@ -151,6 +164,16 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   const handleDueDateChange = (date: Date | null) => {
     setDueDate(date);
+  };
+
+  const getColorForTag = (tag: string): string => {
+    if (colorMap[tag]) {
+      return colorMap[tag]; // 이미 할당된 색상 반환
+    }
+    // 새 태그의 경우, 색상 맵에 할당
+    const assignedColor = backgroundColors[Object.keys(colorMap).length % backgroundColors.length];
+    colorMap[tag] = assignedColor;
+    return assignedColor;
   };
 
   useEffect(() => {
@@ -236,14 +259,18 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
           <label className='block mb-1 font-semibold text-gray-700'>태그</label>
           <div className='flex flex-wrap items-center gap-2 p-3 border border-gray-300 rounded-lg shadow-sm bg-white min-h-[44px] w-full max-w-md cursor-text focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-200 transition-all duration-200'>
-            {tags.map((tag, index) => (
-              <span
-                key={index}
-                className='flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-1 rounded-full whitespace-nowrap'
-              >
-                {tag}
-              </span>
-            ))}
+            {tags.map((tag, index) => {
+              const colorClass = getColorForTag(tag);
+              return (
+                <span
+                  key={index}
+                  className={`flex items-center ${colorClass} text-blue-800 text-sm font-medium px-2.5 py-1 rounded-full whitespace-nowrap`}
+                >
+                  {tag}
+                </span>
+              );
+            })}
+
             <div>
               <input
                 ref={inputRef} // inputRef 연결
