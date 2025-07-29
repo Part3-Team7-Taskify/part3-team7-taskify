@@ -136,6 +136,17 @@ const TaskForm: React.FC<TaskFormProps> = ({
     setDueDate(date);
   };
 
+  
+  const getColorForTag = (tag: string): string => {
+    if (colorMap[tag]) {
+      return colorMap[tag]; // 이미 할당된 색상 반환
+    }
+    // 새 태그의 경우, 색상 맵에 할당
+    const assignedColor = backgroundColors[Object.keys(colorMap).length % backgroundColors.length];
+    colorMap[tag] = assignedColor;
+    return assignedColor;
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <div className='mx-auto px-4 max-w-[520px] min-w-[295px]'>
@@ -203,14 +214,17 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
           <label className='block mb-1 font-semibold text-gray-700'>태그</label>
           <div className='flex flex-wrap items-center gap-2 p-3 border border-gray-300 rounded-lg shadow-sm bg-white min-h-[44px] w-full max-w-md cursor-text focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-200 transition-all duration-200'>
-            {tags.map((tag, index) => (
-              <span
-                key={index}
-                className='flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-1 rounded-full whitespace-nowrap'
-              >
-                {tag}
-              </span>
-            ))}
+             {tags.map((tag, index) => {
+              const colorClass = getColorForTag(tag);
+              return (
+                <span
+                  key={index}
+                  className={`flex items-center ${colorClass} text-blue-800 text-sm font-medium px-2.5 py-1 rounded-full whitespace-nowrap`}
+                >
+                  {tag}
+                </span>
+              );
+            })}
             <div>
               <input
                 ref={inputRef} // inputRef 연결
