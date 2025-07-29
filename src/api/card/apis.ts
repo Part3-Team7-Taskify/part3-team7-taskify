@@ -25,7 +25,7 @@ export interface Me {
 }
 
 export interface CardRequest {
-  assigneeUserId: number;
+  assigneeUserId: number | null;
   dashboardId: number;
   columnId: number;
   title: string;
@@ -73,7 +73,7 @@ export const getMembersApi = async (getDashboardId: number): Promise<MembersApiR
   }
 };
 
-export const getUserMeAPI = async (): Promise<Me> => {
+export const getUserMeApi = async (): Promise<Me> => {
   try {
     const { data } = await apiClient.get<Me>(`${baseUrl}/users/me`);
     return data;
@@ -83,7 +83,7 @@ export const getUserMeAPI = async (): Promise<Me> => {
   }
 };
 
-export const PostCard = async (data: CardRequest): Promise<Card> => {
+export const postCardApi = async (data: CardRequest): Promise<Card> => {
   try {
     const res = await apiClient.post<Card>(`${baseUrl}/cards`, data);
     return res.data;
@@ -93,7 +93,7 @@ export const PostCard = async (data: CardRequest): Promise<Card> => {
   }
 };
 
-export const GetCardApi = async (columnId: number): Promise<GetCardApiResponse> => {
+export const getCardApi = async (columnId: number): Promise<GetCardApiResponse> => {
   try {
     const { data } = await apiClient.get<GetCardApiResponse>(
       `${baseUrl}/cards?columnId=${columnId}`,
@@ -101,6 +101,16 @@ export const GetCardApi = async (columnId: number): Promise<GetCardApiResponse> 
     return data;
   } catch (error: unknown) {
     console.error('카드 가져오기 실패:', error);
+    throw error;
+  }
+};
+
+export const getCardDetailApi = async (cardId: number): Promise<Card> => {
+  try {
+    const { data } = await apiClient.get<Card>(`${baseUrl}/cards/${cardId}`);
+    return data;
+  } catch (error: unknown) {
+    console.error('카드 상세 가져오기 실패:', error);
     throw error;
   }
 };

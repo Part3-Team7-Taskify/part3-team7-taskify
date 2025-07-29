@@ -3,13 +3,17 @@
 import { useEffect, useRef, useState } from 'react';
 import UserDropdown from '../dropdown/UserDropdown';
 import { ModalRoot } from '../modal/ModalRoot';
-import { getMembersApi, members, getUserMeAPI, PostCard, CardRequest } from '@/api/card/apis';
+import { getMembersApi, members, getUserMeApi, postCardApi, CardRequest } from '@/api/card/apis';
 import { UserType } from '../chip/UserChip';
 import { Input } from '../input/Input';
 import DatePicker from 'react-datepicker';
 import { useImageUpload, imageUrl } from '@/hooks/useImageUpload';
 import ImageUpload from '../ImageUpload';
 import { formatDueDate } from '@/utils/formatDueDate';
+
+interface UserTypeAddUserId extends UserType {
+  userId: number;
+}
 
 interface Props {
   modalOpenSetState: (state: boolean) => void;
@@ -37,6 +41,9 @@ const CardCreateModal = ({
   // 입력 필드에 대한 참조 (포커스 관리를 위함)
   const inputRef = useRef<HTMLInputElement>(null);
   const { imageUrl, handleFileChange } = useImageUpload(columnId);
+
+  const [assigneeId, setAssigneeId] = useState<number | null>(null);
+
   // 입력 필드 값이 변경될 때 호출되는 핸들러
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
@@ -73,11 +80,11 @@ const CardCreateModal = ({
       try {
         const res = await getMembersApi(dashboardId);
         const data = res.members;
-        const res2 = await getUserMeAPI();
+        const res2 = await getUserMeApi();
         const data2 = {
           id: res2.id,
           nickname: res2.nickname,
-          profileImageUrl: res2.profileImageUrl,
+          profileImageUrl: res2.profileImageUrl ?? undefined,
         };
         setUserData(data2);
         setMembers(data);
@@ -104,7 +111,7 @@ const CardCreateModal = ({
     }
 
     const cardData: CardRequest = {
-      assigneeUserId: userData.id, // userMe 데이터에서 id를 가져왔다고 가정
+      assigneeUserId: assigneeId, // userMe 데이터에서 id를 가져왔다고 가정
       dashboardId: dashboardId,
       columnId: columnId,
       title: title,
@@ -116,7 +123,7 @@ const CardCreateModal = ({
     };
 
     try {
-      await PostCard(cardData);
+      await postCardApi(cardData);
       modalOpenSetState(false);
       onCreated?.();
       // 성공 후 UI 처리 로직: 예) 모달 닫기, 목록 갱신 등
@@ -136,16 +143,17 @@ const CardCreateModal = ({
         <label className='block mb-2 text-sm font-medium text-gray-700'>담당자</label>
         <UserDropdown.Root
           valueCallback={(selectedUser) => {
-            console.log(selectedUser);
+            setAssigneeId(selectedUser?.userId ?? null); // null이면 null을 설정
           }}
         >
           <UserDropdown.Trigger>이름을 입력해 주세요</UserDropdown.Trigger>
           <UserDropdown.Content>
             {members.map((user) => {
-              const converted: UserType = {
+              const converted: UserTypeAddUserId = {
                 id: user.id,
                 nickname: user.nickname,
                 profileImageUrl: user.profileImageUrl,
+                userId: user.userId,
               };
               return <UserDropdown.Item key={user.id}>{converted}</UserDropdown.Item>;
             })}
