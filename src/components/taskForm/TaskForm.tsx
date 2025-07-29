@@ -1,20 +1,20 @@
 'use client';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { TaskFormValues } from '@/components/taskform/formTypes';
+import { TaskFormValues } from '@/components/taskForm/formTypes';
 import { formatDueDate } from '@/utils/formatDueDate';
-import InputField from '@/components/taskform/InputField';
+import InputField from '@/components/taskForm/InputField';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { apiClient } from '@/api/auth/apiClient';
-import ImageUpload from '@/components/taskform/ImageUpload';
+import ImageUpload from '@/components/taskForm/ImageUpload';
 import UserDropdown from '../dropdown/UserDropdown';
-import { Members } from '@/components/taskform/formTypes';
+import { Members } from '@/components/taskForm/formTypes';
 import { UserType } from '@/types/UserTypes';
 import { CardRequest } from '@/api/cards/apis';
 import { getMembersApi, getUserMeAPI } from '@/api/cards/apis';
 import { Button } from '../button/Button';
-import { backgroundColors, colorMap } from '@/components/taskform/tagColors';
+import { backgroundColors, colorMap } from '@/components/taskForm/tagColors';
 
 // 부모 컴포넌트에서 반영할 "수정하기 클릭시" 참고하세요
 // const handleEditClick = (cardData) => {

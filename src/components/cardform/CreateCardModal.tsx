@@ -1,6 +1,6 @@
 import { ModalRoot } from '../modal/ModalRoot';
-import TaskForm from '../taskform/TaskForm';
-import { TaskFormValues } from '../taskform/formTypes';
+import TaskForm from '../taskForm/TaskForm';
+import { TaskFormValues } from '../taskForm/formTypes';
 
 interface Props {
   modalOpenSetState: (state: boolean) => void;
