@@ -30,6 +30,11 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
       console.error('카드 가져오기 실패:', err);
     }
   };
+
+  const openCreateCardModal = () => {
+    setIsCardModalOpen(true);
+  };
+
   useEffect(() => {
     fetchCards();
   }, [columnId]);
@@ -37,6 +42,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
   const onCardCreate = () => {
     //
     console.log('카드 생성 모달 띄우기');
+    fetchCards();
     setIsCardModalOpen(true);
   };
 
@@ -63,7 +69,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
         </div>
         <Button
           type='outline'
-          onClick={onCardCreate}
+          onClick={openCreateCardModal}
           className='border-gray-300 mt-[24px] mb-[10px] flex justify-center items-center '
         >
           <Image
@@ -104,7 +110,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
           dashboardId={dashboardId}
           modalOpenState={isCardModalOpen}
           modalOpenSetState={setIsCardModalOpen}
-          onCreated={fetchCards}
+          onCreated={onCardCreate}
           columnId={columnId}
         />
       )}
