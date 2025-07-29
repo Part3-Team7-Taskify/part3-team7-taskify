@@ -13,6 +13,7 @@ import { Members } from '@/components/taskform/formTypes';
 import { UserType } from '@/types/UserTypes';
 import { CardRequest } from '@/api/cards/apis';
 import { getMembersApi, getUserMeAPI } from '@/api/cards/apis';
+import { backgroundColors, colorMap } from '@/components/taskform/tagColors';
 
 interface TaskFormProps {
   columnId: number;
