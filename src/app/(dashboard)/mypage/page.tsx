@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { apiClient } from '@/api/auth/apiClient';
 import { useUserStore } from '@/store/LoginStore';
 import ProfileSection from '@/components/ProfileSection';
@@ -90,7 +90,14 @@ const MyPage = () => {
           {/* 프로필 섹션 */}
           <div className='bg-white rounded-lg p-4 md:p-6 lg:p-8'>
             <h2 className='text-lg md:text-xl font-bold text-gray-900 mb-6 md:mb-8'>프로필</h2>
-            <ProfileSection user={user} />
+            <ProfileSection
+              user={{
+                id: user.id,
+                nickname: user.nickname,
+                email: user.email,
+                profileImageUrl: user.profileImageUrl || undefined,
+              }}
+            />
           </div>
 
           {/* 비밀번호 변경 섹션 */}

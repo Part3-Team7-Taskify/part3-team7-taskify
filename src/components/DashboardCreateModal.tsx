@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { postDashboard } from '@/api/snb/apis';
 import { ModalRoot } from './modal/ModalRoot';
 import Image from 'next/image';
+import { useDashboardStore } from '@/store/DashboardStore';
 
 const COLORS = ['#760dde', '#e876ea', '#ffa500', '#76a5ea', '#7ac555'];
 
@@ -21,6 +22,7 @@ export default function DashboardCreateModal({
 }: DashboardCreateModalProps) {
   const [title, setTitle] = useState('');
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const { addDashboard, addTotalCount } = useDashboardStore();
 
   const handleCreate = async () => {
     if (!title || !selectedColor) {
@@ -30,6 +32,8 @@ export default function DashboardCreateModal({
 
     try {
       const newDashboard = await postDashboard({ title, color: selectedColor });
+      addDashboard(newDashboard);
+      addTotalCount();
       modalOpenSetState(false); // 모달 닫기
       onCreated?.(); // 대시보드 생성 후 콜백 호출)
       console.log('생성 성공:', newDashboard);

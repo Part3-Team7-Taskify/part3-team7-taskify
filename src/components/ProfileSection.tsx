@@ -12,6 +12,8 @@ interface ProfileSectionProps {
     nickname: string;
     email: string;
     profileImageUrl?: string;
+    createdAt?: string;
+    updatedAt?: string;
   };
 }
 
@@ -90,6 +92,8 @@ const ProfileSection = ({ user }: ProfileSectionProps) => {
         ...user,
         nickname: response.data.nickname,
         profileImageUrl: response.data.profileImageUrl || '',
+        createdAt: user.createdAt || '',
+        updatedAt: user.updatedAt || '',
       });
 
       setIsSuccessModalOpen(true);
