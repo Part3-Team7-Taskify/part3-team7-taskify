@@ -117,7 +117,7 @@ const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectio
                       </span>
                     )}
                   </div>
-                  <span className='text-sm text-gray-500'>{member.email}</span>
+                  <span className='text-sm text-violet-500'>{member.email}</span>
                 </div>
               </div>
 
