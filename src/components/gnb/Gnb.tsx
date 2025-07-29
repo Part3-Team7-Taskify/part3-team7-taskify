@@ -6,11 +6,12 @@ import InviteIcon from '../../../public/icon/invitation.svg';
 import CrownIcon from '../../../public/icon/crown.svg';
 import LogoWhite from '../../../public/images/images_logo_white.png';
 import LogoWhiteSmall from '../../../public/images/image_smallLogo_white.png';
-import { UserChip, UserType } from '../chip/UserChip';
+import { UserChip } from '../chip/UserChip';
 import { UserChipArray } from '../chip/UserChipArray';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useWindowSize } from '@/hooks/useWindowSize';
+import { UserType } from '@/types/UserTypes';
 
 const SMALL_DISPLAY = 768;
 const BIG_DISPLAY = 1024;
@@ -69,7 +70,7 @@ export const GnbMyDashboard = ({ user }: { user: UserType }) => {
       </div>
       <div className='border-l border-l-gray-200 h-full' />
       <div>
-        <UserChip user={user} size='large' hideName={width > SMALL_DISPLAY ? true : false} />
+        <UserChip user={user} size='large' hideName={width > SMALL_DISPLAY ? false : true} />
       </div>
     </GnbWrapper>
   );
@@ -102,7 +103,7 @@ export const GnbMyDashboardWithUsers = ({ user, users }: { user: UserType; users
       />
       <div className='border-l border-l-gray-200 h-full' />
       <div>
-        <UserChip user={user} size='large' hideName={false} />
+        <UserChip user={user} size='large' hideName={width > SMALL_DISPLAY ? false : true} />
       </div>
     </GnbWrapper>
   );
@@ -153,7 +154,7 @@ export const GnbDashboard = ({
         <UserChip
           user={user}
           size={width > SMALL_DISPLAY ? 'large' : 'small'}
-          hideName={width > SMALL_DISPLAY ? true : false}
+          hideName={width > SMALL_DISPLAY ? false : true}
         />
       </div>
     </GnbWrapper>

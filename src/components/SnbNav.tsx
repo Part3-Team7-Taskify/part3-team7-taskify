@@ -1,13 +1,13 @@
 // src/app/dashboard/[id]/SnbNav.tsx
 'use client';
 import { useEffect, useState } from 'react';
-import { getDashboards, Dashboard } from '@/api/snb/apis';
+import { getDashboards } from '@/api/snb/apis';
 import Image from 'next/image';
 import { useRouterContext } from '@/contexts/RouterContext';
 import DashboardCreateModal from './DashboardCreateModal';
+import { useDashboardStore } from '@/store/DashboardStore';
 
 const SnbNav = () => {
-  const [dashboards, setDashboards] = useState<Dashboard[]>([]);
   const [selectDashboard, setSelectDashboard] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -15,7 +15,7 @@ const SnbNav = () => {
   const { router } = useRouterContext();
   const [page, setPage] = useState(1);
   const [perPage] = useState(10);
-  const [totalCount, setTotalCount] = useState(0);
+  const { initializeDashboard, initializeTotalCount, dashboards, totalCount } = useDashboardStore();
   const totalPages = Math.ceil(totalCount / perPage);
 
   // 대시보드 데이터를 가져오는 함수 (재사용을 위해 분리)
@@ -24,12 +24,12 @@ const SnbNav = () => {
       setLoading(true);
       setError(null);
       const data = await getDashboards(page);
-      setTotalCount(data.totalCount);
+      initializeDashboard(data.dashboards);
+      initializeTotalCount(data.totalCount);
       console.log('대시보드 데이터 불러오기 완료');
-      setDashboards(data.dashboards);
     } catch (err) {
-      console.error('대시보드 데이터 불러오기 실패:', err);
       setError('대시보드 데이터를 불러오는 데 실패했어요.');
+      console.error('대시보드 데이터 불러오기 실패:', err);
     } finally {
       setLoading(false); // 로딩 완료
     }
@@ -44,7 +44,7 @@ const SnbNav = () => {
 
   useEffect(() => {
     fetchDashboards();
-  }, [page]);
+  }, []);
 
   const handleDashboardClick = (id: number) => {
     setSelectDashboard(id);
@@ -191,11 +191,7 @@ const SnbNav = () => {
       </nav>
       {/* TestModal에 onClose와 함께 onDashboardAdded 콜백 추가 */}
       {isModalOpen && (
-        <DashboardCreateModal
-          modalOpenState={isModalOpen}
-          modalOpenSetState={setIsModalOpen}
-          onCreated={fetchDashboards} // 새로고침
-        />
+        <DashboardCreateModal modalOpenState={isModalOpen} modalOpenSetState={setIsModalOpen} />
       )}
     </section>
   );

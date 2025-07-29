@@ -1,18 +1,21 @@
 /***이서님이 수정해주실 페이지 !****/
 
-import { useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import UserDropdown from '../dropdown/UserDropdown';
 import { ModalRoot } from '../modal/ModalRoot';
-import { getMembersApi, members, getUserMeApi, postCardApi, CardRequest } from '@/api/card/apis';
-import { UserType } from '../chip/UserChip';
+import { getMembersApi, members, getUserMeAPI, postCardApi, CardRequest } from '@/api/card/apis';
 import { Input } from '../input/Input';
 import DatePicker from 'react-datepicker';
-import { useImageUpload, imageUrl } from '@/hooks/useImageUpload';
+import { useImageUpload } from '@/hooks/useImageUpload';
 import ImageUpload from '../ImageUpload';
 import { formatDueDate } from '@/utils/formatDueDate';
+import { UserType } from '@/types/UserTypes';
 
-interface UserTypeAddUserId extends UserType {
-  userId: number;
+interface UserTypeAddUserId {
+  userId?: number;
+  id: number;
+  nickname: string;
+  profileImageUrl: string | null;
 }
 
 interface Props {
@@ -34,7 +37,7 @@ const CardCreateModal = ({
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [dueDate, setDueDate] = useState<Date | null>(null);
-  const [userData, setUserData] = useState<UserType | null>(null);
+  const [userData, setUserData] = useState<UserTypeAddUserId | null>(null);
 
   const [tags, setTags] = useState<string[]>([]); // 사용자가 현재 입력 필드에 타이핑 중인 텍스트
   const [inputValue, setInputValue] = useState<string>('');
@@ -80,13 +83,14 @@ const CardCreateModal = ({
       try {
         const res = await getMembersApi(dashboardId);
         const data = res.members;
-        const res2 = await getUserMeApi();
+        const res2 = await getUserMeAPI();
         const data2 = {
           id: res2.id,
           nickname: res2.nickname,
           profileImageUrl: res2.profileImageUrl ?? undefined,
         };
         setUserData(data2);
+
         setMembers(data);
       } catch (err) {
         console.error('멤버 가져오기 실패:', err);
@@ -94,7 +98,7 @@ const CardCreateModal = ({
     };
     handleGetMembers();
   }, []);
-  const titleSetting = (e) => {
+  const titleSetting = (e: ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
   };
   const handleDueDateChange = (date: Date | null) => {
@@ -149,7 +153,7 @@ const CardCreateModal = ({
           <UserDropdown.Trigger>이름을 입력해 주세요</UserDropdown.Trigger>
           <UserDropdown.Content>
             {members.map((user) => {
-              const converted: UserTypeAddUserId = {
+              const converted: UserType = {
                 id: user.id,
                 nickname: user.nickname,
                 profileImageUrl: user.profileImageUrl,

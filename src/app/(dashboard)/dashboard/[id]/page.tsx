@@ -1,18 +1,20 @@
 'use client';
 
-import { getColumnsByDashboardId, Column } from '@/api/snb/apis';
+import { getColumnsByDashboardId } from '@/api/snb/apis';
 import React, { useEffect, useState, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import ColumnCreateModal from '@/components/column/ColumnCreateModal';
 import Image from 'next/image';
 import Loading from './loading';
+import { useColumnStore } from '@/store/ColumnStore';
 
 const ColumnComponent = React.lazy(() => import('@/components/column/Columns'));
 
 const DashboardDetailPage = () => {
   const params = useParams();
+  const { initializeColumns, columns } = useColumnStore();
   const dashboardId = Number(params.id);
-  const [columns, setColumns] = useState<Column[]>([]);
+  // const [columns, setColumns] = useState<Column[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const fetchColumns = async () => {
@@ -23,7 +25,8 @@ const DashboardDetailPage = () => {
 
     try {
       const fetched = await getColumnsByDashboardId(dashboardId);
-      setColumns(fetched);
+      initializeColumns(fetched);
+      // setColumns(fetched);
     } catch (err) {
       console.error('컬럼 가져오기 실패:', err);
     }
@@ -80,7 +83,6 @@ const DashboardDetailPage = () => {
             dashboardId={dashboardId}
             modalOpenSetState={setIsModalOpen}
             modalOpenState={isModalOpen}
-            onCreated={fetchColumns} // 성공시 재호출
           />
         )}
       </div>

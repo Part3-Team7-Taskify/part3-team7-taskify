@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { postColumn } from '@/api/dashboard/apis';
 import { ModalRoot } from '../modal/ModalRoot';
+import { useColumnStore } from '@/store/ColumnStore';
 
 interface Props {
   dashboardId: number;
@@ -19,6 +20,7 @@ const ColumnCreateModal = ({
   modalOpenState,
   onCreated,
 }: Props) => {
+  const { addColumns } = useColumnStore();
   const [columnName, setColumnName] = useState<string>('');
   const [isDuplicate, setIsDuplicate] = useState(false);
   const handleCreate = async () => {
@@ -35,6 +37,7 @@ const ColumnCreateModal = ({
     try {
       if (isDuplicateColumnName(columnName)) return;
       const newColumn = await postColumn({ title: columnName, dashboardId: dashboardId });
+      addColumns(newColumn);
 
       console.log('생성 성공:', newColumn);
       modalOpenSetState(false);

@@ -1,3 +1,4 @@
+import { UserType } from '@/types/UserTypes';
 import { apiClient } from '../auth/apiClient';
 
 export interface members {
@@ -19,7 +20,7 @@ export interface Me {
   id: number;
   email: string;
   nickname: string;
-  profileImageUrl: string | null; // null 가능성 명시!
+  profileImageUrl?: string | null; // null 가능성 명시!
   createdAt: string;
   updatedAt: string;
 }
@@ -73,9 +74,9 @@ export const getMembersApi = async (getDashboardId: number): Promise<MembersApiR
   }
 };
 
-export const getUserMeApi = async (): Promise<Me> => {
+export const getUserMeAPI = async (): Promise<Me> => {
   try {
-    const { data } = await apiClient.get<Me>(`${baseUrl}/users/me`);
+    const { data } = await apiClient.get<UserType>(`${baseUrl}/users/me`);
     return data;
   } catch (error) {
     console.error('내 정보 가져오기 실패:', error);
