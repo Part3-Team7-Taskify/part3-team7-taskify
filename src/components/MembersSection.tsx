@@ -1,65 +1,222 @@
 'use client';
 
 import { useState } from 'react';
+import { apiClient } from '@/api/auth/apiClient';
+import { ModalRoot } from '@/components/modal/ModalRoot';
 
 interface Member {
-  id: string;
-  name: string;
-  profileImage?: string;
+  id: number;
+  userId: number;
+  email: string;
+  nickname: string;
+  profileImageUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+  isOwner: boolean;
 }
 
-const MembersSection = () => {
-  // 하드코딩된 구성원 데이터
-  const [members] = useState<Member[]>([
-    { id: '1', name: '정만철' },
-    { id: '2', name: '최주협' },
-    { id: '3', name: '김태순' },
-    { id: '4', name: '윤지현' },
-  ]);
+interface MembersSectionProps {
+  dashboardId: string;
+  members: Member[];
+  onMembersUpdate: () => void; // 멤버 변경 시 새로고침 함수
+}
 
-  const handleDeleteMember = (memberId: string) => {
-    console.log('삭제할 구성원 ID:', memberId);
-    // 나중에 실제 삭제 API 연결
+const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectionProps) => {
+  const [isDeleting, setIsDeleting] = useState<number | null>(null);
+
+  // 삭제 확인 모달 상태
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isDeleteSuccessModalOpen, setIsDeleteSuccessModalOpen] = useState(false);
+  const [isDeleteErrorModalOpen, setIsDeleteErrorModalOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [deleteErrorMessage, setDeleteErrorMessage] = useState('');
+
+  // 삭제 버튼 클릭 (확인 모달 표시)
+  const handleDeleteClick = (member: Member) => {
+    if (member.isOwner) {
+      setDeleteErrorMessage('대시보드 소유자는 삭제할 수 없습니다.');
+      setIsDeleteErrorModalOpen(true);
+      return;
+    }
+    setSelectedMember(member);
+    setIsConfirmModalOpen(true);
+  };
+
+  // 실제 구성원 삭제 실행
+  const handleConfirmDelete = async () => {
+    if (!selectedMember) return;
+
+    try {
+      setIsDeleting(selectedMember.id);
+      setIsConfirmModalOpen(false);
+
+      // 구성원 삭제 API 호출
+      await apiClient.delete(`members/${selectedMember.id}`);
+
+      console.log('✅ 구성원 삭제 성공:', selectedMember.nickname);
+
+      // 성공 모달 표시
+      setIsDeleteSuccessModalOpen(true);
+
+      // 구성원 목록 새로고침
+      onMembersUpdate();
+    } catch (err: unknown) {
+      const error = err as { response?: { status?: number; data?: unknown } };
+      console.error('❌ 구성원 삭제 실패:', err);
+
+      // 실패 모달 표시
+      if (error.response?.status === 403) {
+        setDeleteErrorMessage('구성원을 삭제할 권한이 없습니다.');
+      } else {
+        setDeleteErrorMessage('구성원 삭제에 실패했습니다.');
+      }
+      setIsDeleteErrorModalOpen(true);
+    } finally {
+      setIsDeleting(null);
+      setSelectedMember(null);
+    }
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow-sm">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold">구성원</h2>
-        <span className="text-sm text-gray-500">1 페이지 중 1</span>
+    <div className='bg-white rounded-lg p-6 shadow-sm'>
+      <div className='flex justify-between items-center mb-6'>
+        <h2 className='text-xl font-bold'>구성원</h2>
+        <span className='text-sm text-gray-500'>{members.length}명의 구성원</span>
       </div>
 
       {/* 구성원 리스트 */}
-      <div className="space-y-4">
-        {members.map((member) => (
-          <div key={member.id} className="flex justify-between items-center p-3 border border-gray-200 rounded-lg">
-            <div className="flex items-center gap-3">
-              {/* 프로필 아이콘 */}
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-medium">
-                {member.name[0]}
+      <div className='space-y-4'>
+        {members.length === 0 ? (
+          <div className='text-center py-8 text-gray-500'>구성원이 없습니다.</div>
+        ) : (
+          members.map((member) => (
+            <div
+              key={member.id}
+              className='flex justify-between items-center p-3 border border-gray-200 rounded-lg'
+            >
+              <div className='flex items-center gap-3'>
+                {/* 프로필 이미지 */}
+                {member.profileImageUrl ? (
+                  <img
+                    src={member.profileImageUrl}
+                    alt={`${member.nickname}의 프로필`}
+                    className='w-8 h-8 rounded-full object-cover'
+                  />
+                ) : (
+                  <div className='w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-medium'>
+                    {member.nickname[0]}
+                  </div>
+                )}
+
+                <div className='flex flex-col'>
+                  <div className='flex items-center gap-2'>
+                    <span className='font-medium'>{member.nickname}</span>
+                    {member.isOwner && (
+                      <span className='px-2 py-1 bg-violet-100 text-violet-700 text-xs rounded-full'>
+                        소유자
+                      </span>
+                    )}
+                  </div>
+                  <span className='text-sm text-violet-500'>{member.email}</span>
+                </div>
               </div>
-              <span className="font-medium">{member.name}</span>
+
+              {/* 삭제 버튼 */}
+              <button
+                onClick={() => handleDeleteClick(member)}
+                disabled={isDeleting === member.id || member.isOwner}
+                className={`px-3 py-1 text-sm border rounded transition-colors ${
+                  member.isOwner
+                    ? 'text-gray-400 border-gray-300 cursor-not-allowed'
+                    : 'text-red-600 border-red-600 hover:bg-red-50'
+                } ${isDeleting === member.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {isDeleting === member.id ? '삭제 중...' : '삭제'}
+              </button>
             </div>
-            
-            {/* 삭제 버튼 */}
+          ))
+        )}
+      </div>
+
+      {/* 삭제 확인 모달 */}
+      <ModalRoot
+        modalOpenState={isConfirmModalOpen}
+        modalOpenSetState={setIsConfirmModalOpen}
+        title=''
+        meatballMenu={false}
+        modalButtonType='none'
+      >
+        <div className='flex flex-col justify-center items-center h-[192px] w-[368px] -m-6'>
+          <div className='flex-1 flex items-center justify-center'>
+            <div className='text-center'>
+              <p className='text-gray-800 text-lg mb-2'>
+                {selectedMember?.nickname}님을 구성원에서 삭제하시겠습니까?
+              </p>
+              <p className='text-gray-500 text-sm'>이 작업은 되돌릴 수 없습니다.</p>
+            </div>
+          </div>
+          <div className='pb-6 flex gap-3'>
             <button
-              onClick={() => handleDeleteMember(member.id)}
-              className="px-3 py-1 text-sm text-red-600 border border-red-600 rounded hover:bg-red-50"
+              onClick={() => setIsConfirmModalOpen(false)}
+              className='w-[115px] h-[48px] border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors'
+            >
+              취소
+            </button>
+            <button
+              onClick={handleConfirmDelete}
+              className='w-[115px] h-[48px] bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors'
             >
               삭제
             </button>
           </div>
-        ))}
-      </div>
-
-      {/* 페이지네이션 (임시) */}
-      <div className="flex justify-center mt-6">
-        <div className="flex gap-2">
-          <button className="px-3 py-1 border border-gray-300 rounded text-gray-400">‹</button>
-          <button className="px-3 py-1 bg-violet-500 text-white rounded">1</button>
-          <button className="px-3 py-1 border border-gray-300 rounded text-gray-400">›</button>
         </div>
-      </div>
+      </ModalRoot>
+
+      {/* 삭제 성공 모달 */}
+      <ModalRoot
+        modalOpenState={isDeleteSuccessModalOpen}
+        modalOpenSetState={setIsDeleteSuccessModalOpen}
+        title=''
+        meatballMenu={false}
+        modalButtonType='none'
+      >
+        <div className='flex flex-col justify-center items-center h-[192px] w-[368px] -m-6'>
+          <div className='flex-1 flex items-center justify-center'>
+            <p className='text-gray-800 text-lg'>구성원이 성공적으로 삭제되었습니다.</p>
+          </div>
+          <div className='pb-6'>
+            <button
+              onClick={() => setIsDeleteSuccessModalOpen(false)}
+              className='w-[240px] h-[48px] bg-[#5534DA] text-white rounded-lg hover:bg-[#4a2bb8] transition-colors'
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      </ModalRoot>
+
+      {/* 삭제 실패 모달 */}
+      <ModalRoot
+        modalOpenState={isDeleteErrorModalOpen}
+        modalOpenSetState={setIsDeleteErrorModalOpen}
+        title=''
+        meatballMenu={false}
+        modalButtonType='none'
+      >
+        <div className='flex flex-col justify-center items-center h-[192px] w-[368px] -m-6'>
+          <div className='flex-1 flex items-center justify-center'>
+            <p className='text-gray-800 text-lg'>{deleteErrorMessage}</p>
+          </div>
+          <div className='pb-6'>
+            <button
+              onClick={() => setIsDeleteErrorModalOpen(false)}
+              className='w-[240px] h-[48px] bg-[#5534DA] text-white rounded-lg hover:bg-[#4a2bb8] transition-colors'
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      </ModalRoot>
     </div>
   );
 };

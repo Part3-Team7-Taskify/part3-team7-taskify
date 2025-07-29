@@ -8,6 +8,7 @@ interface DashboardStoreType {
   addDashboard: (dashboard: Dashboard) => void;
   initializeTotalCount: (count: number) => void;
   addTotalCount: () => void;
+  updateDashboard: (id: number, updates: Partial<Dashboard>) => void;
 }
 
 export const useDashboardStore = create<DashboardStoreType>()((set) => ({
@@ -17,4 +18,10 @@ export const useDashboardStore = create<DashboardStoreType>()((set) => ({
   addDashboard: (by) => set((state) => ({ dashboards: [by, ...state.dashboards] })),
   initializeTotalCount: (by) => set(() => ({ totalCount: by })),
   addTotalCount: () => set((state) => ({ totalCount: state.totalCount + 1 })),
+  updateDashboard: (id, updates) =>
+    set((state) => ({
+      dashboards: state.dashboards.map((dashboard) =>
+        dashboard.id === id ? { ...dashboard, ...updates } : dashboard,
+      ),
+    })),
 }));
