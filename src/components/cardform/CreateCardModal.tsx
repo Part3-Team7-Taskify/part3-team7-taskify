@@ -19,8 +19,6 @@ const CardCreateModal = ({
   columnId,
   initialValues,
 }: Props) => {
-  // TaskForm으로 옮겨진 상태 및 로직 제거
-
   return (
     <ModalRoot
       modalButtonType='two'
