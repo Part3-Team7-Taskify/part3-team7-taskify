@@ -74,28 +74,30 @@ const MyPage = () => {
         />
       )}
 
-      {/* 메인 콘텐츠 */}
-      <div className='flex-1 p-6 lg:p-8 bg-gray-50'>
+      {/* 메인 콘텐츠 - 반응형 적용 */}
+      <div className='flex-1 p-4 md:p-6 lg:p-8 bg-gray-50'>
         {/* 돌아가기 버튼 */}
         <button
           onClick={() => window.history.back()}
-          className='flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6 transition-colors'
+          className='flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 md:mb-6 transition-colors'
         >
           <span>←</span>
           <span>돌아가기</span>
         </button>
 
-        {/* 피그마 디자인: 673px 고정 너비 */}
-        <div className='w-[673px] space-y-8'>
+        {/* 반응형 컨테이너 - PC에서는 왼쪽 정렬 유지 */}
+        <div className='w-full max-w-none md:max-w-[650px] lg:max-w-[673px] md:mx-auto lg:mx-0 space-y-6 md:space-y-8'>
           {/* 프로필 섹션 */}
-          <div className='bg-white rounded-lg p-6 lg:p-8'>
-            <h2 className='text-lg lg:text-xl font-bold text-gray-900 mb-8'>프로필</h2>
+          <div className='bg-white rounded-lg p-4 md:p-6 lg:p-8'>
+            <h2 className='text-lg md:text-xl font-bold text-gray-900 mb-6 md:mb-8'>프로필</h2>
             <ProfileSection user={user} />
           </div>
 
           {/* 비밀번호 변경 섹션 */}
-          <div className='bg-white rounded-lg p-6 lg:p-8'>
-            <h2 className='text-lg lg:text-xl font-bold text-gray-900 mb-8'>비밀번호 변경</h2>
+          <div className='bg-white rounded-lg p-4 md:p-6 lg:p-8'>
+            <h2 className='text-lg md:text-xl font-bold text-gray-900 mb-6 md:mb-8'>
+              비밀번호 변경
+            </h2>
             <PasswordChangeSection onPasswordChange={handlePasswordChange} />
           </div>
         </div>

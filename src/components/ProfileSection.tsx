@@ -97,7 +97,7 @@ const ProfileSection = ({ user }: ProfileSectionProps) => {
       console.error('❌ 프로필 수정 실패:', err);
 
       // 더 자세한 에러 정보 출력
-      const axiosError = err as { response?: { data?: any; status?: number } };
+      const axiosError = err as { response?: { data?: { message?: string }; status?: number } };
       console.log('❌ 에러 상세:', axiosError.response?.data);
       console.log('❌ 에러 상태:', axiosError.response?.status);
 
@@ -116,32 +116,34 @@ const ProfileSection = ({ user }: ProfileSectionProps) => {
 
   return (
     <div className='space-y-6'>
-      {/* 프로필 이미지와 입력 필드 영역 */}
-      <div className='flex gap-8'>
-        {/* 프로필 이미지 섹션 - 182x182 고정 */}
-        <div className='relative flex-shrink-0'>
+      {/* 프로필 이미지와 입력 필드 영역 - 반응형 */}
+      <div className='flex flex-col md:flex-row gap-6 md:gap-8'>
+        {/* 프로필 이미지 섹션 - 반응형 크기 */}
+        <div className='relative flex-shrink-0 mx-auto md:mx-0'>
           {profileImagePreview ? (
             <Image
               src={profileImagePreview}
               alt='프로필 이미지'
               width={182}
               height={182}
-              className='w-[182px] h-[182px] rounded-lg object-cover border border-gray-200'
+              className='w-[120px] h-[120px] md:w-[150px] md:h-[150px] lg:w-[182px] lg:h-[182px] rounded-lg object-cover border border-gray-200'
             />
           ) : (
-            <div className='w-[182px] h-[182px] bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center'>
-              <div className='w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center'>
-                <span className='text-gray-600 text-xl font-semibold'>{user.nickname[0]}</span>
+            <div className='w-[120px] h-[120px] md:w-[150px] md:h-[150px] lg:w-[182px] lg:h-[182px] bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center'>
+              <div className='w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-gray-300 rounded-full flex items-center justify-center'>
+                <span className='text-gray-600 text-lg md:text-xl font-semibold'>
+                  {user.nickname[0]}
+                </span>
               </div>
             </div>
           )}
 
-          {/* + 버튼 (오버레이) */}
+          {/* + 버튼 (오버레이) - 반응형 크기 */}
           <button
             onClick={handleImageClick}
-            className='absolute bottom-2 right-2 w-10 h-10 bg-[#5534DA] text-white rounded-lg flex items-center justify-center hover:bg-[#4a2bb8] transition-colors shadow-lg'
+            className='absolute bottom-1 right-1 md:bottom-2 md:right-2 w-8 h-8 md:w-10 md:h-10 bg-[#5534DA] text-white rounded-lg flex items-center justify-center hover:bg-[#4a2bb8] transition-colors shadow-lg'
           >
-            <span className='text-xl font-light'>+</span>
+            <span className='text-lg md:text-xl font-light'>+</span>
           </button>
 
           <input
@@ -153,8 +155,8 @@ const ProfileSection = ({ user }: ProfileSectionProps) => {
           />
         </div>
 
-        {/* 입력 필드 섹션 - 182px 높이에 맞춤 (이메일, 닉네임만) */}
-        <div className='flex-1 h-[182px] flex flex-col justify-between'>
+        {/* 입력 필드 섹션 - 반응형 */}
+        <div className='flex-1 space-y-4 md:space-y-6'>
           {/* 이메일 필드 */}
           <div>
             <label className='block text-sm font-medium text-gray-900 mb-2'>이메일</label>
@@ -162,7 +164,7 @@ const ProfileSection = ({ user }: ProfileSectionProps) => {
               type='email'
               value={user.email}
               disabled
-              className='w-full h-12 px-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed text-sm'
+              className='w-full h-10 md:h-12 px-3 md:px-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed text-sm'
             />
           </div>
 
@@ -174,19 +176,19 @@ const ProfileSection = ({ user }: ProfileSectionProps) => {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               disabled={isSaving}
-              className='w-full h-12 px-4 border border-gray-300 rounded-lg focus:border-[#5534DA] focus:outline-none transition-colors disabled:opacity-50 text-sm'
+              className='w-full h-10 md:h-12 px-3 md:px-4 border border-gray-300 rounded-lg focus:border-[#5534DA] focus:outline-none transition-colors disabled:opacity-50 text-sm'
               placeholder='닉네임을 입력하세요'
             />
           </div>
         </div>
       </div>
 
-      {/* 저장 버튼 - 독립적으로 아래 배치 */}
+      {/* 저장 버튼 - 반응형 */}
       <div>
         <button
           onClick={handleSave}
           disabled={isSaving || !nickname.trim()}
-          className='w-full h-12 bg-[#5534DA] text-white rounded-lg hover:bg-[#4a2bb8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm'
+          className='w-full h-10 md:h-12 bg-[#5534DA] text-white rounded-lg hover:bg-[#4a2bb8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm'
         >
           {isSaving ? '저장 중...' : '저장'}
         </button>
