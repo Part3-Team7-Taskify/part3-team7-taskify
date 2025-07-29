@@ -140,7 +140,7 @@ const InvitationsSection = ({ dashboardId }: InvitationsSectionProps) => {
       // 초대 목록 새로고침
       fetchInvitations();
     } catch (err: unknown) {
-      const error = err as { response?: { status?: number; data?: any } };
+      const error = err as { response?: { status?: number; data?: { message?: string } } };
       console.error('❌ 초대 실패:', err);
 
       if (error.response?.status === 409) {

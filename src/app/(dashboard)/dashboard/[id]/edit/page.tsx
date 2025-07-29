@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiClient } from '@/api/auth/apiClient';
 import DashboardEditForm from '@/components/DashboardEditForm';
@@ -61,7 +61,7 @@ const DashboardEditPage = () => {
   }, [dashboardId]);
 
   // 대시보드 구성원 가져오기
-  const fetchDashboardMembers = async () => {
+  const fetchDashboardMembers = useCallback(async () => {
     try {
       const response = await apiClient.get('members', {
         params: {
@@ -78,7 +78,7 @@ const DashboardEditPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dashboardId]);
 
   useEffect(() => {
     fetchDashboardMembers();
@@ -104,7 +104,6 @@ const DashboardEditPage = () => {
       // 성공 모달 표시
       setIsDeleteSuccessModalOpen(true);
     } catch (err: unknown) {
-      const error = err as { response?: { status?: number; data?: unknown } };
       console.error('❌ 대시보드 삭제 실패:', err);
 
       // 실패 모달 표시
