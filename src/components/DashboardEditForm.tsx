@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/api/auth/apiClient';
+import { ModalRoot } from '@/components/modal/ModalRoot';
+import { useDashboardStore } from '@/store/DashboardStore';
 
 interface DashboardEditFormProps {
   dashboardId: string;
@@ -17,6 +19,14 @@ const DashboardEditForm = ({ dashboardId }: DashboardEditFormProps) => {
 
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // 모달 상태 관리
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // Zustand 스토어
+  const { updateDashboard } = useDashboardStore();
 
   const colors = [
     '#7AC555', // 초록
@@ -42,12 +52,22 @@ const DashboardEditForm = ({ dashboardId }: DashboardEditFormProps) => {
       // 성공하면 원본 데이터도 업데이트
       setOriginalName(dashboardName);
 
-      alert('대시보드가 성공적으로 수정되었습니다!');
+      // Zustand 스토어 업데이트 (SNB 실시간 반영!)
+      updateDashboard(parseInt(dashboardId), {
+        title: dashboardName,
+        color: selectedColor,
+      });
+
+      // alert → 성공 모달로 교체
+      setIsSuccessModalOpen(true);
     } catch (err: unknown) {
       const error = err as { response?: { status?: number; data?: unknown } };
       console.error('❌ 대시보드 수정 실패:', err);
       console.error('에러 상세:', error.response?.status, error.response?.data);
-      alert('대시보드 수정에 실패했습니다.');
+
+      // alert → 실패 모달로 교체
+      setErrorMessage('대시보드 수정에 실패했습니다.');
+      setIsErrorModalOpen(true);
     } finally {
       setIsUpdating(false);
     }
@@ -137,6 +157,52 @@ const DashboardEditForm = ({ dashboardId }: DashboardEditFormProps) => {
       >
         {isUpdating ? '수정 중...' : '변경'}
       </button>
+
+      {/* 성공 모달 - 피그마 스펙 적용 */}
+      <ModalRoot
+        modalOpenState={isSuccessModalOpen}
+        modalOpenSetState={setIsSuccessModalOpen}
+        title=''
+        meatballMenu={false}
+        modalButtonType='none'
+      >
+        <div className='flex flex-col justify-center items-center h-[192px] w-[368px] -m-6'>
+          <div className='flex-1 flex items-center justify-center'>
+            <p className='text-gray-800 text-lg'>대시보드가 성공적으로 수정되었습니다.</p>
+          </div>
+          <div className='pb-6'>
+            <button
+              onClick={() => setIsSuccessModalOpen(false)}
+              className='w-[240px] h-[48px] bg-[#5534DA] text-white rounded-lg hover:bg-[#4a2bb8] transition-colors'
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      </ModalRoot>
+
+      {/* 실패 모달 - 피그마 스펙 적용 */}
+      <ModalRoot
+        modalOpenState={isErrorModalOpen}
+        modalOpenSetState={setIsErrorModalOpen}
+        title=''
+        meatballMenu={false}
+        modalButtonType='none'
+      >
+        <div className='flex flex-col justify-center items-center h-[192px] w-[368px] -m-6'>
+          <div className='flex-1 flex items-center justify-center'>
+            <p className='text-gray-800 text-lg'>{errorMessage}</p>
+          </div>
+          <div className='pb-6'>
+            <button
+              onClick={() => setIsErrorModalOpen(false)}
+              className='w-[240px] h-[48px] bg-[#5534DA] text-white rounded-lg hover:bg-[#4a2bb8] transition-colors'
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      </ModalRoot>
     </div>
   );
 };
