@@ -13,6 +13,20 @@ import { Members } from '@/components/taskform/formTypes';
 import { UserType } from '@/types/UserTypes';
 import { CardRequest } from '@/api/cards/apis';
 import { getMembersApi, getUserMeAPI } from '@/api/cards/apis';
+import { Button } from '../button/Button';
+
+// // 수정시 부모 컴포넌트에 반영할 내용
+// const handleEditClick = (cardData) => {
+//   setSelectedCard(cardData);
+//   setModalOpen(true);
+// };
+// // 모달 열 때
+// {modalOpen && (
+//   <TaskForm
+//     initialValues={selectedCard}
+//     // 나머지 props 전달
+//   />
+// )}
 
 interface TaskFormProps {
   columnId: number;
@@ -42,6 +56,9 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const { imageUrl, handleFileChange } = useImageUpload(columnId);
+  const [actionButtonText, setActionButtonText] = useState<string>('생성');
+  const isFormValid =
+    title.trim() !== '' && description.trim() !== '' && userData?.id !== undefined;
 
   const handleSubmit = async () => {
     const formattedDueDate = formatDueDate(dueDate);
@@ -135,6 +152,22 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const handleDueDateChange = (date: Date | null) => {
     setDueDate(date);
   };
+
+  useEffect(() => {
+    if (initialValues) {
+      setTitle(initialValues.title || '');
+      setDescription(initialValues.description || '');
+      setDueDate(initialValues.dueDate ? new Date(initialValues.dueDate) : null);
+      setTags(initialValues.tags || []);
+      setActionButtonText('수정');
+    } else {
+      setTitle('');
+      setDescription('');
+      setDueDate(null);
+      setTags([]);
+      setActionButtonText('생성');
+    }
+  }, [initialValues]);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -230,8 +263,23 @@ const TaskForm: React.FC<TaskFormProps> = ({
           </div>
 
           <div>
-            <button>취소</button>
-            <button type='submit'>생성</button>
+            <Button
+              size='small'
+              type='outline'
+              onClick={() => modalOpenSetState(false)}
+              className='mr-2'
+            >
+              취소
+            </Button>
+            <Button
+              size='small'
+              type='primary'
+              onClick={handleSubmit}
+              disabled={!isFormValid}
+              className='mr-2'
+            >
+              {actionButtonText}
+            </Button>
           </div>
         </div>
       </div>
