@@ -26,7 +26,7 @@ export interface Me {
 }
 
 export interface CardRequest {
-  assigneeUserId: number;
+  assigneeUserId: number | null;
   dashboardId: number;
   columnId: number;
   title: string;
@@ -102,6 +102,16 @@ export const GetCardApi = async (columnId: number): Promise<GetCardApiResponse> 
     return data;
   } catch (error: unknown) {
     console.error('카드 가져오기 실패:', error);
+    throw error;
+  }
+};
+
+export const getCardDetailApi = async (cardId: number): Promise<Card> => {
+  try {
+    const { data } = await apiClient.get<Card>(`${baseUrl}/cards/${cardId}`);
+    return data;
+  } catch (error: unknown) {
+    console.error('카드 상세 가져오기 실패:', error);
     throw error;
   }
 };

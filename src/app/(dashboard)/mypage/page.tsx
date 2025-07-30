@@ -76,7 +76,7 @@ const MyPage = () => {
               user={{
                 id: user.id,
                 nickname: user.nickname,
-                email: user.email,
+                email: user.email || '',
                 profileImageUrl: user.profileImageUrl || undefined,
               }}
             />
