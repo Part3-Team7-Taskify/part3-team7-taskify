@@ -1,5 +1,7 @@
 'use client';
 
+import { SMALL_DISPLAY } from '@/constants/windowWidth';
+import { useWindowSize } from '@/hooks/useWindowSize';
 import { UserType } from '@/types/UserTypes';
 import { useEffect, useState } from 'react';
 
@@ -30,6 +32,7 @@ export const UserChip = ({
   className?: string;
 }) => {
   const [bgColor, setBgColor] = useState('bg-white');
+  const { width } = useWindowSize();
 
   const smallClasses = 'w-6 h-6';
   const largeClasses = 'w-8 h-8';
@@ -61,6 +64,8 @@ export const UserChip = ({
     setBgColor(colors[bgColorIndex]);
   }, []);
 
+  if (!width) return;
+
   return (
     <div className={`flex items-center${className ? className : ''}`}>
       {user.profileImageUrl ? (
@@ -78,7 +83,7 @@ export const UserChip = ({
           </span>
         </div>
       )}
-      {!hideName && <span className='ml-2'>{user.nickname}</span>}
+      {!hideName && width > SMALL_DISPLAY && <span className='ml-2'>{user.nickname}</span>}
     </div>
   );
 };
