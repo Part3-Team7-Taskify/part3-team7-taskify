@@ -11,10 +11,12 @@ export interface LoginResponse {
 
 export interface UserType {
   id: number;
-  email: string;
+  email?: string;
   nickname: string;
   profileImageUrl: string | null;
+
   createdAt: string;
   updatedAt: string;
   userId?: number; // 얘도 수정했음
+
 }
