@@ -5,7 +5,6 @@ type ButtonType = 'primary' | 'outline' | 'disabled' | 'gnb';
 interface ConditionalButtonType<T extends ButtonSize> extends ComponentPropsWithoutRef<'button'> {
   size?: T;
   variant: T extends 'large' ? Exclude<ButtonType, 'outline'> : ButtonType;
-  children: React.ReactNode;
 }
 type FinalButtonType =
   | ConditionalButtonType<'large'>
@@ -25,8 +24,19 @@ const variantClasses = {
   gnb: 'flex items-center gap-2 text-gray-600 bg-white border border-gray-200 rounded-xl',
 };
 
-export const Button: FC<FinalButtonType> = ({ size = 'small', variant, children }) => {
-  const classes = `${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]}`;
+export const Button: FC<FinalButtonType> = ({
+  size = 'small',
+  variant,
+  children,
+  onClick,
+  disabled,
+  className,
+}) => {
+  const classes = `${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${className || ''}`;
 
-  return <button className={classes}>{children}</button>;
+  return (
+    <button className={classes} onClick={onClick} disabled={disabled}>
+      {children}
+    </button>
+  );
 };

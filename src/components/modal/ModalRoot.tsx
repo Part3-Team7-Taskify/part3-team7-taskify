@@ -124,17 +124,17 @@ const ModalButtons = () => {
       return null;
     case 'one':
       return (
-        <Button type='primary' className='w-full' onClick={buttonCallback}>
+        <Button variant='primary' className='w-full' onClick={buttonCallback}>
           확인
         </Button>
       );
     case 'two':
       return (
         <>
-          <Button type='outline' onClick={() => modalOpenSetState(false)}>
+          <Button variant='outline' onClick={() => modalOpenSetState(false)}>
             취소
           </Button>
-          <Button type='primary' className='ml-2' onClick={buttonCallback}>
+          <Button variant='primary' className='ml-2' onClick={buttonCallback}>
             확인
           </Button>
         </>
@@ -144,14 +144,14 @@ const ModalButtons = () => {
       return (
         <div className='flex justify-center gap-[8px]'>
           <Button
-            type='outline'
+            variant='outline'
             className='px-4 py-2 w-1/2 bg-white border border-[#D9D9D9] rounded hover:bg-[#e4e4e4]'
             onClick={buttonCallbackVer2}
           >
             삭제
           </Button>
           <Button
-            type='primary'
+            variant='primary'
             className='px-4 py-2 w-1/2 bg-pri hover:bg-[#3a3063] text-white rounded'
             onClick={buttonCallback}
           >
