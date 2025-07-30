@@ -12,8 +12,8 @@ const Comments = ({ comment, getCommentsHandler }: Props) => {
   const dateTostring = new Date(comment.createdAt);
   const formatDate = formatDueDate(dateTostring);
 
-  const [isEdited, setIsEdited] = useState(false);
-  const [editContent, setEditContent] = useState(comment.content); // ✨ 수정할 내용 상태
+  const [isEdited, setIsEdited] = useState(false); // !! 수정 버튼 클릭시 상태변화
+  const [editContent, setEditContent] = useState(comment.content); // !!!수정할 내용 상태
 
   const deleteCommentHandler = async () => {
     try {
@@ -30,9 +30,9 @@ const Comments = ({ comment, getCommentsHandler }: Props) => {
 
   const saveCommentHandler = async () => {
     try {
-      await editCommentApi(comment.id, { content: editContent }); // PUT 요청
+      await editCommentApi(comment.id, { content: editContent }); // !!PUT 요청
       setIsEdited(false);
-      getCommentsHandler(); // 최신 댓글 목록 다시 불러오기
+      getCommentsHandler(); // 최신 댓글 목록 업데이트하기
     } catch {
       console.error('댓글 수정 실패');
     }
