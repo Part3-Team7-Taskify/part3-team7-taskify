@@ -40,16 +40,11 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const { imageUrl, handleFileChange } = useImageUpload(columnId);
-  const [selectedItem, setSelectedItem] = useState<UserType | null>(null);
+  const [selectedItem, setSelectedItem] = useState<number | null>(0); //1. LJE 유저타입이면 안됐었다. 왜냐 ? 드롭다운에서 선택한 유저의 '유저아이디'를 저장해야했음
 
   const handleSubmit = async () => {
     const formattedDueDate = formatDueDate(dueDate);
     const token = localStorage.getItem('accessToken');
-
-    if (!selectedItem) {
-      alert('담당자를 선택해 주세요');
-      return;
-    }
 
     if (!token) {
       console.error('토큰이 없습니다.');
@@ -60,7 +55,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       return;
     }
     const cardData: CardRequest = {
-      assigneeUserId: selectedItem.id,
+      assigneeUserId: selectedItem,
       dashboardId: dashboardId,
       columnId: columnId,
       title: title,
@@ -152,7 +147,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div>
       <div className='mx-auto px-4 max-w-[520px] min-w-[295px]'>
         <h1 className='text-[24px]'>할일 생성</h1>
         <div className='w-full h-auto '>
@@ -161,8 +156,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
           </label>
           <UserDropdown.Root
             valueCallback={(item) => {
-              setSelectedItem(item);
-              console.log(item);
+              setSelectedItem(item?.userId ?? null); // LJE 여기도 수정했음
+              console.log('item', item?.userId);
             }}
           >
             <UserDropdown.Trigger>이름을 입력해 주세요</UserDropdown.Trigger>
@@ -175,6 +170,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                   updatedAt: user.updatedAt,
                   nickname: user.nickname,
                   profileImageUrl: user.profileImageUrl,
+                  userId: user.userId, // LJE 여기도 수정했음
                 };
                 return <UserDropdown.Item key={user.id}>{converted}</UserDropdown.Item>;
               })}
@@ -249,11 +245,13 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
           <div>
             <button>취소</button>
-            <button type='submit'>생성</button>
+            <button type='submit' onClick={handleSubmit}>
+              생성
+            </button>
           </div>
         </div>
       </div>
-    </form>
+    </div>
   );
 };
 

@@ -25,7 +25,7 @@ export interface Me {
 }
 
 export interface CardRequest {
-  assigneeUserId: number;
+  assigneeUserId?: number | null; // 얘도 수정했음
   dashboardId: number;
   columnId: number;
   title: string;
