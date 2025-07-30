@@ -41,7 +41,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const { imageUrl, handleFileChange } = useImageUpload(columnId);
-  const [selectedItem, setSelectedItem] = useState<UserType>();
+  const [selectedItem, setSelectedItem] = useState<number | null>();
   const [actionButtonText, setActionButtonText] = useState<string>('생성');
   const isFormValid =
     title.trim() !== '' && description.trim() !== '' && userData?.id !== undefined;
@@ -55,7 +55,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       console.error('토큰이 없습니다.');
       return;
     }
-    if (!dashboardId || !columnId || !title) {
+    if (!userData?.id || !dashboardId || !columnId || !title) {
       console.error('필수 정보를 입력 해 주세요.');
       return;
     }
@@ -107,6 +107,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         setTags([...tags, inputValue.trim()]);
         setInputValue('');
       }
+      e.preventDefault(); //엔터키 등 기본 제출 방지 추가
     } else if (e.key === 'Backspace') {
       if (inputValue === '' && tags.length > 0) {
         setTags(tags.slice(0, tags.length - 1));
@@ -180,10 +181,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
           </label>
           <UserDropdown.Root
             valueCallback={(item) => {
-              if (item !== null) {
-                setSelectedItem(item?.userId ?? null);
-                console.log(members);
-              }
+              setSelectedItem(item?.userId ?? null);
+              console.log(members);
             }}
           >
             <UserDropdown.Trigger>이름을 입력해 주세요</UserDropdown.Trigger>
@@ -196,6 +195,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                   updatedAt: user.updatedAt,
                   nickname: user.nickname,
                   profileImageUrl: user.profileImageUrl,
+                  userId: user.userId, // LJE 여기도 수정했음
                 };
                 return <UserDropdown.Item key={user.id}>{converted}</UserDropdown.Item>;
               })}
