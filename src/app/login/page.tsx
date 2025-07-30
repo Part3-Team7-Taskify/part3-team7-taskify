@@ -1,9 +1,8 @@
 'use client';
+
 import { AuthForm } from '@/components/auth/AuthForm';
-import { useUserStore } from '@/store/LoginStore';
 
 const LoginPage = () => {
-  const { addCurrentUser } = useUserStore();
   return (
     <>
       <AuthForm
@@ -17,7 +16,8 @@ const LoginPage = () => {
         onSuccess={(data) => {
           document.cookie = `accessToken=${data.accessToken}`; // 리다이렉트 middleware용 accessToken 쿠키 저장
           // 필요 시 성공 후 별도 처리
-          addCurrentUser(data.user);
+          // addCurrentUser(data.user);
+          localStorage.setItem('user', JSON.stringify(data.user)); //로컬스토리지에 유저 데이터 저장
         }}
       />
     </>

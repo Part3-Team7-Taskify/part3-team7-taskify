@@ -47,6 +47,16 @@ export const getDashboards = async (pageParam: number): Promise<DashboardRespons
   }
 };
 
+export const getSingleDashboard = async (dashboardId: number): Promise<Dashboard> => {
+  try {
+    const { data } = await apiClient.get(`${baseUrl}/dashboards/${dashboardId}`);
+    return data;
+  } catch (err: unknown) {
+    console.error('대시보드 가져오기 실패:', err);
+    throw new Error();
+  }
+};
+
 export const postDashboard = async (data: NewDashboardRequest): Promise<Dashboard> => {
   try {
     const res = await apiClient.post<Dashboard>(
