@@ -26,3 +26,18 @@ export const postInvitation = async (
     throw new Error();
   }
 };
+
+export const postInviteAccepted = async (
+  invitationId: number,
+  accepted: boolean,
+): Promise<InvitationType> => {
+  try {
+    const { data } = await apiClient.post(`/invitations/${invitationId}`, {
+      inviteAccepted: accepted,
+    });
+    return data;
+  } catch (err) {
+    console.error('초대 응답 실패!', err);
+    throw new Error();
+  }
+};
