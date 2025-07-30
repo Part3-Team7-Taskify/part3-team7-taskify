@@ -13,23 +13,25 @@ export const GnbMyDashboard = ({ user }: { user: UserType }) => {
 
   return (
     <GnbWrapper>
-      <div className='flex-1'>
+      <div className='hidden sm:flex sm:items-center flex-1'>
         <h1 className='font-bold text-md md:text-xl'>내 대시보드</h1>
       </div>
       <div className='flex gap-2'>
-        <Button size='extraSmall' type='gnb'>
-          {width > SMALL_DISPLAY && <SettingIcon />}
-          관리
-        </Button>
-        <Button size='extraSmall' type='gnb'>
-          {width > SMALL_DISPLAY && <InviteIcon />}
-          초대하기
-        </Button>
+        <div className='hidden sm:flex sm:items-center sm:gap-2'>
+          <Button size='extraSmall' type='gnb'>
+            {width > SMALL_DISPLAY && <SettingIcon />}
+            관리
+          </Button>
+        </div>
+        <div className='hidden sm:flex sm:items-center sm:gap-2'>
+          <Button size='extraSmall' type='gnb'>
+            {width > SMALL_DISPLAY && <InviteIcon />}
+            초대하기
+          </Button>
+        </div>
       </div>
       <div className='border-l border-l-gray-200 h-full' />
-      <div>
-        <UserChip user={user} size='large' hideName={width > SMALL_DISPLAY ? false : true} />
-      </div>
+      <UserChip user={user} size='large' hideName={width > SMALL_DISPLAY ? false : true} />
     </GnbWrapper>
   );
 };
