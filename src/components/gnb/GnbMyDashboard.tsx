@@ -5,7 +5,7 @@ import SettingIcon from '../../../public/icon/settings.svg';
 import InviteIcon from '../../../public/icon/invitation.svg';
 import { getCurrentUser } from '@/api/gnb/apis';
 
-export default async function GnbMyDashboard() {
+export const GnbMyDashboard = async () => {
   const user = await getCurrentUser();
 
   return (
@@ -16,15 +16,19 @@ export default async function GnbMyDashboard() {
         </div>
       </div>
       <div className='flex gap-2'>
-        <div className='hidden sm:flex sm:items-center sm:gap-2'>
+        <div className='sm:flex sm:items-center sm:gap-2'>
           <Button size='extraSmall' type='gnb'>
-            <SettingIcon />
+            <div className='hidden sm:block'>
+              <SettingIcon />
+            </div>
             관리
           </Button>
         </div>
-        <div className='hidden sm:flex sm:items-center sm:gap-2'>
+        <div className='sm:flex sm:items-center sm:gap-2'>
           <Button size='extraSmall' type='gnb'>
-            <InviteIcon />
+            <div className='hidden sm:block'>
+              <InviteIcon />
+            </div>
             초대하기
           </Button>
         </div>
@@ -33,4 +37,4 @@ export default async function GnbMyDashboard() {
       <UserChip user={user} size='large' hideName={false} />
     </GnbWrapper>
   );
-}
+};
