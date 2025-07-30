@@ -3,10 +3,10 @@ import { useWindowSize } from '@/hooks/useWindowSize';
 import GnbWrapper from './GnbWrapper';
 import { Button } from '../button/Button';
 import { UserChipArray } from '../chip/UserChipArray';
-import { UserChip } from '../chip/UserChip';
 import SettingIcon from '../../../public/icon/settings.svg';
 import InviteIcon from '../../../public/icon/invitation.svg';
 import { UserType } from '@/types/UserTypes';
+import GnbUserDropdown from './GnbUserDropdown';
 
 export const GnbMyDashboardWithUsers = ({ user, users }: { user: UserType; users: UserType[] }) => {
   const { width } = useWindowSize();
@@ -33,7 +33,7 @@ export const GnbMyDashboardWithUsers = ({ user, users }: { user: UserType; users
       </div>
       <UserChipArray users={users} />
       <div className='border-l border-l-gray-200 h-full' />
-      <UserChip user={user} size='large' hideName={width > SMALL_DISPLAY ? false : true} />
+      <GnbUserDropdown user={user} />
     </GnbWrapper>
   );
 };

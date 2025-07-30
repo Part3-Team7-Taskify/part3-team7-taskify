@@ -1,9 +1,9 @@
 import GnbWrapper from './GnbWrapper';
 import { Button } from '../button/Button';
-import { UserChip } from '../chip/UserChip';
 import SettingIcon from '../../../public/icon/settings.svg';
 import InviteIcon from '../../../public/icon/invitation.svg';
 import { getCurrentUser } from '@/api/gnb/apis';
+import GnbUserDropdown from './GnbUserDropdown';
 
 export const GnbMyDashboard = async () => {
   const user = await getCurrentUser();
@@ -34,7 +34,7 @@ export const GnbMyDashboard = async () => {
         </div>
       </div>
       <div className='border-l border-l-gray-200 h-full' />
-      <UserChip user={user} size='large' hideName={false} />
+      <GnbUserDropdown user={user} />
     </GnbWrapper>
   );
 };

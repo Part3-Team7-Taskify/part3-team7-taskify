@@ -3,11 +3,11 @@ import GnbWrapper from './GnbWrapper';
 import CrownIcon from '../../../public/icon/crown.svg';
 import { Button } from '../button/Button';
 import { UserChipArray } from '../chip/UserChipArray';
-import { UserChip } from '../chip/UserChip';
 import SettingIcon from '../../../public/icon/settings.svg';
 import { getCurrentUser } from '@/api/gnb/apis';
 import Link from 'next/link';
 import GnbInviteButton from '../button/GnbInviteButton';
+import GnbUserDropdown from './GnbUserDropdown';
 
 export default async function GnbDashboard({
   users,
@@ -43,7 +43,7 @@ export default async function GnbDashboard({
       </div>
       <UserChipArray users={users} />
       <div className='border-l border-l-gray-200 h-full' />
-      <UserChip user={user} size='large' hideName={false} />
+      <GnbUserDropdown user={user} />
     </GnbWrapper>
   );
 }
