@@ -11,7 +11,7 @@ interface Props {
   initialValues?: TaskFormValues | undefined;
 }
 
-const CardCreateModal = ({
+const CreateCardModal = ({
   modalOpenSetState,
   modalOpenState,
   onCreated,
@@ -21,7 +21,7 @@ const CardCreateModal = ({
 }: Props) => {
   return (
     <ModalRoot
-      modalButtonType='two'
+      modalButtonType='none'
       modalOpenState={modalOpenState}
       modalOpenSetState={modalOpenSetState}
       title='할 일 생성'
@@ -37,4 +37,4 @@ const CardCreateModal = ({
   );
 };
 
-export default CardCreateModal;
+export default CreateCardModal;

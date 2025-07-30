@@ -1,5 +1,6 @@
 'use client';
 import { useImageUpload } from '@/hooks/useImageUpload';
+import ImageUpload from '@/components/taskform/ImageUpload';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { TaskFormValues } from '@/components/taskform/formTypes';
 import { formatDueDate } from '@/utils/formatDueDate';
@@ -7,13 +8,13 @@ import InputField from '@/components/taskform/InputField';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { apiClient } from '@/api/auth/apiClient';
-import ImageUpload from '@/components/taskform/ImageUpload';
-import UserDropdown from '../dropdown/UserDropdown';
+import UserDropdown from '@/components/dropdown/UserDropdown';
 import { Members } from '@/components/taskform/formTypes';
 import { UserType } from '@/types/UserTypes';
 import { CardRequest } from '@/api/cards/apis';
 import { getMembersApi, getUserMeAPI } from '@/api/cards/apis';
 import { backgroundColors, colorMap } from '@/components/taskform/tagColors';
+import { Button } from '@/components/button/Button';
 
 interface TaskFormProps {
   columnId: number;
@@ -40,27 +41,26 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const { imageUrl, handleFileChange } = useImageUpload(columnId);
-  const [selectedItem, setSelectedItem] = useState<UserType | null>(null);
+  const [selectedItem, setSelectedItem] = useState<UserType>();
+  const [actionButtonText, setActionButtonText] = useState<string>('생성');
+  const isFormValid =
+    title.trim() !== '' && description.trim() !== '' && userData?.id !== undefined;
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const formattedDueDate = formatDueDate(dueDate);
     const token = localStorage.getItem('accessToken');
-
-    if (!selectedItem) {
-      alert('담당자를 선택해 주세요');
-      return;
-    }
 
     if (!token) {
       console.error('토큰이 없습니다.');
       return;
     }
-    if (!userData?.id || !dashboardId || !columnId || !title) {
+    if (!dashboardId || !columnId || !title) {
       console.error('필수 정보를 입력 해 주세요.');
       return;
     }
     const cardData: CardRequest = {
-      assigneeUserId: selectedItem.id,
+      assigneeUserId: selectedItem,
       dashboardId: dashboardId,
       columnId: columnId,
       title: title,
@@ -71,23 +71,42 @@ const TaskForm: React.FC<TaskFormProps> = ({
     };
     try {
       await apiClient.post('/cards', cardData);
+      console.log('POST 요청 데이터:', { ...cardData });
       if (onCreated) onCreated();
     } catch (error) {
       console.error('할 일 생성 실패:', error);
       alert('할 일 생성 실패');
     }
   };
+
+  useEffect(() => {
+    if (initialValues) {
+      setTitle(initialValues.title || '');
+      setDescription(initialValues.description || '');
+      setDueDate(initialValues.dueDate ? new Date(initialValues.dueDate) : null);
+      setTags(initialValues.tags || []);
+      setActionButtonText('수정');
+    } else {
+      setTitle('');
+      setDescription('');
+      setDueDate(null);
+      setTags([]);
+      setActionButtonText('생성');
+    }
+  }, [initialValues]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
+      e.preventDefault(); //엔터키 등 기본 제출 방지 추가
+      e.stopPropagation(); //이벤트버블 방지
       if (inputValue.trim() !== '') {
         setTags([...tags, inputValue.trim()]);
         setInputValue('');
       }
-      e.preventDefault(); //엔터키 등 기본 제출 방지 추가
     } else if (e.key === 'Backspace') {
       if (inputValue === '' && tags.length > 0) {
         setTags(tags.slice(0, tags.length - 1));
@@ -161,8 +180,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
           </label>
           <UserDropdown.Root
             valueCallback={(item) => {
-              setSelectedItem(item);
-              console.log(item);
+              if (item !== null) {
+                setSelectedItem(item?.userId ?? null);
+                console.log(members);
+              }
             }}
           >
             <UserDropdown.Trigger>이름을 입력해 주세요</UserDropdown.Trigger>
@@ -248,8 +269,23 @@ const TaskForm: React.FC<TaskFormProps> = ({
           </div>
 
           <div>
-            <button>취소</button>
-            <button type='submit'>생성</button>
+            <Button
+              size='small'
+              type='outline'
+              onClick={() => modalOpenSetState(false)}
+              className='mr-2'
+            >
+              취소
+            </Button>
+            <Button
+              size='small'
+              type='primary'
+              onClick={() => handleSubmit}
+              disabled={!isFormValid}
+              className='mr-2'
+            >
+              {actionButtonText}
+            </Button>
           </div>
         </div>
       </div>

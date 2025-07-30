@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import ColumnEditModal from './ColumnEditModal';
 import Cards from '../card/Cards';
 import { Button } from '../button/Button';
-import CardCreateModal from '../card/CardCreateModal';
+import CreateCardModal from '@/components/cardform/CreateCardModal';
 import { GetCardApi, Card } from '@/api/card/apis';
 
 interface ColumnProps {
@@ -106,7 +106,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
         />
       )}
       {isCardModalOpen && (
-        <CardCreateModal
+        <CreateCardModal
           dashboardId={dashboardId}
           modalOpenState={isCardModalOpen}
           modalOpenSetState={setIsCardModalOpen}
