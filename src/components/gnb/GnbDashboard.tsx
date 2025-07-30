@@ -5,9 +5,9 @@ import { Button } from '../button/Button';
 import { UserChipArray } from '../chip/UserChipArray';
 import { UserChip } from '../chip/UserChip';
 import SettingIcon from '../../../public/icon/settings.svg';
-import InviteIcon from '../../../public/icon/invitation.svg';
 import { getCurrentUser } from '@/api/gnb/apis';
 import Link from 'next/link';
+import GnbInviteButton from '../button/GnbInviteButton';
 
 export default async function GnbDashboard({
   users,
@@ -32,19 +32,14 @@ export default async function GnbDashboard({
       </div>
       <div className='flex gap-2'>
         <Link href={`/dashboard/${dashboardId}/edit`}>
-          <Button size='extraSmall' type='gnb'>
+          <Button size='extraSmall' variant='gnb'>
             <div className='hidden sm:block'>
               <SettingIcon />
             </div>
             관리
           </Button>
         </Link>
-        <Button size='extraSmall' type='gnb'>
-          <div className='hidden sm:block'>
-            <InviteIcon />
-          </div>
-          초대하기
-        </Button>
+        <GnbInviteButton />
       </div>
       <UserChipArray users={users} />
       <div className='border-l border-l-gray-200 h-full' />
