@@ -13,13 +13,25 @@ interface Props {
   imageUrl?: string;
   columnId: number;
   assignee: assigneeInterface;
+  onCardDetailClick: () => void;
 }
 
-const Cards = ({ title, description, dueDate, tags, imageUrl, assignee }: Props) => {
+const Cards = ({
+  title,
+  description,
+  dueDate,
+  tags,
+  imageUrl,
+  assignee,
+  onCardDetailClick,
+}: Props) => {
   const DateCustom = dueDate.split(' ')[0];
   const nickNameChar = assignee.nickname.charAt(0);
   return (
-    <div className='lg:flex-col lg:items-start sm:flex-row sm:justify-start sm:gap-[20px] flex justify-between sm:items-center flex-col gap-[6px] rounded-md border border-gray-300 bg-white px-[20px] py-[16px] relative'>
+    <div
+      onClick={onCardDetailClick}
+      className='cursor-pointer lg:flex-col lg:items-start sm:flex-row sm:justify-start sm:gap-[20px] flex justify-between sm:items-center flex-col gap-[6px] rounded-md border border-gray-300 bg-white px-[20px] py-[16px] relative'
+    >
       {imageUrl && (
         <p className='lg:w-full lg:h-[160px] sm:w-[90px] sm:h-[53px] relative w-full h-[151px]'>
           <Image src={imageUrl} fill alt={title} className='object-cover rounded-md' />
