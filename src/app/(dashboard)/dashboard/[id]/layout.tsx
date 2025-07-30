@@ -15,7 +15,7 @@ export default async function Layout({
   const { members } = await getMembers(id);
 
   return (
-    <div className='flex-1 h-screen overflow-hidden'>
+    <div className='flex-1 h-screen'>
       <GnbDashboard
         users={members}
         title={dashboardInfo.title}
