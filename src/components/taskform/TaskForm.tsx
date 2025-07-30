@@ -22,9 +22,6 @@ interface TaskFormProps {
   initialValues?: TaskFormValues | undefined;
   onCreated?: () => void;
 }
-interface UserTypeAddUserId extends UserType {
-  userId: number;
-}
 
 const TaskForm: React.FC<TaskFormProps> = ({
   dashboardId,
@@ -43,10 +40,17 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const { imageUrl, handleFileChange } = useImageUpload(columnId);
+  const [selectedItem, setSelectedItem] = useState<UserType | null>(null);
 
   const handleSubmit = async () => {
     const formattedDueDate = formatDueDate(dueDate);
     const token = localStorage.getItem('accessToken');
+
+    if (!selectedItem) {
+      alert('담당자를 선택해 주세요');
+      return;
+    }
+
     if (!token) {
       console.error('토큰이 없습니다.');
       return;
@@ -56,7 +60,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       return;
     }
     const cardData: CardRequest = {
-      assigneeUserId: userData.id,
+      assigneeUserId: selectedItem.id,
       dashboardId: dashboardId,
       columnId: columnId,
       title: title,
@@ -137,7 +141,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
     setDueDate(date);
   };
 
-  
   const getColorForTag = (tag: string): string => {
     if (colorMap[tag]) {
       return colorMap[tag]; // 이미 할당된 색상 반환
@@ -157,21 +160,21 @@ const TaskForm: React.FC<TaskFormProps> = ({
             담당자
           </label>
           <UserDropdown.Root
-            valueCallback={(selectedUser) => {
-              console.log(selectedUser);
+            valueCallback={(item) => {
+              setSelectedItem(item);
+              console.log(item);
             }}
           >
             <UserDropdown.Trigger>이름을 입력해 주세요</UserDropdown.Trigger>
             <UserDropdown.Content>
               {members.map((user) => {
-                const converted: UserTypeAddUserId = {
+                const converted: UserType = {
                   id: user.id,
                   email: user.email,
                   createdAt: user.createdAt,
                   updatedAt: user.updatedAt,
                   nickname: user.nickname,
                   profileImageUrl: user.profileImageUrl,
-                  userId: user.userId,
                 };
                 return <UserDropdown.Item key={user.id}>{converted}</UserDropdown.Item>;
               })}
@@ -215,7 +218,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
           <label className='block mb-1 font-semibold text-gray-700'>태그</label>
           <div className='flex flex-wrap items-center gap-2 p-3 border border-gray-300 rounded-lg shadow-sm bg-white min-h-[44px] w-full max-w-md cursor-text focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-200 transition-all duration-200'>
-             {tags.map((tag, index) => {
+            {tags.map((tag, index) => {
               const colorClass = getColorForTag(tag);
               return (
                 <span
