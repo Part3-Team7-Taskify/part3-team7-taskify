@@ -1,20 +1,47 @@
+import { commentResponse, getCommentsApi } from '@/api/comments/apis';
 import { ColumnChip } from '../chip/ColumnChip';
 import { UserChip } from '../chip/UserChip';
+import CommentsWrapper from '../comment/CommentsWrapper';
 import { ModalRoot } from '../modal/ModalRoot';
 import { Card } from '@/api/card/apis';
 import { UserType } from '@/types/UserTypes';
+import { useEffect, useState } from 'react';
 
 interface Props {
   modalOpenState: boolean;
   modalOpenSetState: (state: boolean) => void;
   cardInfo: Card;
   columnTitle: string;
+  columnId: number;
+  dashboardId: number;
 }
 
-const CardDetailModal = ({ modalOpenState, modalOpenSetState, cardInfo, columnTitle }: Props) => {
+const CardDetailModal = ({
+  modalOpenState,
+  modalOpenSetState,
+  cardInfo,
+  columnTitle,
+  columnId,
+  dashboardId,
+}: Props) => {
   const assignee: UserType = cardInfo.assignee;
   const tags = cardInfo.tags;
+  const [comments, setComments] = useState<commentResponse[] | null>([]);
 
+  const getCommentsHandler = async () => {
+    if (cardInfo.id == null) return; // null 또는 undefined 방어
+    try {
+      const res = await getCommentsApi(cardInfo.id);
+      setComments(res.comments);
+    } catch (err) {
+      console.error('댓글 가져오기 실패:', err);
+    }
+  };
+  useEffect(() => {
+    if (modalOpenState) {
+      getCommentsHandler();
+    }
+  }, [modalOpenState]);
   return (
     <ModalRoot
       modalButtonType='none'
@@ -60,12 +87,19 @@ const CardDetailModal = ({ modalOpenState, modalOpenSetState, cardInfo, columnTi
               {cardInfo.description}
             </div>
             {cardInfo.imageUrl && (
-              <div className='w-[290px] sm:w-[420px] rounded-md overflow-hidden sm:h-[246px] sm:flex sm:justify-center sm:items-center'>
+              <div className='w-[290px] sm:w-[420px] h-[168px] flex justify-center items-center rounded-md overflow-hidden sm:h-[246px] sm:flex sm:justify-center sm:items-center'>
                 <img src={cardInfo.imageUrl} alt='카드 이미지' className='w-full' />
               </div>
             )}
           </div>
         </div>
+        <CommentsWrapper
+          dashboardId={dashboardId}
+          columnId={columnId}
+          cardId={cardInfo.id}
+          getCommentsHandler={getCommentsHandler}
+          comments={comments}
+        />
       </div>
     </ModalRoot>
   );

@@ -124,6 +124,8 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
           modalOpenSetState={setIsCardDetailModalOpen}
           cardInfo={targetCardData}
           columnTitle={title}
+          columnId={columnId}
+          dashboardId={dashboardId}
         />
       )}
     </div>
