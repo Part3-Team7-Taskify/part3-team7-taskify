@@ -18,7 +18,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isCardModalOpen, setIsCardModalOpen] = useState<boolean>(false);
   const [targetCards, setTargetCards] = useState<Card[]>([]);
-
+  const [cardId, setCardId] = useState<number | null>(null);
   const [isCardDetailModalOpen, setIsCardDetailModalOpen] = useState<boolean>(false);
   const [targetCardData, setTargetCardData] = useState<Card | null>(null);
 
@@ -94,7 +94,10 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
               imageUrl={card.imageUrl}
               columnId={card.columnId}
               assignee={card.assignee}
-              onClick={() => onCardDetailModal(card.id)}
+              onClick={() => {
+                setCardId(card.id);
+                onCardDetailModal(card.id);
+              }}
             />
           ))}
         </div>
@@ -126,6 +129,9 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
           modalOpenSetState={setIsCardDetailModalOpen}
           cardInfo={targetCardData}
           columnTitle={title}
+          columnId={columnId}
+          dashboardId={dashboardId}
+          cardId={cardId}
         />
       )}
     </div>

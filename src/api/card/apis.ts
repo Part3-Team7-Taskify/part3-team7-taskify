@@ -1,4 +1,3 @@
-import { UserType } from '@/types/UserTypes';
 import { apiClient } from '../auth/apiClient';
 
 export interface members {
@@ -76,7 +75,7 @@ export const getMembersApi = async (getDashboardId: number): Promise<MembersApiR
 
 export const getUserMeAPI = async (): Promise<Me> => {
   try {
-    const { data } = await apiClient.get<UserType>(`${baseUrl}/users/me`);
+    const { data } = await apiClient.get<Me>(`${baseUrl}/users/me`);
     return data;
   } catch (error) {
     console.error('내 정보 가져오기 실패:', error);

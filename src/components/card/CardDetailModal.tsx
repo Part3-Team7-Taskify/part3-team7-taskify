@@ -1,19 +1,49 @@
 import { ColumnChip } from '../chip/ColumnChip';
-import { UserChip, UserType } from '../chip/UserChip';
-import Comment from '../comment/Comment';
+import { UserChip } from '../chip/UserChip';
+import Comment from '../comment/CommentsWrapper';
 import { ModalRoot } from '../modal/ModalRoot';
 import { Card } from '@/api/card/apis';
+import { UserType } from '@/types/UserTypes';
+import { postCommentApi, commentRequest } from '@/api/comments/apis';
+import { useState } from 'react';
 
 interface Props {
   modalOpenState: boolean;
   modalOpenSetState: (state: boolean) => void;
   cardInfo: Card;
   columnTitle: string;
+  dashboardId: number;
+  columnId: number;
+  cardId: number | null;
 }
 
-const CardDetailModal = ({ modalOpenState, modalOpenSetState, cardInfo, columnTitle }: Props) => {
+const CardDetailModal = ({
+  cardId,
+  dashboardId,
+  columnId,
+  modalOpenState,
+  modalOpenSetState,
+  cardInfo,
+  columnTitle,
+}: Props) => {
   const assignee: UserType = cardInfo.assignee;
   const tags = cardInfo.tags;
+  const [commentVal, setCommentVal] = useState<string>('');
+
+  const commentPostHandler = async () => {
+    const commentData: commentRequest = {
+      content: commentVal,
+      cardId: cardId,
+      columnId: columnId,
+      dashboardId: dashboardId,
+    };
+
+    try {
+      await postCommentApi(commentData);
+    } catch (err) {
+      console.error('카드 생성 실패:', err);
+    }
+  };
 
   return (
     <ModalRoot
@@ -67,7 +97,12 @@ const CardDetailModal = ({ modalOpenState, modalOpenSetState, cardInfo, columnTi
           </div>
         </div>
 
-        <Comment />
+        <Comment
+          commentPostHandler={commentPostHandler}
+          commentVal={commentVal}
+          setCommentVal={setCommentVal}
+          cardId={cardId}
+        />
       </div>
     </ModalRoot>
   );
