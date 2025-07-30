@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { apiClient } from '@/api/auth/apiClient';
 import { useUserStore } from '@/store/LoginStore';
 import ProfileSection from '@/components/ProfileSection';
-import { GnbDashboard } from '@/components/gnb/Gnb';
+import GnbDashboard from '@/components/gnb/GnbDashboard';
 import PasswordChangeSection from '@/components/PasswordChangeSection';
 
 const MyPage = () => {
@@ -60,14 +60,6 @@ const MyPage = () => {
       {/* 상단 GNB - 계정관리 */}
       {user && (
         <GnbDashboard
-          user={{
-            id: user.id,
-            nickname: user.nickname,
-            profileImageUrl: user.profileImageUrl || '',
-            email: user.email,
-            createdAt: user.createdAt || '',
-            updatedAt: user.updatedAt || '',
-          }}
           users={[]} // 마이페이지에는 다른 사용자 없음
           title='계정관리' // 제목을 계정관리로 설정
           createdByMe={false} // 크라운 아이콘 숨김

@@ -6,7 +6,7 @@ import { apiClient } from '@/api/auth/apiClient';
 import DashboardEditForm from '@/components/DashboardEditForm';
 import MembersSection from '@/components/MembersSection';
 import InvitationsSection from '@/components/InvitationsSection';
-import { GnbDashboard } from '@/components/gnb/Gnb';
+import GnbDashboard from '@/components/gnb/GnbDashboard';
 import { ModalRoot } from '@/components/modal/ModalRoot';
 
 interface DashboardInfo {
@@ -133,7 +133,6 @@ const DashboardEditPage = () => {
     <div className='flex-1 flex flex-col'>
       {/* 상단 Gnb */}
       <GnbDashboard
-        user={currentUser}
         users={dashboardMembers}
         title={dashboardInfo.title}
         createdByMe={dashboardInfo.createdByMe}
