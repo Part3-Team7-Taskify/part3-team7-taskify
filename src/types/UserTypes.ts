@@ -16,5 +16,5 @@ export interface UserType {
   profileImageUrl: string | null;
   createdAt?: string;
   updatedAt?: string;
-  userId?: number; // 얘도 수정했음
+  userId?: number; // LJE 얘도 수정했음
 }
