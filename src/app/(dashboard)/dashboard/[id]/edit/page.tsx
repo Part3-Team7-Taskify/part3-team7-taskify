@@ -148,22 +148,22 @@ const DashboardEditPage = () => {
 
   return (
     <div className='flex flex-col'>
-      {/* 메인 콘텐츠 */}
-      <div className='p-8 bg-gray-50 pb-'>
+      {/* 메인 콘텐츠 - 반응형 적용 */}
+      <div className='p-4 md:p-6 lg:p-8 bg-gray-50'>
         <button
           onClick={handleGoBack}
           disabled={isDeleting}
-          className='flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-8 disabled:opacity-50'
+          className='flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 md:mb-6 lg:mb-8 disabled:opacity-50'
         >
           <span>←</span>
           <span>돌아가기</span>
         </button>
 
-        <div className='mb-8'>
+        <div className='mb-4 md:mb-6 lg:mb-8'>
           <DashboardEditForm dashboardId={dashboardId} />
         </div>
 
-        <div className='mb-8'>
+        <div className='mb-4 md:mb-6 lg:mb-8'>
           <MembersSection
             dashboardId={dashboardId}
             members={dashboardMembers}
@@ -171,7 +171,7 @@ const DashboardEditPage = () => {
           />
         </div>
 
-        <div className='mb-8'>
+        <div className='mb-4 md:mb-6 lg:mb-8'>
           <InvitationsSection dashboardId={dashboardId} />
         </div>
 
@@ -179,7 +179,7 @@ const DashboardEditPage = () => {
           <button
             onClick={handleDeleteClick}
             disabled={isDeleting}
-            className='px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+            className='w-full md:w-auto px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
           >
             {isDeleting ? '삭제 중...' : '대시보드 삭제하기'}
           </button>
