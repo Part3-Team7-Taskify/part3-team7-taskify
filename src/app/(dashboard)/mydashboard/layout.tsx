@@ -1,4 +1,4 @@
-import GnbMyDashboard from '@/components/gnb/GnbMyDashboard';
+import { GnbMyDashboard } from '@/components/gnb/GnbMyDashboard';
 
 export const dynamic = 'force-dynamic';
 
