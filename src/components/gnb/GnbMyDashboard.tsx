@@ -17,7 +17,7 @@ export const GnbMyDashboard = async () => {
       </div>
       <div className='flex gap-2'>
         <div className='sm:flex sm:items-center sm:gap-2'>
-          <Button size='extraSmall' type='gnb'>
+          <Button size='extraSmall' variant='gnb'>
             <div className='hidden sm:block'>
               <SettingIcon />
             </div>
@@ -25,7 +25,7 @@ export const GnbMyDashboard = async () => {
           </Button>
         </div>
         <div className='sm:flex sm:items-center sm:gap-2'>
-          <Button size='extraSmall' type='gnb'>
+          <Button size='extraSmall' variant='gnb'>
             <div className='hidden sm:block'>
               <InviteIcon />
             </div>

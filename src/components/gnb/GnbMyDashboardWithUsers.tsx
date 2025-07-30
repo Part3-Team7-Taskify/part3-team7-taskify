@@ -19,13 +19,13 @@ export const GnbMyDashboardWithUsers = ({ user, users }: { user: UserType; users
       </div>
       <div className='flex gap-2'>
         <div className='hidden sm:flex sm:items-center sm:gap-2'>
-          <Button size='extraSmall' type='gnb'>
+          <Button size='extraSmall' variant='gnb'>
             {width > SMALL_DISPLAY && <SettingIcon />}
             관리
           </Button>
         </div>
         <div className='hidden sm:flex sm:items-center sm:gap-2'>
-          <Button size='extraSmall' type='gnb'>
+          <Button size='extraSmall' variant='gnb'>
             <InviteIcon />
             초대하기
           </Button>
