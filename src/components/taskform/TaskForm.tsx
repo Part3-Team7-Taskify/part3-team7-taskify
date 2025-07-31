@@ -1,25 +1,35 @@
 'use client';
 import { useImageUpload } from '@/hooks/useImageUpload';
+import ImageUpload from '@/components/taskform/ImageUpload';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { TaskFormValues } from '@/components/taskform/formTypes';
 import { formatDueDate } from '@/utils/formatDueDate';
 import InputField from '@/components/taskform/InputField';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { apiClient } from '@/api/auth/apiClient';
-import ImageUpload from '@/components/taskform/ImageUpload';
-import UserDropdown from '../dropdown/UserDropdown';
+import UserDropdown from '@/components/dropdown/UserDropdown';
 import { Members } from '@/components/taskform/formTypes';
 import { UserType } from '@/types/UserTypes';
 import { CardRequest } from '@/api/cards/apis';
 import { getMembersApi, getUserMeAPI } from '@/api/cards/apis';
 import { backgroundColors, colorMap } from '@/components/taskform/tagColors';
-
+import { Button } from '@/components/button/Button';
+import { updateCardApi, UpdateCardRequestDto } from '@/api/card/updateCardApi';
+import { getColumns, Column } from '@/api/card/getColumns';
 interface TaskFormProps {
   columnId: number;
   dashboardId: number;
   modalOpenSetState: (state: boolean) => void;
-  initialValues?: TaskFormValues | undefined;
+  initialValues?: {
+    title: string;
+    description: string;
+    dueDate: string;
+    tags: string[];
+    imageUrl?: string | null;
+    assigneeUserId?: number | null;
+    columnId?: number | null;
+  };
+
   onCreated?: () => void;
 }
 
@@ -40,49 +50,122 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const { imageUrl, handleFileChange } = useImageUpload(columnId);
-  const [selectedItem, setSelectedItem] = useState<UserType | null>(null);
+  const [selectedItem, setSelectedItem] = useState<number | null>();
+  const [actionButtonText, setActionButtonText] = useState<string>('생성');
+  const isFormValid =
+    title.trim() !== '' && description.trim() !== '' && userData?.id !== undefined;
+  const [cardId] = useState<number>(0);
+  // 카드 상세 보기 열때, 카드 ID도 저장
+  const [columns, setColumns] = useState<Column[]>([]);
+  // 선택된 컬럼 ID 저장 (초기에는 빈값 또는 null)
+  const [selectedColumnId, setSelectedColumnId] = useState<number | ''>('');
+  // 선택된 컬럼 이름 (제목) 저장
+  const [selectedColumnName, setSelectedColumnName] = useState<string>('');
 
-  const handleSubmit = async () => {
-    const formattedDueDate = formatDueDate(dueDate);
-    const token = localStorage.getItem('accessToken');
+  const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
+    if (e) e.preventDefault();
+    if (actionButtonText === '수정') {
+      await handleUpdate();
+    } else {
+      const formattedDueDate = formatDueDate(dueDate);
+      const token = localStorage.getItem('accessToken');
 
-    if (!selectedItem) {
-      alert('담당자를 선택해 주세요');
-      return;
-    }
-
-    if (!token) {
-      console.error('토큰이 없습니다.');
-      return;
-    }
-    if (!userData?.id || !dashboardId || !columnId || !title) {
-      console.error('필수 정보를 입력 해 주세요.');
-      return;
-    }
-    const cardData: CardRequest = {
-      assigneeUserId: selectedItem.id,
-      dashboardId: dashboardId,
-      columnId: columnId,
-      title: title,
-      description: description,
-      dueDate: formattedDueDate,
-      tags: tags,
-      imageUrl: imageUrl,
-    };
-    try {
-      await apiClient.post('/cards', cardData);
-      if (onCreated) onCreated();
-    } catch (error) {
-      console.error('할 일 생성 실패:', error);
-      alert('할 일 생성 실패');
+      if (!token) {
+        console.error('토큰이 없습니다.');
+        return;
+      }
+      if (!userData?.id || !dashboardId || !columnId || !title) {
+        console.error('필수 정보를 입력 해 주세요.');
+        return;
+      }
+      const cardData: CardRequest = {
+        assigneeUserId: selectedItem,
+        dashboardId: dashboardId,
+        columnId: columnId,
+        title: title,
+        description: description,
+        dueDate: formattedDueDate,
+        tags: tags,
+        imageUrl: imageUrl,
+      };
+      try {
+        await apiClient.post('/cards', cardData);
+        console.log('POST 요청 데이터:', { ...cardData });
+        if (onCreated) onCreated();
+      } catch (error) {
+        console.error('할 일 생성 실패:', error);
+        alert('할 일 생성 실패');
+      }
     }
   };
+
+  useEffect(() => {
+    if (initialValues) {
+      setTitle(initialValues.title || '');
+      setDescription(initialValues.description || '');
+      setDueDate(initialValues.dueDate ? new Date(initialValues.dueDate) : null);
+      setTags(initialValues.tags || []);
+      setActionButtonText('수정');
+      // setStatus();
+    } else {
+      setTitle('');
+      setDescription('');
+      setDueDate(null);
+      setTags([]);
+      setActionButtonText('생성');
+    }
+  }, [initialValues]);
+
+  useEffect(() => {
+    const fetchColumns = async () => {
+      const cols = await getColumns();
+      setColumns(cols);
+
+      // initialvalues 있다면 여기서 선택 컬럼 세팅
+      // 예: props.initialColumnId이 있으면
+      if (initialValues?.columnId) {
+        setSelectedColumnId(initialValues.columnId);
+        const selectedCol = cols.find((c) => c.id === initialValues.columnId);
+        if (selectedCol) {
+          setSelectedColumnName(selectedCol.title);
+        }
+      }
+    };
+    fetchColumns();
+  }, [initialValues]);
+
+  const handleUpdate = async () => {
+    // 수정 버튼 제출시 호출 함수!
+    // 데이터 준비
+    const payload: UpdateCardRequestDto = {
+      columnId,
+      assigneeUserId: selectedItem,
+      title,
+      description,
+      dueDate: formatDueDate(dueDate),
+      tags,
+      imageUrl, // 업로드된 URL
+    };
+
+    try {
+      await updateCardApi(cardId, payload);
+      alert('수정 완료!');
+      // 수정 후, 부모에 알리거나 모달 종료 후 갱신 요청 등
+      if (onCreated) onCreated();
+    } catch (err) {
+      console.error('카드 수정 실패:', err);
+      alert('수정 실패');
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
+      e.preventDefault(); //엔터키 등 기본 제출 방지 추가
+      e.stopPropagation(); //이벤트버블 방지
       if (inputValue.trim() !== '') {
         setTags([...tags, inputValue.trim()]);
         setInputValue('');
@@ -156,30 +239,91 @@ const TaskForm: React.FC<TaskFormProps> = ({
       <div className='mx-auto px-4 max-w-[520px] min-w-[295px]'>
         <h1 className='text-[24px]'>할일 생성</h1>
         <div className='w-full h-auto '>
-          <label htmlFor='assigneeUserId' className='block mb-1 font-semibold text-gray-700'>
-            담당자
-          </label>
-          <UserDropdown.Root
-            valueCallback={(item) => {
-              setSelectedItem(item);
-              console.log(item);
-            }}
-          >
-            <UserDropdown.Trigger>이름을 입력해 주세요</UserDropdown.Trigger>
-            <UserDropdown.Content>
-              {members.map((user) => {
-                const converted: UserType = {
-                  id: user.id,
-                  email: user.email,
-                  createdAt: user.createdAt,
-                  updatedAt: user.updatedAt,
-                  nickname: user.nickname,
-                  profileImageUrl: user.profileImageUrl,
-                };
-                return <UserDropdown.Item key={user.id}>{converted}</UserDropdown.Item>;
-              })}
-            </UserDropdown.Content>
-          </UserDropdown.Root>
+          {/* 담당자 영역 절반 나누기 */}
+          <div className='flex mb-4'>
+            {/* 케이스2: initialValues 있다면 */}
+            {initialValues ? (
+              <>
+                {/* 왼쪽: 수정할 때 선택 상태선택 */}
+                <div className='w-1/2 p-2 border-r'>
+                  <label className='block mb-1 font-semibold text-gray-700'>선택 컬럼 제목</label>
+                  <div className='text-gray-800'>
+                    <select //상태 선택 드롭다운(컬럼 리스트) 임시
+                      value={selectedColumnId}
+                      onChange={(e) => {
+                        setSelectedColumnId(Number(e.target.value));
+                        const selectedCol = columns.find((c) => c.id === Number(e.target.value));
+                        setSelectedColumnName(selectedCol?.title || '');
+                      }}
+                    >
+                      <option value=''>{selectedColumnName}</option>
+                      {columns.map((col) => (
+                        <option key={col.id} value={col.id}>
+                          {col.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* 오른쪽: (initialValues 있을 때)기존 담당자 보여주기 */}
+                <div className='w-1/2 p-2'>
+                  <label className='block mb-1 font-semibold'>담당자 선택</label>
+                  <UserDropdown.Root
+                    valueCallback={(item) => {
+                      setSelectedItem(item?.id ?? null);
+                      console.log(item);
+                    }}
+                  >
+                    <UserDropdown.Trigger>담당자 선택</UserDropdown.Trigger>
+                    <UserDropdown.Content>
+                      {members.map((user) => {
+                        const converted: UserType = {
+                          id: user.id,
+                          email: user.email,
+                          createdAt: user.createdAt,
+                          updatedAt: user.updatedAt,
+                          nickname: user.nickname,
+                          profileImageUrl: user.profileImageUrl,
+                          userId: user.userId,
+                        };
+                        return <UserDropdown.Item key={user.id}>{converted}</UserDropdown.Item>;
+                      })}
+                    </UserDropdown.Content>
+                  </UserDropdown.Root>
+                </div>
+              </>
+            ) : (
+              /* 케이스1: 기존 UI 그대로 담당자만 보여주기 */
+              <div className='w-full p-2 border'>
+                <label htmlFor='assigneeUserId' className='block mb-1 font-semibold text-gray-700'>
+                  담당자
+                </label>
+                <UserDropdown.Root
+                  valueCallback={(item) => {
+                    setSelectedItem(item?.userId ?? null);
+                    console.log(members);
+                  }}
+                >
+                  <UserDropdown.Trigger>이름을 입력해 주세요</UserDropdown.Trigger>
+                  <UserDropdown.Content>
+                    {members.map((user) => {
+                      const converted: UserType = {
+                        id: user.id,
+                        email: user.email,
+                        createdAt: user.createdAt,
+                        updatedAt: user.updatedAt,
+                        nickname: user.nickname,
+                        profileImageUrl: user.profileImageUrl,
+                        userId: user.userId, // LJE 여기도 수정했음
+                      };
+                      return <UserDropdown.Item key={user.id}>{converted}</UserDropdown.Item>;
+                    })}
+                  </UserDropdown.Content>
+                </UserDropdown.Root>
+              </div>
+            )}
+          </div>
 
           <label htmlFor='title' className='block mb-1 font-semibold text-gray-700'>
             제목<span className='text-pri'>*</span>
@@ -248,8 +392,29 @@ const TaskForm: React.FC<TaskFormProps> = ({
           </div>
 
           <div>
-            <button>취소</button>
-            <button type='submit'>생성</button>
+            <Button
+              size='small'
+              type='outline'
+              onClick={() => modalOpenSetState(false)}
+              className='mr-2'
+            >
+              취소
+            </Button>
+            <Button
+              size='small'
+              type='primary'
+              onClick={() => {
+                if (actionButtonText === '수정') {
+                  handleUpdate(); // 수정 함수 호출
+                } else {
+                  handleSubmit(); // 생성 함수 호출
+                }
+              }}
+              disabled={!isFormValid}
+              className='mr-2'
+            >
+              {actionButtonText}
+            </Button>
           </div>
         </div>
       </div>

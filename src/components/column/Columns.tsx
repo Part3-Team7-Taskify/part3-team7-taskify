@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import ColumnEditModal from './ColumnEditModal';
 import Cards from '../card/Cards';
 import { Button } from '../button/Button';
-import CardCreateModal from '../card/CardCreateModal';
+
+import CardCreateModal from '@/components/card/CardCreateModal';
 import { GetCardApi, getCardDetailApi, Card } from '@/api/card/apis';
 import CardDetailModal from '../card/CardDetailModal';
 import CardEditModal from '../card/CardEditModal';
@@ -141,6 +142,9 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
               if (state === true) setIsCardDetailModalOpen('editModal');
               else setIsCardDetailModalOpen(null);
             }}
+            dashboardId={dashboardId}
+            columnId={columnId}
+            initialValues={targetCardData}
           />
         </>
       )}

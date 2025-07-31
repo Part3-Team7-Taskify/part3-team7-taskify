@@ -7,10 +7,14 @@ export const useImageUpload = (columnId: number) => {
   const uploadImage = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('image', file);
-    const res = await apiClient.post<{ url: string }>(`/columns/${columnId}/card-image`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return res.data.url;
+    const res = await apiClient.post<{ imageUrl: string }>(
+      `/columns/${columnId}/card-image`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      },
+    );
+    return res.data.imageUrl;
   };
 
   const handleFileChange = async (file: File | null) => {
@@ -18,6 +22,7 @@ export const useImageUpload = (columnId: number) => {
     try {
       const url = await uploadImage(file);
       setImageUrl(url);
+      console.log('업로드 이미지 URL:', imageUrl);
     } catch (err) {
       console.error('이미지 업로드 실패:', err);
       setImageUrl(null);
