@@ -4,8 +4,8 @@ import { useEffect } from 'react';
 import { apiClient } from '@/api/auth/apiClient';
 import { useUserStore } from '@/store/LoginStore';
 import ProfileSection from '@/components/ProfileSection';
-import { GnbMyDashboard } from '@/components/gnb/GnbMyDashboard';
 import PasswordChangeSection from '@/components/PasswordChangeSection';
+import { GnbMyDashboardWithUsers } from '@/components/gnb/GnbMyDashboardWithUsers';
 
 const MyPage = () => {
   const { user, addCurrentUser } = useUserStore();
@@ -57,19 +57,8 @@ const MyPage = () => {
 
   return (
     <div className='flex-1 flex flex-col'>
-      {/* 상단 GNB - 계정관리 */}
-      {user && (
-        <GnbMyDashboard
-          user={{
-            id: user.id,
-            nickname: user.nickname,
-            profileImageUrl: user.profileImageUrl || '',
-            email: user.email,
-            createdAt: user.createdAt || '',
-            updatedAt: user.updatedAt || '',
-          }}
-        />
-      )}
+      {/* 상단 GNB - 마이페이지용 */}
+      {user && <GnbMyDashboardWithUsers user={user} users={[]} />}
 
       {/* 메인 콘텐츠 - 반응형 적용 */}
       <div className='flex-1 p-4 md:p-6 lg:p-8 bg-gray-50'>
@@ -91,7 +80,7 @@ const MyPage = () => {
               user={{
                 id: user.id,
                 nickname: user.nickname,
-                email: user.email,
+                email: user.email || '',
                 profileImageUrl: user.profileImageUrl || undefined,
               }}
             />

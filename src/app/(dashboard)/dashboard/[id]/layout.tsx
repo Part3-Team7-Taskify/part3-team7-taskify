@@ -20,6 +20,7 @@ export default async function Layout({
         users={members}
         title={dashboardInfo.title}
         createdByMe={dashboardInfo.createdByMe}
+        dashboardId={id}
       />
       {children}
     </div>

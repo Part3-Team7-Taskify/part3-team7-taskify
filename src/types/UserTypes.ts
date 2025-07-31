@@ -11,9 +11,9 @@ export interface LoginResponse {
 
 export interface UserType {
   id: number;
-  email: string;
+  email?: string;
   nickname: string;
   profileImageUrl: string | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
