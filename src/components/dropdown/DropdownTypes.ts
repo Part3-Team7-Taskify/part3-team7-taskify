@@ -3,6 +3,7 @@ import { UserType } from '@/types/UserTypes';
 export interface DropdownContextType {
   isOpen: boolean;
   selectedItem: string | null;
+  className?: string;
   toggleDropdown: () => void;
   closeDropdown: () => void;
   setSelectedItem: (item: string | null) => void;
