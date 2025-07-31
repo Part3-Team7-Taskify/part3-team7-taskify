@@ -25,6 +25,7 @@ const Page = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isDuplicateEmailModalVisible, setIsDuplicateEmailModalVisible] = useState(false);
   const { router } = useRouterContext();
   const {
     register,
@@ -48,12 +49,14 @@ const Page = () => {
           setError('root', { type: 'manual', message: '존재하지 않는 유저입니다.' });
         } else if (err.status === 409) {
           setError('email', { type: 'manual', message: '이미 사용중인 이메일입니다.' });
+          setIsDuplicateEmailModalVisible(true); // 409 에러 시 모달
         } else {
           setError('root', { type: 'manual', message: '로그인 오류입니다.' });
         }
       }
     }
   };
+
   return (
     <>
       <main className='w-screen h-screen grid place-items-center'>
@@ -165,6 +168,17 @@ const Page = () => {
           </span>
         </section>
       </main>
+      <ModalRoot
+        modalButtonType='one'
+        buttonCallback={() => {
+          setIsDuplicateEmailModalVisible(false);
+        }}
+        modalOpenSetState={setIsDuplicateEmailModalVisible}
+        modalOpenState={isDuplicateEmailModalVisible}
+      >
+        <p>이미 사용중인 이메일 입니다.</p>
+      </ModalRoot>
+
       <ModalRoot
         modalButtonType='one'
         buttonCallback={() => {
