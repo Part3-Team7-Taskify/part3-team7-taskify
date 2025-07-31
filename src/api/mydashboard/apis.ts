@@ -31,7 +31,7 @@ export const postInviteAccepted = async (
   accepted: boolean,
 ): Promise<InvitationType> => {
   try {
-    const { data } = await apiClient.post(`/invitations/${invitationId}`, {
+    const { data } = await apiClient.put(`/invitations/${invitationId}`, {
       inviteAccepted: accepted,
     });
     return data;
