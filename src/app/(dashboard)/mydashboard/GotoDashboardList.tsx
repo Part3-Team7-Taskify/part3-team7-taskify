@@ -44,15 +44,17 @@ const GotoDashboardList = () => {
             </GotoDashboardButton>
           ))}
         </div>
-        <div className='text-right space-x-2 mt-2'>
+        <div className='flex justify-end items-center gap-2 mt-2'>
           <span>
-            {currentPage === 0 ? 1 : (currentPage + 5) / 5} 페이지 중의 {dashboards.length / 5}
+            {currentPage === 0 ? 1 : (currentPage + 5) / 5} 페이지 중의{' '}
+            {dashboards.length <= 5 ? 1 : dashboards.length / 5}
           </span>
           <PaginationButton
             onClickLeft={handleLeftButtonClick}
             onClickRight={handleRightButtonClick}
-            disabledLeft={currentPage <= 0 && true}
-            disabledRight={currentPage + 5 >= dashboards.length && true}
+            isLeftDisabled={currentPage <= 0 && true}
+            isRightDisabled={currentPage + 5 >= dashboards.length && true}
+            size='small'
           />
         </div>
       </div>
