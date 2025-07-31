@@ -9,9 +9,20 @@ interface Props {
   modalOpenSetState: (state: boolean) => void;
   cardInfo: Card;
   columnTitle: string;
+  columnId: number;
+  dashboardId: number;
+  meatballEditButtonClick: () => void;
 }
 
-const CardDetailModal = ({ modalOpenState, modalOpenSetState, cardInfo, columnTitle }: Props) => {
+const CardDetailModal = ({
+  modalOpenState,
+  modalOpenSetState,
+  cardInfo,
+  columnTitle,
+  columnId,
+  dashboardId,
+  meatballEditButtonClick,
+}: Props) => {
   const assignee: UserType = cardInfo.assignee;
   const tags = cardInfo.tags;
 
@@ -19,8 +30,10 @@ const CardDetailModal = ({ modalOpenState, modalOpenSetState, cardInfo, columnTi
     <ModalRoot
       modalButtonType='none'
       modalOpenState={modalOpenState}
-      modalOpenSetState={modalOpenSetState}
+      modalOpenSetState={(state) => {}}
       meatballMenu={true}
+      meatballMenuEditCallback={meatballEditButtonClick}
+      meatballMenuDeleteCallback={() => console.log('삭제버튼')}
     >
       <div className='flex flex-col gap-[16px] sm:min-w-[614px] min-w-[327px]'>
         <h1 className='text-xl font-bold text-black-200'>새로운 일정관리 Taskify</h1>
