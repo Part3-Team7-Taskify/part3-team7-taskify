@@ -78,7 +78,7 @@ const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectio
   };
 
   return (
-    <div className='bg-white rounded-lg p-6 shadow-sm'>
+    <div className='bg-white rounded-lg p-4 md:p-6 shadow-sm w-full max-w-none md:max-w-2xl lg:max-w-4xl'>
       <div className='flex justify-between items-center mb-6'>
         <h2 className='text-xl font-bold'>구성원</h2>
         <span className='text-sm text-gray-500'>{members.length}명의 구성원</span>
@@ -94,7 +94,7 @@ const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectio
               key={member.id}
               className='flex justify-between items-center p-3 border border-gray-200 rounded-lg'
             >
-              <div className='flex items-center gap-3'>
+              <div className='flex items-center gap-3 flex-1 min-w-0'>
                 {/* 프로필 이미지 */}
                 {member.profileImageUrl ? (
                   <img
@@ -108,16 +108,20 @@ const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectio
                   </div>
                 )}
 
-                <div className='flex flex-col'>
-                  <div className='flex items-center gap-2'>
-                    <span className='font-medium'>{member.nickname}</span>
+                <div className='flex flex-col min-w-0 flex-1'>
+                  <div className='flex items-center gap-2 mb-1'>
+                    <span className='font-medium text-sm md:text-base truncate'>
+                      {member.nickname}
+                    </span>
                     {member.isOwner && (
-                      <span className='px-2 py-1 bg-violet-100 text-violet-700 text-xs rounded-full'>
+                      <span className='px-2 py-1 bg-violet-100 text-violet-700 text-xs rounded-full whitespace-nowrap'>
                         소유자
                       </span>
                     )}
                   </div>
-                  <span className='text-sm text-violet-500'>{member.email}</span>
+                  <span className='text-xs md:text-sm text-violet-500 truncate'>
+                    {member.email}
+                  </span>
                 </div>
               </div>
 
@@ -125,7 +129,7 @@ const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectio
               <button
                 onClick={() => handleDeleteClick(member)}
                 disabled={isDeleting === member.id || member.isOwner}
-                className={`px-3 py-1 text-sm border rounded transition-colors ${
+                className={`px-3 py-1 text-xs md:text-sm border rounded transition-colors whitespace-nowrap ${
                   member.isOwner
                     ? 'text-gray-400 border-gray-300 cursor-not-allowed'
                     : 'text-red-600 border-red-600 hover:bg-red-50'

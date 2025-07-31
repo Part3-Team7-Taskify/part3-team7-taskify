@@ -4,7 +4,13 @@ import { useState } from 'react';
 import { DropdownContextType } from './DropdownTypes';
 import { DropdownContext, useDropdownContext } from './DropdownContext';
 
-const DropdownRoot = ({ children }: { children: React.ReactNode }) => {
+const DropdownRoot = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
@@ -14,6 +20,7 @@ const DropdownRoot = ({ children }: { children: React.ReactNode }) => {
   const contextValue: DropdownContextType = {
     isOpen,
     selectedItem,
+    className,
     toggleDropdown,
     closeDropdown,
     setSelectedItem,
@@ -37,11 +44,11 @@ const DropdownTrigger = ({ children }: { children: React.ReactNode }) => {
 };
 
 const DropdownContent = ({ children }: { children: React.ReactNode }) => {
-  const { isOpen } = useDropdownContext();
+  const { isOpen, className } = useDropdownContext();
 
   return (
     <div
-      className={`absolute left-0 w-24 bg-white border border-gray-200 text-black rounded shadow-lg transition-all duration-200 ease-out ${isOpen ? 'mt-2 visible opacity-100' : 'mt-0 invisible opacity-0'}`}
+      className={`absolute bg-white border border-gray-200 text-black rounded shadow-lg transition-all duration-200 ease-out ${className} ${isOpen ? 'mt-2 visible opacity-100' : 'mt-0 invisible opacity-0'}`}
     >
       {children}
     </div>

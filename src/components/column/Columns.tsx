@@ -77,7 +77,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
           </button>
         </div>
         <Button
-          type='outline'
+          variant='outline'
           onClick={openCreateCardModal}
           className='border-gray-300 mt-[24px] mb-[10px] flex justify-center items-center '
         >
