@@ -33,6 +33,7 @@ export interface CardRequest {
   dueDate: string;
   tags: string[];
   imageUrl?: string | null;
+  colorMap?: { [tag: string]: string };
 }
 
 export interface Card {

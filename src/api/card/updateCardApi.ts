@@ -10,7 +10,7 @@ export interface UpdateCardRequestDto {
   imageUrl: string | null;
 }
 
-export const updateCardApi = async (cardId: number, data: UpdateCardRequestDto) => {
+export const updateCardApi = async (cardId: number | null, data: UpdateCardRequestDto) => {
   const response = await apiClient.put(`/cards/${cardId}`, data);
   return response.data;
 };
