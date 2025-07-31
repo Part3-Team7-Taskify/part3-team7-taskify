@@ -6,13 +6,14 @@ import MeatballDropdown from '../dropdown/MeatballDropdown';
 import { Button } from '../button/Button';
 
 type ModalPropsType = {
-  modalButtonType: 'none' | 'one' | 'two';
+  modalButtonType: 'none' | 'one' | 'two' | 'multi';
   title?: string;
   meatballMenu?: boolean;
   children: React.ReactNode | null;
   modalOpenState: boolean;
   modalOpenSetState: (state: boolean) => void;
   buttonCallback?: () => void;
+  buttonCallbackVer2?: () => void;
 };
 
 export const ModalPropsContext = createContext<ModalPropsType>({
@@ -23,6 +24,7 @@ export const ModalPropsContext = createContext<ModalPropsType>({
   modalOpenState: false,
   modalOpenSetState: () => {},
   buttonCallback: () => {},
+  buttonCallbackVer2: () => {},
 });
 
 export const ModalRoot: FC<ModalPropsType> = ({
@@ -33,6 +35,7 @@ export const ModalRoot: FC<ModalPropsType> = ({
   meatballMenu,
   modalButtonType = 'one',
   buttonCallback,
+  buttonCallbackVer2, //칼럼 수정용 콜백
 }) => {
   const [portalElement, setPortalElement] = useState<Element | null>(null);
 
@@ -51,6 +54,7 @@ export const ModalRoot: FC<ModalPropsType> = ({
           modalOpenSetState,
           modalButtonType,
           buttonCallback,
+          buttonCallbackVer2,
         }}
       >
         {modalOpenState && portalElement ? createPortal(<ModalWrapper />, portalElement) : null}
@@ -61,10 +65,10 @@ export const ModalRoot: FC<ModalPropsType> = ({
 
 const ModalWrapper = () => {
   return (
-    <>
+    <div className='fixed'>
       <ModalBackdrop />
       <ModalWindow />
-    </>
+    </div>
   );
 };
 
@@ -113,7 +117,8 @@ const ModalWindow = () => {
 };
 
 const ModalButtons = () => {
-  const { modalButtonType, buttonCallback, modalOpenSetState } = useContext(ModalPropsContext);
+  const { modalButtonType, buttonCallback, modalOpenSetState, buttonCallbackVer2 } =
+    useContext(ModalPropsContext);
   switch (modalButtonType) {
     case 'none':
       return null;
@@ -133,6 +138,26 @@ const ModalButtons = () => {
             확인
           </Button>
         </>
+      );
+    /*컬럼 수정하기 관련 추가 - lje*/
+    case 'multi':
+      return (
+        <div className='flex justify-center gap-[8px]'>
+          <Button
+            type='outline'
+            className='px-4 py-2 w-1/2 bg-white border border-[#D9D9D9] rounded hover:bg-[#e4e4e4]'
+            onClick={buttonCallbackVer2}
+          >
+            삭제
+          </Button>
+          <Button
+            type='primary'
+            className='px-4 py-2 w-1/2 bg-pri hover:bg-[#3a3063] text-white rounded'
+            onClick={buttonCallback}
+          >
+            변경
+          </Button>
+        </div>
       );
   }
 };

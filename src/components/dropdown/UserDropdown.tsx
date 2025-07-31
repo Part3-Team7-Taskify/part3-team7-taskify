@@ -4,7 +4,8 @@ import { ReactNode, useEffect, useState } from 'react';
 import ChevronDown from '../../../public/icon/arrow_drop_down_FILL0_wght300_GRAD0_opsz24 2.svg';
 import { UserDropdownContextType } from './DropdownTypes';
 import { UserDropdownContext, useUserDropdownContext } from './DropdownContext';
-import { UserChip, UserType } from '../chip/UserChip';
+import { UserChip } from '../chip/UserChip';
+import { UserType } from '@/types/UserTypes';
 
 const DropdownRoot = ({
   children,
@@ -46,7 +47,7 @@ const DropdownTrigger = ({ children }: { children: ReactNode }) => {
       onClick={toggleDropdown}
       className='w-56 flex items-center justify-between px-4 py-2 bg-white border border-gray-200 text-black rounded'
     >
-      {selectedItem ? <UserChip user={selectedItem} size='small' /> : children}
+      {selectedItem ? <UserChip user={selectedItem} size='small' hideName={false} /> : children}
       <ChevronDown className={`transition-transform ${isOpen && 'rotate-180'}`} />
     </button>
   );
@@ -60,7 +61,7 @@ const DropdownContent = ({ children }: { children: ReactNode }) => {
 
   return (
     <div
-      className={`absolute left-0 w-56 bg-white border border-gray-200 text-black rounded transition-all duration-200 ease-out ${isOpen ? afterRenderedClasses : beforeRenderedClasses}`}
+      className={`absolute left-0 w-56 z-[1] bg-white border border-gray-200 text-black rounded transition-all duration-200 ease-out ${isOpen ? afterRenderedClasses : beforeRenderedClasses}`}
     >
       {children}
     </div>
@@ -77,7 +78,7 @@ const DropdownItem = ({ children }: { children: UserType }) => {
 
   return (
     <button onClick={handleClick} className='w-full px-4 py-2 flex hover:bg-violet-200'>
-      <UserChip user={children} size='small' />
+      <UserChip user={children} size='small' hideName={false} />
     </button>
   );
 };

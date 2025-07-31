@@ -223,6 +223,12 @@
   }
 }
 
+@supports (-webkit-touch-callout: none) {
+  /* 아이폰에서 vh값 구하기 */
+  .h-screen {
+    height: -webkit-fill-available;
+  }
+}
 body {
   background: var(--color-background);
   color: var(--color-foreground);

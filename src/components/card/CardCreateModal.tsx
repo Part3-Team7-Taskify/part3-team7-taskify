@@ -1,0 +1,40 @@
+import { ModalRoot } from '@/components/modal/ModalRoot';
+import TaskForm from '@/components/taskform/TaskForm';
+import { TaskFormValues } from '@/components/taskform/formTypes';
+
+interface Props {
+  modalOpenSetState: (state: boolean) => void;
+  modalOpenState: boolean;
+  onCreated?: () => void;
+  dashboardId: number;
+  columnId: number;
+  initialValues?: TaskFormValues; // optional
+}
+
+const CardCreateModal = ({
+  modalOpenSetState,
+  modalOpenState,
+  onCreated,
+  dashboardId,
+  columnId,
+  initialValues,
+}: Props) => {
+  return (
+    <ModalRoot
+      modalButtonType='two'
+      modalOpenState={modalOpenState}
+      modalOpenSetState={modalOpenSetState}
+      title='할 일 생성'
+    >
+      <TaskForm
+        dashboardId={dashboardId}
+        columnId={columnId}
+        initialValues={initialValues}
+        modalOpenSetState={modalOpenSetState}
+        onCreated={onCreated}
+      />
+    </ModalRoot>
+  );
+};
+export default CardCreateModal;
+export type { Props };
