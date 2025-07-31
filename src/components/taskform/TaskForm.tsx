@@ -87,10 +87,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
         columnId: columnId,
         title: title,
         description: description,
-        dueDate: formattedDueDate,
-        tags: tags,
         colorMap: colorMap,
-        imageUrl: imageUrl,
+        ...(tags ? { tags } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
+        ...(dueDate ? { formattedDueDate } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
+        ...(imageUrl ? { imageUrl } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
       };
       try {
         await apiClient.post('/cards', cardData);
@@ -400,7 +400,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
           <div>
             <Button
               size='small'
-              type='outline'
+              variant='outline'
               onClick={() => modalOpenSetState(false)}
               className='mr-2'
             >
@@ -408,7 +408,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
             </Button>
             <Button
               size='small'
-              type='primary'
+              variant='primary'
               onClick={() => {
                 if (actionButtonText === '수정') {
                   handleUpdate(); // 수정 함수 호출
