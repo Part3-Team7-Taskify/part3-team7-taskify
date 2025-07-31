@@ -75,7 +75,7 @@ const Page = () => {
               </span>
             )}
           </label>
-          <label className='w-full'>
+          <label className='w-full relative'>
             <span>비밀번호</span>
             <Input
               type={showPassword ? 'text' : 'password'}
@@ -87,10 +87,10 @@ const Page = () => {
               }}
               {...register('password', { required: true })}
             />
+            {errors.root && (
+              <span className='absolute right-0 top-20 text-red-500'>{errors.root.message}</span>
+            )}
           </label>
-          {errors.root && (
-            <span className='absolute right-0 top-20 text-red-500'>{errors.root.message}</span>
-          )}
           <Button variant={!isDirty || !isValid ? 'disabled' : 'primary'} className='w-full mt-4'>
             로그인
           </Button>
