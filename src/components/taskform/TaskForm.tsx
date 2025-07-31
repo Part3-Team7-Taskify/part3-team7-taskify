@@ -12,7 +12,7 @@ import { Members } from '@/components/taskform/formTypes';
 import { UserType } from '@/types/UserTypes';
 import { CardRequest } from '@/api/cards/apis';
 import { getMembersApi, getUserMeAPI } from '@/api/cards/apis';
-import { backgroundColors, colorMap } from '@/components/taskform/tagColors';
+import { backgroundColors } from '@/components/taskform/tagColors';
 import { Button } from '@/components/button/Button';
 import { updateCardApi, UpdateCardRequestDto } from '@/api/card/updateCardApi';
 import { getColumns, Column } from '@/api/card/getColumns';
@@ -28,6 +28,7 @@ interface TaskFormProps {
     imageUrl?: string | null;
     assigneeUserId?: number | null;
     columnId?: number | null;
+    cardId?: number | null;
   };
 
   onCreated?: () => void;
@@ -47,6 +48,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [userData, setUserData] = useState<UserType | null>(null);
 
   const [tags, setTags] = useState<string[]>([]);
+  const [colorMap, setColorMap] = useState<{ [tag: string]: string }>({});
+
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const { imageUrl, handleFileChange } = useImageUpload(columnId);
@@ -54,7 +57,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [actionButtonText, setActionButtonText] = useState<string>('생성');
   const isFormValid =
     title.trim() !== '' && description.trim() !== '' && userData?.id !== undefined;
-  const [cardId] = useState<number>(0);
+  const [cardId, setCardId] = useState<number | null>(initialValues?.cardId || null);
   // 카드 상세 보기 열때, 카드 ID도 저장
   const [columns, setColumns] = useState<Column[]>([]);
   // 선택된 컬럼 ID 저장 (초기에는 빈값 또는 null)
@@ -86,6 +89,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         description: description,
         dueDate: formattedDueDate,
         tags: tags,
+        colorMap: colorMap,
         imageUrl: imageUrl,
       };
       try {
@@ -101,12 +105,14 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   useEffect(() => {
     if (initialValues) {
+      if (initialValues.cardId !== undefined && initialValues.cardId !== null) {
+        setCardId(initialValues.cardId);
+      }
       setTitle(initialValues.title || '');
       setDescription(initialValues.description || '');
       setDueDate(initialValues.dueDate ? new Date(initialValues.dueDate) : null);
       setTags(initialValues.tags || []);
       setActionButtonText('수정');
-      // setStatus();
     } else {
       setTitle('');
       setDescription('');
@@ -230,7 +236,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
     }
     // 새 태그의 경우, 색상 맵에 할당
     const assignedColor = backgroundColors[Object.keys(colorMap).length % backgroundColors.length];
-    colorMap[tag] = assignedColor;
+    setColorMap((prev) => ({ ...prev, [tag]: assignedColor }));
     return assignedColor;
   };
 
