@@ -7,3 +7,9 @@ export async function getCookie(name: string) {
 
   return cookieStore.get(name)?.value;
 }
+
+export async function deleteCookie(name: string) {
+  const cookieStore = await cookies();
+
+  return cookieStore.delete(name);
+}

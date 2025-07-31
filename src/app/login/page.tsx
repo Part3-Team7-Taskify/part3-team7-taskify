@@ -8,7 +8,7 @@ const LoginPage = () => {
       <AuthForm
         title='로그인'
         apiEndpoint='auth/login'
-        redirectPath='/dashboard'
+        redirectPath='/mydashboard'
         fields={[
           { label: '이메일', name: 'email', type: 'email' },
           { label: '비밀번호', name: 'password', type: 'password' },
