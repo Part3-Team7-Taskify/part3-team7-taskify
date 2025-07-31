@@ -74,9 +74,6 @@ const Page = () => {
                 이메일 형식으로 작성해주세요.
               </span>
             )}
-            {errors.root && (
-              <span className='absolute right-0 top-20 text-red-500'>{errors.root.message}</span>
-            )}
           </label>
           <label className='w-full'>
             <span>비밀번호</span>
@@ -91,6 +88,9 @@ const Page = () => {
               {...register('password', { required: true })}
             />
           </label>
+          {errors.root && (
+            <span className='absolute right-0 top-20 text-red-500'>{errors.root.message}</span>
+          )}
           <Button variant={!isDirty || !isValid ? 'disabled' : 'primary'} className='w-full mt-4'>
             로그인
           </Button>
