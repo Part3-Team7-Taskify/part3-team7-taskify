@@ -43,7 +43,7 @@ const Page = () => {
         if (err.status === 404) {
           setError('root', { type: 'manual', message: '존재하지 않는 유저입니다.' });
         } else if (err.status === 400) {
-          setError('root', { type: 'manual', message: '이메일 형식으로 작성해주세요.' });
+          setError('root', { type: 'manual', message: '비밀번호가 일치하지 않습니다.' });
         } else {
           setError('root', { type: 'manual', message: '로그인 오류입니다.' });
         }
@@ -69,6 +69,11 @@ const Page = () => {
               placeholder='이메일을 입력해 주세요'
               {...register('email', { required: true })}
             />
+            {errors.email && (
+              <span className='absolute right-0 top-20 text-red-500'>
+                이메일 형식으로 작성해주세요.
+              </span>
+            )}
             {errors.root && (
               <span className='absolute right-0 top-20 text-red-500'>{errors.root.message}</span>
             )}
