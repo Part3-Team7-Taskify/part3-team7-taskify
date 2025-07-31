@@ -14,12 +14,14 @@ import { useRouterContext } from '@/contexts/RouterContext';
 import { ROUTES } from '@/constants/router';
 import { AxiosError } from 'axios';
 import { ModalRoot } from '@/components/modal/ModalRoot';
+import { setCookie } from '@/utils/cookies';
 
 type SignupFormType = {
   email: string;
   nickname: string;
   password: string;
   passwordConfirm: string;
+  termCheck: boolean;
 };
 
 const Page = () => {
@@ -32,7 +34,7 @@ const Page = () => {
     handleSubmit,
     setError,
     formState: { errors, isDirty, isValid },
-  } = useForm<SignupFormType>({ mode: 'onBlur' });
+  } = useForm<SignupFormType>({ mode: 'onChange' });
 
   const onSubmit: SubmitHandler<SignupFormType> = async (e) => {
     try {
@@ -40,6 +42,7 @@ const Page = () => {
         setError('passwordConfirm', { type: 'manual', message: '비밀번호가 일치하지 않습니다.' });
       const response = await apiClient.post('users', e);
       if (response.status === 201) {
+        setCookie('accessToken', response.data.accessToken);
         setAccessToken(response.data.accessToken);
         setIsModalVisible(true);
       }
@@ -68,6 +71,7 @@ const Page = () => {
               <Input
                 type='email'
                 placeholder='이메일을 입력해 주세요'
+                className={`${errors.email && 'border-red-500'}`}
                 {...register('email', {
                   required: true,
                   pattern: {
@@ -88,7 +92,7 @@ const Page = () => {
                 className={`${errors.nickname && 'border-red-500'}`}
                 {...register('nickname', {
                   required: true,
-                  minLength: { value: 10, message: '닉네임은 10자 이하여야 합니다.' },
+                  maxLength: { value: 10, message: '닉네임은 10자 이하여야 합니다.' },
                 })}
               />
               {errors.nickname && (
@@ -103,7 +107,10 @@ const Page = () => {
                 type={showPassword ? 'text' : 'password'}
                 placeholder='8자 이상 입력해 주세요'
                 icon={showPassword ? <ShowPasswordIcon /> : <HidePasswordIcon />}
-                iconOnClick={() => setShowPassword(!showPassword)}
+                iconOnClick={(e) => {
+                  e.preventDefault();
+                  setShowPassword(!showPassword);
+                }}
                 className={`${errors.password && 'border-red-500'}`}
                 {...register('password', {
                   required: true,
@@ -122,7 +129,10 @@ const Page = () => {
                 type={showPasswordConfirm ? 'text' : 'password'}
                 placeholder='비밀번호를 한번 더 입력해 주세요'
                 icon={showPasswordConfirm ? <ShowPasswordIcon /> : <HidePasswordIcon />}
-                iconOnClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                iconOnClick={(e) => {
+                  e.preventDefault();
+                  setShowPasswordConfirm(!showPasswordConfirm);
+                }}
                 className={`${errors.passwordConfirm && 'border-red-500'}`}
                 {...register('passwordConfirm', {
                   required: true,
@@ -138,8 +148,12 @@ const Page = () => {
                 </span>
               )}
             </label>
-            <Button type={!isDirty || !isValid ? 'disabled' : 'primary'} className='w-full mt-4'>
-              로그인
+            <div className='space-x-3'>
+              <input type='checkbox' {...register('termCheck', { required: true })} />{' '}
+              <span>이용약관에 동의합니다.</span>
+            </div>
+            <Button variant={!isDirty || !isValid ? 'disabled' : 'primary'} className='w-full'>
+              가입하기
             </Button>
           </form>
           <span className='text-sm'>
@@ -154,7 +168,7 @@ const Page = () => {
         modalButtonType='one'
         buttonCallback={() => {
           setIsModalVisible(false);
-          router.push(ROUTES.DASHBOARD);
+          router.push(ROUTES.MY_DASHBOARD);
         }}
         modalOpenState={isModalVisible}
         modalOpenSetState={setIsModalVisible}

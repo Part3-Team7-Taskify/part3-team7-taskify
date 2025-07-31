@@ -13,6 +13,7 @@ import { setAccessToken } from '@/utils/tokenhandler';
 import { useRouterContext } from '@/contexts/RouterContext';
 import { ROUTES } from '@/constants/router';
 import { AxiosError } from 'axios';
+import { setCookie } from '@/utils/cookies';
 
 type LoginFormType = {
   email: string;
@@ -27,14 +28,15 @@ const Page = () => {
     handleSubmit,
     setError,
     formState: { errors, isDirty, isValid },
-  } = useForm<LoginFormType>({ mode: 'onBlur' });
+  } = useForm<LoginFormType>({ mode: 'onChange' });
 
   const onSubmit: SubmitHandler<LoginFormType> = async (e) => {
     try {
       const response = await apiClient.post('auth/login', e);
       if (response.status === 201) {
+        setCookie('accessToken', response.data.accessToken);
         setAccessToken(response.data.accessToken);
-        router.push(ROUTES.DASHBOARD);
+        router.push(ROUTES.MY_DASHBOARD);
       }
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -72,11 +74,14 @@ const Page = () => {
               type={showPassword ? 'text' : 'password'}
               placeholder='비밀번호를 입력해 주세요'
               icon={showPassword ? <ShowPasswordIcon /> : <HidePasswordIcon />}
-              iconOnClick={() => setShowPassword(!showPassword)}
+              iconOnClick={(e) => {
+                e.preventDefault();
+                setShowPassword(!showPassword);
+              }}
               {...register('password', { required: true })}
             />
           </label>
-          <Button type={!isDirty || !isValid ? 'disabled' : 'primary'} className='w-full mt-4'>
+          <Button variant={!isDirty || !isValid ? 'disabled' : 'primary'} className='w-full mt-4'>
             로그인
           </Button>
         </form>
