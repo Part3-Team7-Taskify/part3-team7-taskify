@@ -52,8 +52,8 @@ const GotoDashboardList = () => {
           <PaginationButton
             onClickLeft={handleLeftButtonClick}
             onClickRight={handleRightButtonClick}
-            isLeftDisabled={currentPage <= 0 && true}
-            isRightDisabled={currentPage + 5 >= dashboards.length && true}
+            isLeftDisabled={currentPage <= 0}
+            isRightDisabled={currentPage + 5 >= dashboards.length}
             size='small'
           />
         </div>
