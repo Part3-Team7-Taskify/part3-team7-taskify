@@ -9,12 +9,10 @@ import { Button } from '@/components/button/Button';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { apiClient } from '@/api/auth/apiClient';
-import { setAccessToken } from '@/utils/tokenhandler';
 import { useRouterContext } from '@/contexts/RouterContext';
 import { ROUTES } from '@/constants/router';
 import { AxiosError } from 'axios';
 import { ModalRoot } from '@/components/modal/ModalRoot';
-import { setCookie } from '@/utils/cookies';
 
 type SignupFormType = {
   email: string;
@@ -42,8 +40,6 @@ const Page = () => {
         setError('passwordConfirm', { type: 'manual', message: '비밀번호가 일치하지 않습니다.' });
       const response = await apiClient.post('users', e);
       if (response.status === 201) {
-        setCookie('accessToken', response.data.accessToken);
-        setAccessToken(response.data.accessToken);
         setIsModalVisible(true);
       }
     } catch (err) {
@@ -168,7 +164,7 @@ const Page = () => {
         modalButtonType='one'
         buttonCallback={() => {
           setIsModalVisible(false);
-          router.push(ROUTES.MY_DASHBOARD);
+          router.push(ROUTES.LOGIN);
         }}
         modalOpenState={isModalVisible}
         modalOpenSetState={setIsModalVisible}

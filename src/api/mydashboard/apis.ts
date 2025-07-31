@@ -1,10 +1,9 @@
 import { InvitationResponse, InvitationType } from '@/types/Invite';
 import { apiClient } from '../auth/apiClient';
-import { BASE_URL } from '@/constants/router';
 
 export const getInvitationList = async (): Promise<InvitationResponse> => {
   try {
-    const { data } = await apiClient.get(`${BASE_URL}/invitations`);
+    const { data } = await apiClient.get(`/invitations`);
     return data;
   } catch (err) {
     console.error('초대 가져오기 실패!', err);
