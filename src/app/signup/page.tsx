@@ -64,7 +64,7 @@ const Page = () => {
       <main className='w-screen h-screen grid place-items-center'>
         <section className='w-[351px] md:w-[520px] grid place-items-center gap-4'>
           <Image src={Logo} alt='Taskify 로고' priority={true} />
-          <span>오늘도 만나서 반가워요!</span>
+          <span>첫 방문을 환영합니다!</span>
           <form onSubmit={handleSubmit(onSubmit)} className='w-full grid gap-4'>
             <label className='w-full relative'>
               <span>이메일</span>
