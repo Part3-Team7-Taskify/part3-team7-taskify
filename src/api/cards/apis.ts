@@ -30,8 +30,8 @@ export interface CardRequest {
   columnId: number;
   title: string;
   description: string;
-  dueDate: string;
-  tags: string[];
+  dueDate?: string; // 필수값 제외할때 수정한 부분 옵셔널 파라미터 지정
+  tags?: string[]; // 필수값 제외할때 수정한 부분
   imageUrl?: string | null;
   colorMap?: { [tag: string]: string };
 }
