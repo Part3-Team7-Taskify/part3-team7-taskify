@@ -5,6 +5,7 @@ import { apiClient } from '@/api/auth/apiClient';
 import { useUserStore } from '@/store/LoginStore';
 import ProfileSection from '@/components/ProfileSection';
 import PasswordChangeSection from '@/components/PasswordChangeSection';
+import { GnbMyDashboardWithUsers } from '@/components/gnb/GnbMyDashboardWithUsers';
 
 const MyPage = () => {
   const { user, addCurrentUser } = useUserStore();
@@ -56,6 +57,9 @@ const MyPage = () => {
 
   return (
     <div className='flex-1 flex flex-col'>
+      {/* 상단 GNB - 마이페이지용 */}
+      {user && <GnbMyDashboardWithUsers user={user} users={[]} />}
+
       {/* 메인 콘텐츠 - 반응형 적용 */}
       <div className='flex-1 p-4 md:p-6 lg:p-8 bg-gray-50'>
         {/* 돌아가기 버튼 */}
