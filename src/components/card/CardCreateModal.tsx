@@ -21,7 +21,7 @@ const CardCreateModal = ({
 }: Props) => {
   return (
     <ModalRoot
-      modalButtonType='two'
+      modalButtonType='none'
       modalOpenState={modalOpenState}
       modalOpenSetState={modalOpenSetState}
       title='할 일 생성'
