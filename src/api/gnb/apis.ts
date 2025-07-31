@@ -1,4 +1,3 @@
-import { BASE_URL } from '@/constants/router';
 import { apiClient } from '../auth/apiClient';
 import { UserType } from '@/types/UserTypes';
 
@@ -9,7 +8,7 @@ interface MembersResponse {
 
 export const getCurrentUser = async (): Promise<UserType> => {
   try {
-    const { data } = await apiClient.get(`${BASE_URL}/users/me`);
+    const { data } = await apiClient.get(`/users/me`);
     return data;
   } catch (err) {
     console.error('유저 가져오기 실패!', err);
@@ -19,7 +18,7 @@ export const getCurrentUser = async (): Promise<UserType> => {
 
 export const getMembers = async (dashboardId: number): Promise<MembersResponse> => {
   try {
-    const { data } = await apiClient.get(`${BASE_URL}/members?dashboardId=${dashboardId}`);
+    const { data } = await apiClient.get(`/members?dashboardId=${dashboardId}`);
     return data;
   } catch (err) {
     console.error('대시보드 멤버 가져오기 실패!', err);
