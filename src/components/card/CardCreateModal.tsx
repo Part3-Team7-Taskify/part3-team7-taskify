@@ -8,10 +8,10 @@ interface Props {
   onCreated?: () => void;
   dashboardId: number;
   columnId: number;
-  initialValues?: TaskFormValues | undefined;
+  initialValues?: TaskFormValues; // optional
 }
 
-const CreateCardModal = ({
+const CardCreateModal = ({
   modalOpenSetState,
   modalOpenState,
   onCreated,
@@ -21,7 +21,7 @@ const CreateCardModal = ({
 }: Props) => {
   return (
     <ModalRoot
-      modalButtonType='none'
+      modalButtonType='two'
       modalOpenState={modalOpenState}
       modalOpenSetState={modalOpenSetState}
       title='할 일 생성'
@@ -36,6 +36,5 @@ const CreateCardModal = ({
     </ModalRoot>
   );
 };
-
-export default CreateCardModal;
+export default CardCreateModal;
 export type { Props };

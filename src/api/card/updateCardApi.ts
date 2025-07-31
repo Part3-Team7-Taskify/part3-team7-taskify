@@ -2,7 +2,7 @@ import { apiClient } from '@/api/auth/apiClient';
 
 export interface UpdateCardRequestDto {
   columnId: number;
-  assigneeUserId?: number; // nullable
+  assigneeUserId?: number | null; // nullable
   title: string;
   description: string;
   dueDate: string;

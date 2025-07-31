@@ -15,8 +15,7 @@ export interface UserType {
   nickname: string;
   profileImageUrl: string | null;
 
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   userId?: number; // 얘도 수정했음
-
 }

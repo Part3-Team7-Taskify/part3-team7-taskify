@@ -139,7 +139,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
     // 데이터 준비
     const payload: UpdateCardRequestDto = {
       columnId,
-      assigneeUserId: selectedItem?.id,
+      assigneeUserId: selectedItem,
       title,
       description,
       dueDate: formatDueDate(dueDate),
