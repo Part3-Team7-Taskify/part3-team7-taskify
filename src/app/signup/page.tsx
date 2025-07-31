@@ -1,6 +1,5 @@
 'use client';
 import Image from 'next/image';
-import Logo from '../../../public/images/login_logo.png';
 import ShowPasswordIcon from '../../../public/icon/icon_pass_visible.svg';
 import HidePasswordIcon from '../../../public/icon/icon_pass_invisible.svg';
 import { Input } from '@/components/input/Input';
@@ -59,7 +58,13 @@ const Page = () => {
     <>
       <main className='w-screen h-screen grid place-items-center'>
         <section className='w-[351px] md:w-[520px] grid place-items-center gap-4'>
-          <Image src={Logo} alt='Taskify 로고' priority={true} />
+          <Image
+            src='/images/images_logo_big.png'
+            alt='Taskify 로고'
+            priority={true}
+            width={200}
+            height={280}
+          />
           <span>첫 방문을 환영합니다!</span>
           <form onSubmit={handleSubmit(onSubmit)} className='w-full grid gap-4'>
             <label className='w-full relative'>
