@@ -3,9 +3,11 @@ import { useEffect, useState } from 'react';
 import ColumnEditModal from './ColumnEditModal';
 import Cards from '../card/Cards';
 import { Button } from '../button/Button';
-import CardCreateModal from '../card/CardCreateModal';
+
+import CardCreateModal from '@/components/card/CardCreateModal';
 import { GetCardApi, getCardDetailApi, Card } from '@/api/card/apis';
 import CardDetailModal from '../card/CardDetailModal';
+import CardEditModal from '../card/CardEditModal';
 
 interface ColumnProps {
   title: string;
@@ -18,7 +20,9 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isCardModalOpen, setIsCardModalOpen] = useState<boolean>(false);
   const [targetCards, setTargetCards] = useState<Card[]>([]);
-  const [isCardDetailModalOpen, setIsCardDetailModalOpen] = useState<boolean>(false);
+  const [isCardDetailModalOpen, setIsCardDetailModalOpen] = useState<
+    'detailModal' | 'editModal' | null
+  >(null);
   const [targetCardData, setTargetCardData] = useState<Card | null>(null);
 
   const fetchCards = async () => {
@@ -45,7 +49,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
     try {
       const res = await getCardDetailApi(id);
       setTargetCardData(res);
-      setIsCardDetailModalOpen(true);
+      setIsCardDetailModalOpen('detailModal');
     } catch (err) {
       console.error('카드 상세 데이터 불러오기 실패:', err);
     }
@@ -119,14 +123,30 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
         />
       )}
       {isCardDetailModalOpen && targetCardData && (
-        <CardDetailModal
-          modalOpenState={isCardDetailModalOpen}
-          modalOpenSetState={setIsCardDetailModalOpen}
-          cardInfo={targetCardData}
-          columnTitle={title}
-          columnId={columnId}
-          dashboardId={dashboardId}
-        />
+        <>
+          <CardDetailModal
+            modalOpenState={isCardDetailModalOpen === 'detailModal' && true}
+            modalOpenSetState={(state) => {
+              if (state === true) setIsCardDetailModalOpen('detailModal');
+              else setIsCardDetailModalOpen(null);
+            }}
+            cardInfo={targetCardData}
+            columnTitle={title}
+            columnId={columnId}
+            dashboardId={dashboardId}
+            meatballEditButtonClick={() => setIsCardDetailModalOpen('editModal')}
+          />
+          <CardEditModal
+            modalOpenState={isCardDetailModalOpen === 'editModal' && true}
+            modalOpenSetState={(state) => {
+              if (state === true) setIsCardDetailModalOpen('editModal');
+              else setIsCardDetailModalOpen(null);
+            }}
+            dashboardId={dashboardId}
+            columnId={columnId}
+            initialValues={targetCardData}
+          />
+        </>
       )}
     </div>
   );
