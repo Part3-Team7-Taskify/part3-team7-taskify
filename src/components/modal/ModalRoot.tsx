@@ -14,6 +14,8 @@ type ModalPropsType = {
   modalOpenSetState: (state: boolean) => void;
   buttonCallback?: () => void;
   buttonCallbackVer2?: () => void;
+  meatballMenuEditCallback?: () => void;
+  meatballMenuDeleteCallback?: () => void;
 };
 
 interface IModalVisiblity {
@@ -32,6 +34,8 @@ export const ModalPropsContext = createContext<ModalPropsType & IModalVisiblity>
   modalOpenSetState: () => {},
   buttonCallback: () => {},
   buttonCallbackVer2: () => {},
+  meatballMenuEditCallback: () => {},
+  meatballMenuDeleteCallback: () => {},
 });
 
 export const ModalRoot: FC<ModalPropsType> = ({
@@ -43,6 +47,8 @@ export const ModalRoot: FC<ModalPropsType> = ({
   modalButtonType = 'one',
   buttonCallback,
   buttonCallbackVer2, //칼럼 수정용 콜백
+  meatballMenuEditCallback,
+  meatballMenuDeleteCallback,
 }) => {
   const [portalElement, setPortalElement] = useState<Element | null>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -77,6 +83,8 @@ export const ModalRoot: FC<ModalPropsType> = ({
           buttonCallbackVer2,
           isVisible,
           setIsVisible,
+          meatballMenuEditCallback,
+          meatballMenuDeleteCallback,
         }}
       >
         {modalOpenState && portalElement ? createPortal(<ModalWrapper />, portalElement) : null}
@@ -109,8 +117,15 @@ const ModalBackdrop = () => {
 };
 
 const ModalWindow = () => {
-  const { title, meatballMenu, children, isVisible, modalOpenSetState } =
-    useContext(ModalPropsContext);
+  const {
+    title,
+    meatballMenu,
+    children,
+    isVisible,
+    modalOpenSetState,
+    meatballMenuEditCallback,
+    meatballMenuDeleteCallback,
+  } = useContext(ModalPropsContext);
 
   return (
     <div className='w-screen h-screen grid place-content-center perspective-midrange'>
@@ -119,16 +134,16 @@ const ModalWindow = () => {
       >
         <div className='flex items-center gap-6'>
           <h1 className='flex-1 text-xl font-bold'>{title}</h1>
-          {meatballMenu && (
-            <MeatballDropdown.Root>
+          {meatballMenu && meatballMenuDeleteCallback && meatballMenuEditCallback && (
+            <MeatballDropdown.Root className='w-24'>
               <MeatballDropdown.Trigger>
                 <MeatballIcon />
               </MeatballDropdown.Trigger>
               <MeatballDropdown.Content>
-                <MeatballDropdown.Item onClick={() => console.log('수정하기')}>
+                <MeatballDropdown.Item onClick={() => meatballMenuEditCallback()}>
                   수정하기
                 </MeatballDropdown.Item>
-                <MeatballDropdown.Item onClick={() => console.log('삭제하기')}>
+                <MeatballDropdown.Item onClick={() => meatballMenuDeleteCallback()}>
                   삭제하기
                 </MeatballDropdown.Item>
               </MeatballDropdown.Content>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { apiClient } from '@/api/auth/apiClient';
 import { ModalRoot } from '@/components/modal/ModalRoot';
+import { PaginationButton } from '@/components/button/PaginationButton';
 
 interface Member {
   id: number;
@@ -24,12 +25,35 @@ interface MembersSectionProps {
 const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectionProps) => {
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
 
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4; // 페이지당 표시할 멤버 수
+
   // 삭제 확인 모달 상태
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isDeleteSuccessModalOpen, setIsDeleteSuccessModalOpen] = useState(false);
   const [isDeleteErrorModalOpen, setIsDeleteErrorModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState('');
+
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(members.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentMembers = members.slice(startIndex, endIndex);
+
+  // 페이지 변경 핸들러
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   // 삭제 버튼 클릭 (확인 모달 표시)
   const handleDeleteClick = (member: Member) => {
@@ -60,6 +84,12 @@ const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectio
 
       // 구성원 목록 새로고침
       onMembersUpdate();
+
+      // 페이지 조정 (현재 페이지가 비어있으면 이전 페이지로)
+      const newTotalPages = Math.ceil((members.length - 1) / itemsPerPage);
+      if (currentPage > newTotalPages && newTotalPages > 0) {
+        setCurrentPage(newTotalPages);
+      }
     } catch (err: unknown) {
       const error = err as { response?: { status?: number; data?: unknown } };
       console.error('❌ 구성원 삭제 실패:', err);
@@ -81,7 +111,38 @@ const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectio
     <div className='bg-white rounded-lg p-4 md:p-6 shadow-sm w-full max-w-none md:max-w-2xl lg:max-w-4xl'>
       <div className='flex justify-between items-center mb-6'>
         <h2 className='text-xl font-bold'>구성원</h2>
-        <span className='text-sm text-gray-500'>{members.length}명의 구성원</span>
+        <div className='flex items-center gap-4'>
+          <span className='text-sm text-gray-900 font-medium'>
+            {totalPages > 0 ? `${currentPage} 페이지 중 ${totalPages}` : '구성원이 없습니다'}
+          </span>
+
+          {/* PaginationButton 컴포넌트 사용 - 반응형 적용 */}
+          {totalPages > 0 && (
+            <>
+              {/* 모바일용 (36px) */}
+              <div className='block md:hidden'>
+                <PaginationButton
+                  size='small'
+                  onClickLeft={handlePreviousPage}
+                  onClickRight={handleNextPage}
+                  isLeftDisabled={currentPage === 1}
+                  isRightDisabled={currentPage === totalPages}
+                />
+              </div>
+
+              {/* PC/테블릿용 (40px) */}
+              <div className='hidden md:block'>
+                <PaginationButton
+                  size='large'
+                  onClickLeft={handlePreviousPage}
+                  onClickRight={handleNextPage}
+                  isLeftDisabled={currentPage === 1}
+                  isRightDisabled={currentPage === totalPages}
+                />
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* 구성원 리스트 */}
@@ -89,7 +150,7 @@ const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectio
         {members.length === 0 ? (
           <div className='text-center py-8 text-gray-500'>구성원이 없습니다.</div>
         ) : (
-          members.map((member) => (
+          currentMembers.map((member) => (
             <div
               key={member.id}
               className='flex justify-between items-center p-3 border border-gray-200 rounded-lg'

@@ -47,7 +47,10 @@ const DropdownTrigger = ({ children }: { children: ReactNode }) => {
   return (
     <button
       ref={ref}
-      onClick={openDropdown}
+      onClick={(e) => {
+        e.stopPropagation();
+        openDropdown();
+      }}
       className='w-56 flex items-center justify-between px-4 py-2 bg-white border border-gray-200 text-black rounded'
     >
       {selectedItem ? <UserChip user={selectedItem} size='small' hideName={false} /> : children}
