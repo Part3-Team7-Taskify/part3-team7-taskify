@@ -4,7 +4,11 @@ import { ReactNode, useEffect, useRef, useState } from 'react';
 import ChevronDown from '../../../public/icon/arrow_drop_down_FILL0_wght300_GRAD0_opsz24 2.svg';
 import { ColumnChip } from '../chip/ColumnChip';
 import { DropdownColumnContextType } from './DropdownTypes';
-import { DropdownContext, useDropdownContext } from './DropdownContext';
+import {
+  ColumnDropdownContext,
+  useColumnDropdownContext,
+  useDropdownContext,
+} from './DropdownContext';
 import { Column } from '@/api/card/getColumns';
 
 const DropdownRoot = ({
@@ -43,14 +47,14 @@ const DropdownRoot = ({
   }, [selectedItem, valueCallback]);
 
   return (
-    <DropdownContext.Provider value={contextValue}>
+    <ColumnDropdownContext.Provider value={contextValue}>
       <div className='relative'>{children}</div>
-    </DropdownContext.Provider>
+    </ColumnDropdownContext.Provider>
   );
 };
 
 const DropdownTrigger = ({ children }: { children: ReactNode }) => {
-  const { isOpen, openDropdown, selectedItem, ref } = useDropdownContext();
+  const { isOpen, openDropdown, selectedItem, ref } = useColumnDropdownContext();
 
   return (
     <button
@@ -82,7 +86,7 @@ const DropdownContent = ({ children }: { children: ReactNode }) => {
 };
 
 const DropdownItem = ({ item }: { item: Column }) => {
-  const { closeDropdown, setSelectedItem } = useDropdownContext();
+  const { closeDropdown, setSelectedItem } = useColumnDropdownContext();
 
   const handleClick = () => {
     setSelectedItem(item);

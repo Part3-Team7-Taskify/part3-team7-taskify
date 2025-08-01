@@ -16,7 +16,7 @@ export interface DropdownColumnContextType extends IDropdown {
 }
 
 export interface DropdownContextType extends IDropdown {
-  selectedItem: string;
+  selectedItem: string | null;
   setSelectedItem: (item: string | null) => void;
 }
 

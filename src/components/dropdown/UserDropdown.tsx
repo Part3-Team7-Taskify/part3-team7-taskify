@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import ChevronDown from '../../../public/icon/arrow_drop_down_FILL0_wght300_GRAD0_opsz24 2.svg';
-import { IDropdownRef, UserDropdownContextType } from './DropdownTypes';
+import { UserDropdownContextType } from './DropdownTypes';
 import { UserDropdownContext, useUserDropdownContext } from './DropdownContext';
 import { UserChip } from '../chip/UserChip';
 import { UserType } from '@/types/UserTypes';
@@ -21,7 +21,7 @@ const DropdownRoot = ({
   const openDropdown = () => setIsOpen(true);
   const closeDropdown = () => setIsOpen(false);
 
-  const contextValue: UserDropdownContextType & IDropdownRef = {
+  const contextValue: UserDropdownContextType = {
     isOpen,
     selectedItem,
     ref: dropdownRef,
