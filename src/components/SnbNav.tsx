@@ -57,7 +57,6 @@ const SnbNav = () => {
 
   useEffect(() => {
     fetchDashboards();
-    console.log(page);
   }, []);
 
   const handleDashboardClick = (id: number) => {
