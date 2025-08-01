@@ -3,9 +3,9 @@ import { apiClient } from '@/api/auth/apiClient';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { setAccessToken } from '@/utils/tokenhandler';
-import { useRouterContext } from '@/contexts/RouterContext';
-import { ROUTES } from '@/constants/router';
 import { LoginResponse } from '@/types/UserTypes';
+import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/constants/router';
 
 interface FormField {
   label: string;
@@ -22,8 +22,6 @@ interface AuthFormProps {
 }
 
 export const AuthForm = ({ title, apiEndpoint, fields, onSuccess }: AuthFormProps) => {
-  const { router } = useRouterContext();
-
   const initialValues = fields.reduce(
     (acc, field) => {
       acc[field.name] = '';
@@ -73,6 +71,7 @@ export const AuthForm = ({ title, apiEndpoint, fields, onSuccess }: AuthFormProp
   useEffect(() => {
     validate();
   }, [formValues]);
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

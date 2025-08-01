@@ -9,10 +9,10 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { apiClient } from '@/api/auth/apiClient';
 import { setAccessToken } from '@/utils/tokenhandler';
-import { useRouterContext } from '@/contexts/RouterContext';
 import { ROUTES } from '@/constants/router';
 import { AxiosError } from 'axios';
 import { setCookie } from '@/utils/cookies';
+import { useRouter } from 'next/navigation';
 
 type LoginFormType = {
   email: string;
@@ -20,8 +20,8 @@ type LoginFormType = {
 };
 
 const Page = () => {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const { router } = useRouterContext();
   const {
     register,
     handleSubmit,
