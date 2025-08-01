@@ -134,7 +134,7 @@ const DashboardEditPage = () => {
   // 삭제 성공 후 페이지 이동
   const handleDeleteSuccess = () => {
     setIsDeleteSuccessModalOpen(false);
-    router.push('/dashboard');
+    router.push('/mydashboard');
   };
 
   // 로딩 중일 때
