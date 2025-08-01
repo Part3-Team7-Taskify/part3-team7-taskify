@@ -8,10 +8,10 @@ import { Button } from '@/components/button/Button';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { apiClient } from '@/api/auth/apiClient';
-import { useRouterContext } from '@/contexts/RouterContext';
 import { ROUTES } from '@/constants/router';
 import { AxiosError } from 'axios';
 import { ModalRoot } from '@/components/modal/ModalRoot';
+import { useRouter } from 'next/navigation';
 
 type SignupFormType = {
   email: string;
@@ -26,7 +26,7 @@ const Page = () => {
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDuplicateEmailModalVisible, setIsDuplicateEmailModalVisible] = useState(false);
-  const { router } = useRouterContext();
+  const router = useRouter();
   const {
     register,
     handleSubmit,

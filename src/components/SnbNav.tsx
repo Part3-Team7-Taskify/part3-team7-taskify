@@ -3,17 +3,17 @@
 import { useEffect, useState } from 'react';
 import { getDashboards } from '@/api/snb/apis';
 import Image from 'next/image';
-import { useRouterContext } from '@/contexts/RouterContext';
 import DashboardCreateModal from './DashboardCreateModal';
 import { useDashboardStore } from '@/store/DashboardStore';
 import { PaginationButton } from './button/PaginationButton';
+import { useRouter } from 'next/navigation';
 
 const SnbNav = () => {
+  const router = useRouter();
   const [selectDashboard, setSelectDashboard] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<null | string>(null);
-  const { router } = useRouterContext();
   const [page, setPage] = useState(1);
   const [perPage] = useState(10);
   const { initializeDashboard, initializeTotalCount, dashboards, totalCount } = useDashboardStore();
