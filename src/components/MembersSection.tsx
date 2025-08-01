@@ -153,7 +153,7 @@ const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectio
           currentMembers.map((member) => (
             <div
               key={member.id}
-              className='flex justify-between items-center p-3 border border-gray-200 rounded-lg'
+              className='flex justify-between items-center pb-[13px] border-b-1 border-gray-300 '
             >
               <div className='flex items-center gap-3 flex-1 min-w-0'>
                 {/* 프로필 이미지 */}
@@ -170,19 +170,17 @@ const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectio
                 )}
 
                 <div className='flex flex-col min-w-0 flex-1'>
-                  <div className='flex items-center gap-2 mb-1'>
+                  <div className='flex items-center gap-2'>
                     <span className='font-medium text-sm md:text-base truncate'>
                       {member.nickname}
                     </span>
                     {member.isOwner && (
-                      <span className='px-2 py-1 bg-violet-100 text-violet-700 text-xs rounded-full whitespace-nowrap'>
+                      <span className='px-2 py-1 bg-violet-100 text-pri text-xs rounded-full whitespace-nowrap'>
                         소유자
                       </span>
                     )}
                   </div>
-                  <span className='text-xs md:text-sm text-violet-500 truncate'>
-                    {member.email}
-                  </span>
+                  {/* <span className='text-xs md:text-sm text-pri truncate'>{member.email}</span> */}
                 </div>
               </div>
 
@@ -190,7 +188,7 @@ const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectio
               <button
                 onClick={() => handleDeleteClick(member)}
                 disabled={isDeleting === member.id || member.isOwner}
-                className={`px-3 py-1 text-xs md:text-sm border rounded transition-colors whitespace-nowrap ${
+                className={`w-[52px] h-[32px] flex justify-center items-center text-[12px] md:text-sm border rounded transition-colors whitespace-nowrap ${
                   member.isOwner
                     ? 'text-gray-400 border-gray-300 cursor-not-allowed'
                     : 'text-red-600 border-red-600 hover:bg-red-50'

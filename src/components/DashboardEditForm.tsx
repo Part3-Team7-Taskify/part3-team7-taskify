@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { apiClient } from '@/api/auth/apiClient';
 import { ModalRoot } from '@/components/modal/ModalRoot';
 import { useDashboardStore } from '@/store/DashboardStore';
+import Image from 'next/image';
 
 interface DashboardEditFormProps {
   dashboardId: string;
@@ -105,34 +106,36 @@ const DashboardEditForm = ({ dashboardId }: DashboardEditFormProps) => {
   return (
     <div className='bg-white rounded-lg md:rounded-2xl p-4 md:p-6 lg:p-8 shadow-sm w-full max-w-none md:max-w-2xl lg:max-w-4xl'>
       {/* 대시보드 이름 (큰 제목) - 원본 데이터 표시 */}
-      <h1 className='text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-4 md:mb-6 lg:mb-8'>
+      <h1 className='text-[20px] md:text-[24px] font-bold text-gray-900 mb-[24px] md:mb-6 lg:mb-8'>
         {originalName}
       </h1>
 
       {/* 서브 제목 */}
-      <h2 className='text-lg md:text-xl font-semibold text-gray-800 mb-4 md:mb-6'>대시보드 이름</h2>
+      <h2 className='text-[16px] md:text-[18px] font-semibold text-gray-800 mb-4 md-[8px]'>
+        대시보드 이름
+      </h2>
 
       {/* 이름 입력 - 반응형 패딩 */}
-      <div className='mb-6 md:mb-8'>
+      <div className='mb-6 md:mb-[16px]'>
         <input
           type='text'
           value={dashboardName} // 수정 중인 데이터
           onChange={(e) => setDashboardName(e.target.value)}
-          className='w-full p-3 md:p-4 border-2 border-gray-200 rounded-lg md:rounded-2xl text-base md:text-lg focus:border-violet-500 focus:outline-none'
+          className='w-full p-3 border-1 border-gray-300 rounded-lg text-base md:text-lg focus:border-pri focus:outline-none'
           placeholder='대시보드 이름을 입력하세요'
           disabled={isUpdating}
         />
       </div>
 
       {/* 색상 선택 - 반응형 크기 */}
-      <div className='mb-8 md:mb-10 lg:mb-12'>
-        <div className='flex gap-3 md:gap-4 justify-center md:justify-start'>
+      <div className='mb-8 md:mb-[40px] lg:mb-12'>
+        <div className='flex gap-3 md:gap-4 justify-start'>
           {colors.map((color) => (
             <button
               key={color}
               onClick={() => setSelectedColor(color)}
               disabled={isUpdating}
-              className={`w-10 h-10 md:w-12 md:h-12 rounded-full relative ${
+              className={`w-[30px] h-[30px] rounded-full relative ${
                 isUpdating
                   ? 'opacity-50 cursor-not-allowed'
                   : 'hover:scale-110 transition-transform'
@@ -141,17 +144,12 @@ const DashboardEditForm = ({ dashboardId }: DashboardEditFormProps) => {
             >
               {selectedColor === color && (
                 <div className='absolute inset-0 flex items-center justify-center'>
-                  <svg
-                    className='w-8 h-8 md:w-10 md:h-10 text-white'
-                    fill='currentColor'
-                    viewBox='0 0 20 20'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                      clipRule='evenodd'
-                    />
-                  </svg>
+                  <Image
+                    src={'/icons/icon_check.svg'}
+                    width={24}
+                    height={24}
+                    alt='선택된 대시보드 색상'
+                  />
                 </div>
               )}
             </button>
@@ -163,7 +161,7 @@ const DashboardEditForm = ({ dashboardId }: DashboardEditFormProps) => {
       <button
         onClick={handleUpdate}
         disabled={isUpdating || !dashboardName.trim()}
-        className='w-full py-3 md:py-4 bg-violet-600 text-white text-base md:text-lg font-semibold rounded-lg md:rounded-2xl hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+        className='w-full h-[54px] py-3 md:py-4 bg-pri text-white text-base md:text-lg font-semibold rounded-lg md:rounded-2x disabled:opacity-50 disabled:cursor-not-allowed'
       >
         {isUpdating ? '수정 중...' : '변경'}
       </button>

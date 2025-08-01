@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { apiClient } from '@/api/auth/apiClient';
 import { ModalRoot } from '@/components/modal/ModalRoot';
 import { PaginationButton } from '@/components/button/PaginationButton';
+import Image from 'next/image';
 
 interface Invitation {
   id: number;
@@ -200,8 +201,9 @@ const InvitationsSection = ({ dashboardId }: InvitationsSectionProps) => {
         <h2 className='text-xl font-bold'>초대 내역</h2>
         <button
           onClick={() => setIsInviteModalOpen(true)}
-          className='px-4 py-2 bg-violet-500 text-white rounded-lg hover:bg-violet-600'
+          className='bg-pri text-white rounded-sm flex items-center gap-[6px] px-[12px] py-[4px]'
         >
+          <Image src={'/icons/icon_invitedAddBtn.svg'} alt='초대하기 버튼' width={14} height={14} />
           초대하기
         </button>
       </div>
@@ -250,7 +252,7 @@ const InvitationsSection = ({ dashboardId }: InvitationsSectionProps) => {
           currentInvitations.map((invitation) => (
             <div
               key={invitation.id}
-              className='flex justify-between items-center p-3 border border-gray-200 rounded-lg'
+              className='flex justify-between items-center p-3 border-b-1 border-gray-300'
             >
               <span className='text-gray-700'>{invitation.invitee.email}</span>
 
@@ -258,7 +260,7 @@ const InvitationsSection = ({ dashboardId }: InvitationsSectionProps) => {
               <button
                 onClick={() => handleCancelClick(invitation)}
                 disabled={isDeleting === invitation.id}
-                className={`px-3 py-1 text-sm text-red-600 border border-red-600 rounded hover:bg-red-50 transition-colors ${
+                className={`w-[52px] h-[32px] text-sm text-pri border border-gray-300 rounded hover:bg-red-50 transition-colors ${
                   isDeleting === invitation.id ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
@@ -356,11 +358,11 @@ const InvitationsSection = ({ dashboardId }: InvitationsSectionProps) => {
         meatballMenu={false}
         modalButtonType='none'
       >
-        <div className='flex flex-col justify-center items-center h-[192px] w-[368px] -m-6'>
-          <div className='flex-1 flex items-center justify-center'>
+        <div className='flex flex-col gap-[32px] justify-center items-center w-full '>
+          <div className='flex items-center justify-center m-auto'>
             <p className='text-gray-800 text-lg text-center'>{modalMessage}</p>
           </div>
-          <div className='pb-6'>
+          <div>
             <button
               onClick={() => setIsSuccessModalOpen(false)}
               className='w-[240px] h-[48px] bg-[#5534DA] text-white rounded-lg hover:bg-[#4a2bb8] transition-colors'
