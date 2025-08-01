@@ -180,7 +180,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
     try {
       await updateCardApi(cardId ?? null, payload);
-      onEditUpdate?.(); //대시보드 업데이트 !!!!!!!!애가 문제임 리랜더링이 안이루어짐
+      if (onEditUpdate) onEditUpdate();
       modalOpenSetState(false); // 완료되면 모달 닫기
     } catch (err) {
       console.error('카드 수정 실패:', err);
