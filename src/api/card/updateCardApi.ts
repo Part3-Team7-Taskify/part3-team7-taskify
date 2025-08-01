@@ -5,7 +5,7 @@ export interface UpdateCardRequestDto {
   assigneeUserId?: number | null; // nullable
   title: string;
   description: string;
-  dueDate: string;
+  dueDate?: string;
   tags: string[];
   imageUrl: string | null;
   cardId?: number | null;

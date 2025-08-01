@@ -98,6 +98,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         console.error('필수 정보를 입력 해 주세요.');
         return;
       }
+
       const cardData: CardRequest = {
         assigneeUserId: selectedItem,
         dashboardId: dashboardId,
@@ -105,7 +106,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         title: title,
         description: description,
         ...(tags ? { tags } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
-        ...(dueDate ? { formattedDueDate } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
+        ...(dueDate ? { dueDate: formattedDueDate } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
         ...(imageUrl ? { imageUrl } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
       };
       try {
@@ -150,30 +151,28 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
       return { cols, columnId: initialValues?.columnId };
     };
-
-    const fetchMembers = async (): Promise<Members[]> => {
-      const { members } = await getMembersApi(dashboardId);
-      return members;
-    };
-
-    Promise.all([fetchColumns(), fetchMembers()]).then((res) => {
-      const [{ cols, columnId }, members] = res;
+    fetchColumns().then((res) => {
+      const { cols, columnId } = res;
       setColumns(cols);
       if (columnId) setSelectedColumnId(columnId);
-      setColumn(cols.find((el) => el.id === initialValues?.columnId));
-      setAssignee(members.find((el) => el.userId === initialValues?.assignee?.id));
+      const filteredColumnId = cols.find((el) => el.id === initialValues?.columnId);
+      const assignee = members.find((el) => el.userId === initialValues?.assignee?.id);
+      setColumn(filteredColumnId);
+      setAssignee(assignee);
+      setSelectedColumnId(filteredColumnId?.id ?? null);
+      setSelectedItem(assignee?.userId);
     });
-  }, [initialValues]);
+  }, [initialValues, members]);
 
   const handleUpdate = async () => {
     // 수정 버튼 제출시 호출 함수!
     // 데이터 준비
     const payload: UpdateCardRequestDto = {
-      columnId: selectedColumnId,
-      assigneeUserId: selectedItem,
+      columnId: selectedColumnId ?? column?.id ?? 0,
+      assigneeUserId: selectedItem ?? assignee?.userId ?? 0,
       title,
       description,
-      dueDate: formatDueDate(dueDate),
+      ...(dueDate ? { dueDate: formatDueDate(dueDate) } : {}),
       tags,
       imageUrl, // 업로드된 URL
       cardId,
@@ -286,10 +285,12 @@ const TaskForm: React.FC<TaskFormProps> = ({
                   <label className='block mb-1 font-medium text-gray-700'>선택 컬럼 제목</label>
                   <div className='text-gray-800'>
                     <ColumnDropdown.Root
-                      valueCallback={(item) => setSelectedColumnId(item?.id ?? null)}
+                      valueCallback={(item) => {
+                        if (column) setSelectedColumnId(column.id);
+                        setSelectedColumnId(item?.id ?? null);
+                      }}
                       hydrateValue={column}
                     >
-                      {/* valueCallback={(item) => setSelectedColumnId(item?.id ?? '')} */}
                       <ColumnDropdown.Trigger>컬럼 선택</ColumnDropdown.Trigger>
                       <ColumnDropdown.Content>
                         {columns.map((column) => (
@@ -305,6 +306,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                   <label className='block mb-1 font-medium'>담당자 선택</label>
                   <UserDropdown.Root
                     valueCallback={(item) => {
+                      if (assignee) setSelectedItem(assignee.userId);
                       setSelectedItem(item?.userId ?? null);
                     }}
                     hydrateValue={assignee}
@@ -335,6 +337,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 </label>
                 <UserDropdown.Root
                   valueCallback={(item) => {
+                    if (assignee) setSelectedItem(assignee.userId);
                     setSelectedItem(item?.userId ?? null);
                   }}
                   hydrateValue={assignee}
