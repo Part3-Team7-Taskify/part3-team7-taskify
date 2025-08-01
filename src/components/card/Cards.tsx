@@ -73,9 +73,9 @@ const Cards = ({
           className='rounded-full absolute bottom-[16px] right-[20px]'
         />
       ) : (
-        <p className='absolute bottom-[16px] right-[20px] flex justify-center items-center w-[22px] h-[22px] rounded-full bg-[#A3C4A2] text-[10px] text-white font-semibold'>
+        <div className='absolute bottom-[16px] right-[20px] flex justify-center items-center w-[22px] h-[22px] rounded-full bg-[#A3C4A2] text-[10px] text-white font-semibold'>
           <UserChip hideName={true} user={assignee} size='small' />
-        </p>
+        </div>
       )}
     </div>
   );
