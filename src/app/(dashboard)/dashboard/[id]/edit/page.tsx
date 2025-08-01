@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiClient } from '@/api/auth/apiClient';
 import DashboardEditForm from '@/components/DashboardEditForm';
@@ -31,7 +31,7 @@ const DashboardEditPage = () => {
   const [isDeleteErrorModalOpen, setIsDeleteErrorModalOpen] = useState(false);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState('');
 
-  // 현재 사용자 정보 가져오기
+  // 현재 사용자 정보 가져오기 (독립적)
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -45,43 +45,61 @@ const DashboardEditPage = () => {
     fetchCurrentUser();
   }, []);
 
-  // 대시보드 정보 가져오기
+  // 대시보드 관련 정보 가져오기 (dashboardId 의존성으로 통합)
   useEffect(() => {
-    const fetchDashboardInfo = async () => {
+    if (!dashboardId) return;
+
+    const fetchDashboardData = async () => {
       try {
-        const response = await apiClient.get(`dashboards/${dashboardId}`);
-        console.log('대시보드 정보:', response.data);
-        setDashboardInfo(response.data);
+        setLoading(true);
+
+        // 병렬로 대시보드 정보와 구성원 정보 가져오기
+        const [dashboardResponse, membersResponse] = await Promise.all([
+          apiClient.get(`dashboards/${dashboardId}`),
+          apiClient.get('members', {
+            params: {
+              dashboardId: dashboardId,
+              page: 1,
+              size: 20,
+            },
+          }),
+        ]);
+
+        console.log('대시보드 정보:', dashboardResponse.data);
+        console.log('대시보드 구성원:', membersResponse.data);
+
+        setDashboardInfo(dashboardResponse.data);
+        setDashboardMembers(membersResponse.data.members || []);
       } catch (err) {
-        console.error('대시보드 정보 조회 실패:', err);
+        console.error('대시보드 데이터 조회 실패:', err);
+        // 에러 시 기본값 설정
+        setDashboardInfo(null);
+        setDashboardMembers([]);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchDashboardInfo();
+
+    fetchDashboardData();
   }, [dashboardId]);
 
-  // 대시보드 구성원 가져오기
-  const fetchDashboardMembers = useCallback(async () => {
+  // 구성원 정보 재조회 함수 (MembersSection에서 사용)
+  const fetchDashboardMembers = async () => {
     try {
       const response = await apiClient.get('members', {
         params: {
-          dashboardId: dashboardId, // 필수!
-          page: 1, // 선택사항
-          size: 20, // 선택사항
+          dashboardId: dashboardId,
+          page: 1,
+          size: 20,
         },
       });
-      console.log('대시보드 구성원:', response.data);
+      console.log('대시보드 구성원 재조회:', response.data);
       setDashboardMembers(response.data.members || []);
     } catch (err) {
-      console.error('구성원 조회 실패:', err);
-      setDashboardMembers([]); // 에러 시 빈 배열
-    } finally {
-      setLoading(false);
+      console.error('구성원 재조회 실패:', err);
+      setDashboardMembers([]);
     }
-  }, [dashboardId]);
-
-  useEffect(() => {
-    fetchDashboardMembers();
-  }, [dashboardId]);
+  };
 
   const handleGoBack = () => {
     router.push(`/dashboard/${dashboardId}`);
@@ -129,23 +147,23 @@ const DashboardEditPage = () => {
   }
 
   return (
-    <div className='flex-1 flex flex-col'>
-      {/* 메인 콘텐츠 */}
-      <div className='flex-1 p-8 bg-gray-50'>
+    <div className='flex flex-col'>
+      {/* 메인 콘텐츠 - 반응형 적용 */}
+      <div className='p-4 md:p-6 lg:p-8 bg-gray-50'>
         <button
           onClick={handleGoBack}
           disabled={isDeleting}
-          className='flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-8 disabled:opacity-50'
+          className='flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 md:mb-6 lg:mb-8 disabled:opacity-50'
         >
           <span>←</span>
           <span>돌아가기</span>
         </button>
 
-        <div className='mb-8'>
+        <div className='mb-4 md:mb-6 lg:mb-8'>
           <DashboardEditForm dashboardId={dashboardId} />
         </div>
 
-        <div className='mb-8'>
+        <div className='mb-4 md:mb-6 lg:mb-8'>
           <MembersSection
             dashboardId={dashboardId}
             members={dashboardMembers}
@@ -153,7 +171,7 @@ const DashboardEditPage = () => {
           />
         </div>
 
-        <div className='mb-8'>
+        <div className='mb-4 md:mb-6 lg:mb-8'>
           <InvitationsSection dashboardId={dashboardId} />
         </div>
 
@@ -161,7 +179,7 @@ const DashboardEditPage = () => {
           <button
             onClick={handleDeleteClick}
             disabled={isDeleting}
-            className='px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+            className='w-full md:w-auto px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
           >
             {isDeleting ? '삭제 중...' : '대시보드 삭제하기'}
           </button>

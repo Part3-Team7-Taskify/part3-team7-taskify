@@ -1,23 +1,45 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DropdownContextType } from './DropdownTypes';
 import { DropdownContext, useDropdownContext } from './DropdownContext';
 
-const DropdownRoot = ({ children }: { children: React.ReactNode }) => {
+const DropdownRoot = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  const dropdownRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
-  const toggleDropdown = () => setIsOpen(!isOpen);
+  const openDropdown = () => setIsOpen(true);
   const closeDropdown = () => setIsOpen(false);
+  const handleClickOutside = (e: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      closeDropdown();
+    }
+  };
 
   const contextValue: DropdownContextType = {
     isOpen,
     selectedItem,
-    toggleDropdown,
+    className,
+    ref: dropdownRef,
+    openDropdown,
     closeDropdown,
     setSelectedItem,
   };
+
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   return (
     <DropdownContext.Provider value={contextValue}>
@@ -27,21 +49,21 @@ const DropdownRoot = ({ children }: { children: React.ReactNode }) => {
 };
 
 const DropdownTrigger = ({ children }: { children: React.ReactNode }) => {
-  const { toggleDropdown } = useDropdownContext();
+  const { openDropdown, ref } = useDropdownContext();
 
   return (
-    <button className='cursor-pointer' onClick={toggleDropdown}>
+    <button className='cursor-pointer' onClick={openDropdown} ref={ref}>
       {children}
     </button>
   );
 };
 
 const DropdownContent = ({ children }: { children: React.ReactNode }) => {
-  const { isOpen } = useDropdownContext();
+  const { isOpen, className } = useDropdownContext();
 
   return (
     <div
-      className={`absolute left-0 w-24 bg-white border border-gray-200 text-black rounded shadow-lg transition-all duration-200 ease-out ${isOpen ? 'mt-2 visible opacity-100' : 'mt-0 invisible opacity-0'}`}
+      className={`absolute bg-white border border-gray-200 text-black rounded shadow-lg transition-all duration-200 ease-out ${className} ${isOpen ? 'mt-2 visible opacity-100' : 'mt-0 invisible opacity-0'}`}
     >
       {children}
     </div>

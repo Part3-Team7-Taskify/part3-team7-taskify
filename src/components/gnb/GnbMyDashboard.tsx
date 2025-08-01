@@ -1,9 +1,9 @@
 import GnbWrapper from './GnbWrapper';
 import { Button } from '../button/Button';
-import { UserChip } from '../chip/UserChip';
 import SettingIcon from '../../../public/icon/settings.svg';
 import InviteIcon from '../../../public/icon/invitation.svg';
 import { getCurrentUser } from '@/api/gnb/apis';
+import GnbUserDropdown from './GnbUserDropdown';
 
 export const GnbMyDashboard = async () => {
   const user = await getCurrentUser();
@@ -11,11 +11,13 @@ export const GnbMyDashboard = async () => {
   return (
     <GnbWrapper>
       <div className='flex-1'>
-        <h1 className='font-bold text-md md:text-xl'>내 대시보드</h1>
+        <div className='hidden sm:flex sm:items-center sm:gap-2'>
+          <h1 className='font-bold text-md md:text-xl'>내 대시보드</h1>
+        </div>
       </div>
       <div className='flex gap-2'>
         <div className='sm:flex sm:items-center sm:gap-2'>
-          <Button size='extraSmall' type='gnb'>
+          <Button size='extraSmall' variant='gnb'>
             <div className='hidden sm:block'>
               <SettingIcon />
             </div>
@@ -23,7 +25,7 @@ export const GnbMyDashboard = async () => {
           </Button>
         </div>
         <div className='sm:flex sm:items-center sm:gap-2'>
-          <Button size='extraSmall' type='gnb'>
+          <Button size='extraSmall' variant='gnb'>
             <div className='hidden sm:block'>
               <InviteIcon />
             </div>
@@ -32,7 +34,7 @@ export const GnbMyDashboard = async () => {
         </div>
       </div>
       <div className='border-l border-l-gray-200 h-full' />
-      <UserChip user={user} size='large' hideName={false} />
+      <GnbUserDropdown user={user} />
     </GnbWrapper>
   );
 };

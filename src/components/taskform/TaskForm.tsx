@@ -31,6 +31,7 @@ interface TaskFormProps {
     imageUrl?: string | null;
     assigneeUserId?: number | null;
     columnId?: number | null;
+    cardId?: number | null;
   };
   onCreated?: () => void;
   onEditUpdate?: () => void;
@@ -45,6 +46,7 @@ export const colorMap: Record<string, { bg: string; text: string }> = {
   purple: { bg: 'bg-purple-100', text: 'text-purple-500' },
   lime: { bg: 'bg-lime-100', text: 'text-lime-500' }, //기본값
 };
+
 const TaskForm: React.FC<TaskFormProps> = ({
   dashboardId,
   columnId,
@@ -61,6 +63,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [userData, setUserData] = useState<UserType | null>(null);
 
   const [tags, setTags] = useState<string[]>([]);
+  // const [colorMap, setColorMap] = useState<{ [tag: string]: string }>({});
+
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const { imageUrl, handleFileChange } = useImageUpload(columnId);
@@ -68,7 +72,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [actionButtonText, setActionButtonText] = useState<string>('생성');
   const isFormValid =
     title.trim() !== '' && description.trim() !== '' && userData?.id !== undefined;
-
   // 카드 상세 보기 열때, 카드 ID도 저장
   const [columns, setColumns] = useState<Column[]>([]);
   // 선택된 컬럼 ID 저장 (초기에는 빈값 또는 null)
@@ -95,9 +98,9 @@ const TaskForm: React.FC<TaskFormProps> = ({
         columnId: columnId,
         title: title,
         description: description,
-        dueDate: formattedDueDate,
-        tags: tags,
-        imageUrl: imageUrl,
+        ...(tags ? { tags } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
+        ...(dueDate ? { formattedDueDate } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
+        ...(imageUrl ? { imageUrl } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
       };
       try {
         await apiClient.post('/cards', cardData);
@@ -117,7 +120,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
       setDueDate(initialValues.dueDate ? new Date(initialValues.dueDate) : null);
       setTags(initialValues.tags || []);
       setActionButtonText('수정');
-      // setStatus();
     } else {
       setTitle('');
       setDescription('');
@@ -372,19 +374,20 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
           <label className='block mb-1 font-medium text-gray-700'>태그</label>
           <div className='flex flex-nowrap overflow-hidden w-[295px] items-center gap-2 p-3 border border-gray-300 rounded-lg bg-white min-h-[44px] max-w-md cursor-text transition-all duration-200'>
-            {tags.map((tag, index) => {
-              const [color, text] = tag.split('/');
-              const classes = colorMap[color] || colorMap.lime;
+            {tags &&
+              tags.map((tag, index) => {
+                const [color, text] = tag.split('/');
+                const classes = colorMap[color] ?? colorMap.lime;
 
-              return (
-                <span
-                  key={index}
-                  className={`rounded-sm px-[6px] py-[2px] ${classes.bg} ${classes.text} text-[12px] font-medium`}
-                >
-                  {text}
-                </span>
-              );
-            })}
+                return (
+                  <span
+                    key={index}
+                    className={`rounded-sm px-[6px] py-[2px] ${classes.bg} ${classes.text} text-[12px] font-medium`}
+                  >
+                    {text}
+                  </span>
+                );
+              })}
             <div>
               <input
                 ref={inputRef} // inputRef 연결
@@ -406,7 +409,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
           <div className='flex w-full gap-[7px]'>
             <Button
               size='small'
-              type='outline'
+              variant='outline'
               onClick={() => modalOpenSetState(false)}
               className='w-1/2 h-[54px] font-semibold'
             >
@@ -414,7 +417,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
             </Button>
             <Button
               size='small'
-              type='primary'
+              variant='primary'
               onClick={() => {
                 if (actionButtonText === '수정') {
                   handleUpdate(); // 수정 함수 호출

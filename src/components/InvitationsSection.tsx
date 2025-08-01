@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/api/auth/apiClient';
 import { ModalRoot } from '@/components/modal/ModalRoot';
+import { PaginationButton } from '@/components/button/PaginationButton';
 
 interface Invitation {
   id: number;
@@ -35,6 +36,10 @@ const InvitationsSection = ({ dashboardId }: InvitationsSectionProps) => {
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
 
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // 페이지당 표시할 초대 수
+
   // 초대하기 모달 상태
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -49,6 +54,25 @@ const InvitationsSection = ({ dashboardId }: InvitationsSectionProps) => {
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
 
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(invitations.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentInvitations = invitations.slice(startIndex, endIndex);
+
+  // 페이지 변경 핸들러
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
   // 초대 내역 조회
   const fetchInvitations = async () => {
     try {
@@ -56,6 +80,12 @@ const InvitationsSection = ({ dashboardId }: InvitationsSectionProps) => {
       const response = await apiClient.get(`dashboards/${dashboardId}/invitations`);
       console.log('초대 내역:', response.data);
       setInvitations(response.data.invitations || []);
+
+      // 페이지 조정 (현재 페이지가 비어있으면 이전 페이지로)
+      const newTotalPages = Math.ceil((response.data.invitations?.length || 0) / itemsPerPage);
+      if (currentPage > newTotalPages && newTotalPages > 0) {
+        setCurrentPage(newTotalPages);
+      }
     } catch (err) {
       console.error('초대 내역 조회 실패:', err);
       setInvitations([]);
@@ -158,14 +188,14 @@ const InvitationsSection = ({ dashboardId }: InvitationsSectionProps) => {
 
   if (loading) {
     return (
-      <div className='bg-white rounded-lg p-6 shadow-sm'>
+      <div className='bg-white rounded-lg p-4 md:p-6 shadow-sm w-full max-w-none md:max-w-2xl lg:max-w-4xl'>
         <div className='text-center py-8 text-gray-500'>초대 내역 로딩 중...</div>
       </div>
     );
   }
 
   return (
-    <div className='bg-white rounded-lg p-6 shadow-sm'>
+    <div className='bg-white rounded-lg p-4 md:p-6 shadow-sm w-full max-w-none md:max-w-2xl lg:max-w-4xl'>
       <div className='flex justify-between items-center mb-6'>
         <h2 className='text-xl font-bold'>초대 내역</h2>
         <button
@@ -178,7 +208,38 @@ const InvitationsSection = ({ dashboardId }: InvitationsSectionProps) => {
 
       <div className='flex justify-between items-center mb-4'>
         <span className='text-sm font-medium text-gray-700'>이메일</span>
-        <span className='text-sm text-gray-500'>{invitations.length}개의 초대</span>
+        <div className='flex items-center gap-4'>
+          <span className='text-sm text-gray-900 font-medium'>
+            {totalPages > 0 ? `${currentPage} 페이지 중 ${totalPages}` : '초대 내역이 없습니다'}
+          </span>
+
+          {/* PaginationButton 컴포넌트 사용 - 반응형 적용 */}
+          {totalPages > 0 && (
+            <>
+              {/* 모바일용 (36px) */}
+              <div className='block md:hidden'>
+                <PaginationButton
+                  size='small'
+                  onClickLeft={handlePreviousPage}
+                  onClickRight={handleNextPage}
+                  isLeftDisabled={currentPage === 1}
+                  isRightDisabled={currentPage === totalPages}
+                />
+              </div>
+
+              {/* PC/테블릿용 (40px) */}
+              <div className='hidden md:block'>
+                <PaginationButton
+                  size='large'
+                  onClickLeft={handlePreviousPage}
+                  onClickRight={handleNextPage}
+                  isLeftDisabled={currentPage === 1}
+                  isRightDisabled={currentPage === totalPages}
+                />
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* 초대 내역 리스트 */}
@@ -186,7 +247,7 @@ const InvitationsSection = ({ dashboardId }: InvitationsSectionProps) => {
         {invitations.length === 0 ? (
           <div className='text-center py-8 text-gray-500'>초대 내역이 없습니다.</div>
         ) : (
-          invitations.map((invitation) => (
+          currentInvitations.map((invitation) => (
             <div
               key={invitation.id}
               className='flex justify-between items-center p-3 border border-gray-200 rounded-lg'

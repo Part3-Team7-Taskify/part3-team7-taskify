@@ -30,9 +30,10 @@ export interface CardRequest {
   columnId: number;
   title: string;
   description: string;
-  dueDate: string;
-  tags: string[];
+  dueDate?: string;
+  tags?: string[];
   imageUrl?: string | null;
+  colorMap?: { [tag: string]: string };
 }
 
 export interface Card {

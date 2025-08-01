@@ -1,18 +1,26 @@
 import { Column } from '@/api/card/getColumns';
 import { UserType } from '@/types/UserTypes';
+import { RefObject } from 'react';
 
-export interface DropdownContextType {
+interface IDropdown {
   isOpen: boolean;
-  selectedItem: Column | null;
-  toggleDropdown: () => void;
+  className?: string;
+  ref: RefObject<HTMLButtonElement | null> | null;
+  openDropdown: () => void;
   closeDropdown: () => void;
+}
+
+export interface DropdownColumnContextType extends IDropdown {
+  selectedItem: Column | null;
   setSelectedItem: (item: Column | null) => void;
 }
 
-export interface UserDropdownContextType {
-  isOpen: boolean;
+export interface DropdownContextType extends IDropdown {
+  selectedItem: string;
+  setSelectedItem: (item: string | null) => void;
+}
+
+export interface UserDropdownContextType extends IDropdown {
   selectedItem: UserType | null;
-  toggleDropdown: () => void;
-  closeDropdown: () => void;
   setSelectedItem: (item: UserType | null) => void;
 }

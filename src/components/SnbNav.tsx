@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouterContext } from '@/contexts/RouterContext';
 import DashboardCreateModal from './DashboardCreateModal';
 import { useDashboardStore } from '@/store/DashboardStore';
+import { PaginationButton } from './button/PaginationButton';
 
 const SnbNav = () => {
   const [selectDashboard, setSelectDashboard] = useState<number>(0);
@@ -23,7 +24,7 @@ const SnbNav = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getDashboards(page);
+      const data = await getDashboards(1);
       initializeDashboard(data.dashboards);
       initializeTotalCount(data.totalCount);
       console.log('대시보드 데이터 불러오기 완료');
@@ -34,12 +35,24 @@ const SnbNav = () => {
       setLoading(false); // 로딩 완료
     }
   };
-  const goToPrevPage = () => {
-    if (page > 1) setPage((prev) => prev - 1);
+  const goToPrevPage = async () => {
+    if (page <= 1) {
+      return null;
+    } else {
+      const { dashboards } = await getDashboards(page - 1);
+      initializeDashboard(dashboards);
+      setPage((prev) => prev - 1);
+    }
   };
 
-  const goToNextPage = () => {
-    if (page < totalPages) setPage((prev) => prev + 1);
+  const goToNextPage = async () => {
+    if (page >= totalPages) {
+      return null;
+    } else {
+      const { dashboards } = await getDashboards(page + 1);
+      initializeDashboard(dashboards);
+      setPage((prev) => prev + 1);
+    }
   };
 
   useEffect(() => {
@@ -136,7 +149,7 @@ const SnbNav = () => {
             >
               <div className='flex justify-center items-center gap-[14px] sm:justify-start'>
                 <span
-                  className='w-[8px] h-[8px] rounded-full block rounded-sm'
+                  className='w-[8px] h-[8px] rounded-full block'
                   style={{ backgroundColor: dashboard.color }}
                 ></span>
 
@@ -160,33 +173,12 @@ const SnbNav = () => {
           ))}
         </ul>
         <div className='hidden sm:flex mt-[11px]'>
-          <button
-            disabled={page === 1}
-            onClick={goToPrevPage}
-            className='p-[11px] border disabled:opacity-50 border-gray-300 rounded-l-sm cursor-pointer'
-          >
-            <Image
-              className='rotate-180'
-              //src={prevButtonSrc}
-              src='/icons/icon_arrow.svg'
-              alt='이전대시보드'
-              width={16}
-              height={16}
-            />
-          </button>
-          <button
-            onClick={goToNextPage}
-            disabled={totalPages === page}
-            className='p-[11px] disabled:opacity-50 border border-gray-300 rounded-r-sm cursor-pointer'
-          >
-            <Image
-              //src={nextButtonSrc}
-              src='/icons/icon_arrow.svg'
-              alt='다음대시보드'
-              width={16}
-              height={16}
-            />
-          </button>
+          <PaginationButton
+            onClickLeft={goToPrevPage}
+            onClickRight={goToNextPage}
+            isLeftDisabled={page === 1}
+            isRightDisabled={totalPages === page}
+          />
         </div>
       </nav>
       {/* TestModal에 onClose와 함께 onDashboardAdded 콜백 추가 */}

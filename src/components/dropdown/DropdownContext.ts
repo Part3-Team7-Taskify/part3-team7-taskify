@@ -1,10 +1,11 @@
 import { createContext, useContext } from 'react';
-import { DropdownContextType, UserDropdownContextType } from './DropdownTypes';
+import { DropdownColumnContextType, UserDropdownContextType } from './DropdownTypes';
 
-const DropdownContextDefaultValues: DropdownContextType = {
+const DropdownContextDefaultValues: DropdownColumnContextType = {
   isOpen: false,
   selectedItem: null,
-  toggleDropdown: () => {},
+  ref: null,
+  openDropdown: () => {},
   closeDropdown: () => {},
   setSelectedItem: () => {},
 };
@@ -12,7 +13,8 @@ const DropdownContextDefaultValues: DropdownContextType = {
 const UserDropdownContextDefaultValues: UserDropdownContextType = {
   isOpen: false,
   selectedItem: null,
-  toggleDropdown: () => {},
+  ref: null,
+  openDropdown: () => {},
   closeDropdown: () => {},
   setSelectedItem: () => {},
 };
@@ -20,7 +22,7 @@ const UserDropdownContextDefaultValues: UserDropdownContextType = {
 export const DropdownContext = createContext(DropdownContextDefaultValues);
 export const UserDropdownContext = createContext(UserDropdownContextDefaultValues);
 
-export const useDropdownContext = (): DropdownContextType => {
+export const useDropdownContext = (): DropdownColumnContextType => {
   const context = useContext(DropdownContext);
   if (context === undefined) {
     console.error('Dropdown Context는 Dropdown.Root안에서 사용해주세요!');

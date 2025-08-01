@@ -10,8 +10,8 @@ interface Props {
   key: number;
   title: string;
   description: string;
-  dueDate: string;
-  tags: string[];
+  dueDate?: string;
+  tags?: string[];
   imageUrl?: string;
   columnId: number;
   assignee: assigneeInterface;
@@ -27,8 +27,7 @@ const Cards = ({
   assignee,
   onCardDetailClick,
 }: Props) => {
-  const DateCustom = dueDate.split(' ')[0];
-
+  const DateCustom = dueDate?.split(' ')[0];
   return (
     <div
       onClick={onCardDetailClick}
@@ -43,19 +42,20 @@ const Cards = ({
         <p className='text-sec-black font-semibold text-[16px]'>{title}</p>
         <div className='lg:flex-col lg:items-start sm:flex-row sm:items-center flex flex-col gap-[6px]'>
           <p className='flex gap-[6px]'>
-            {tags.map((tag, index) => {
-              const [color, text] = tag.split('/');
-              const classes = colorMap[color] || colorMap.lime;
+            {tags &&
+              tags.map((tag, index) => {
+                const [color, text] = tag.split('/');
+                const classes = colorMap[color] || colorMap.lime;
 
-              return (
-                <span
-                  key={index}
-                  className={`rounded-sm px-[6px] py-[2px] ${classes.bg} ${classes.text} text-[12px] font-medium`}
-                >
-                  {text}
-                </span>
-              );
-            })}
+                return (
+                  <span
+                    key={index}
+                    className={`rounded-sm px-[6px] py-[2px] ${classes.bg} ${classes.text} text-[12px] font-medium`}
+                  >
+                    {text}
+                  </span>
+                );
+              })}
           </p>
           <p className='flex gap-[4px] font-medium text-[12px] text-gray-100'>
             <Image src='/icons/icon_calendar.svg' alt='달력 아이콘' width={14} height={14} />

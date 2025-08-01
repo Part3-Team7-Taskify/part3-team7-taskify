@@ -1,33 +1,43 @@
-import { FC } from 'react';
+import { ChangeEvent, ComponentPropsWithoutRef, forwardRef, MouseEvent } from 'react';
 
-interface InputType {
+interface InputType extends Omit<ComponentPropsWithoutRef<'input'>, 'type'> {
   type: 'text' | 'password' | 'title' | 'email';
   placeholder: string;
   icon?: React.ReactNode;
-  iconOnClick?: () => void;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  iconOnClick?: (e: MouseEvent<HTMLButtonElement>) => void;
   value?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const Input: FC<InputType> = ({ type, placeholder, icon, iconOnClick, onChange, value }) => {
-  const inputType = {
-    text: 'text',
-    password: 'password',
-    title: 'text',
-    email: 'email',
-  };
+// const inputType = {
+//   text: 'text',
+//   password: 'password',
+//   title: 'text',
+//   email: 'email',
+// };
+
+export const Input = forwardRef<HTMLInputElement, InputType>((props, ref) => {
+  const { type, placeholder, value, onChange, className, iconOnClick, ...restProps } = props;
   return (
     <div className='relative'>
       <input
-        type={inputType[type]}
+        type={type === 'title' ? 'text' : type}
+        ref={ref}
+        className={`${type === 'title' && 'font-bold'} w-full p-3.5 rounded-lg border border-gray-200 bg-white text-black invalid:border-red-500 ${className}`}
         placeholder={placeholder}
         value={value}
-        onChange={onChange} //
-        className={`${type === 'title' && 'font-bold'} w-full p-3.5 rounded-lg border border-gray-200 bg-white text-black invalid:border-red-500`}
+        onChange={onChange}
+        {...restProps}
       />
-      <button onClick={iconOnClick} className='absolute top-1/2 -translate-y-1/2 right-4'>
-        {icon}
+      <button
+        onClick={iconOnClick}
+        className='absolute top-1/2 -translate-y-1/2 right-4'
+        tabIndex={1}
+      >
+        {props.icon}
       </button>
     </div>
   );
-};
+});
+
+Input.displayName = 'Input';
