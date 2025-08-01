@@ -2,13 +2,12 @@
 
 import { postInviteAccepted } from '@/api/mydashboard/apis';
 import { Button } from '@/components/button/Button';
-import { InvitationType } from '@/types/Invite';
+import { useInvitationStore } from '@/store/InvitationStore';
 
-const InvitedDashboardList = ({ inviteList }: { inviteList: InvitationType[] }) => {
+const InvitedDashboardList = () => {
+  const { invitations, removeInvitation } = useInvitationStore();
   const handleButtonClick = async (invitationId: number, accepted: boolean) => {
-    const data = await postInviteAccepted(invitationId, accepted);
-
-    return data;
+    postInviteAccepted(invitationId, accepted).then(() => removeInvitation(invitationId));
   };
 
   return (
@@ -21,7 +20,7 @@ const InvitedDashboardList = ({ inviteList }: { inviteList: InvitationType[] }) 
         </tr>
       </thead>
       <tbody>
-        {inviteList.map((el) => (
+        {invitations.map((el) => (
           <>
             <tr key={el.id} className='border-b border-b-gray-300 align-middle hidden sm:table-row'>
               <td className='px-8 py-2'>{el.dashboard.title}</td>
