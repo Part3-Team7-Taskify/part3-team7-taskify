@@ -382,7 +382,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 return (
                   <span
                     key={index}
-                    className={`rounded-sm px-[6px] py-[2px] ${classes.bg} ${classes.text} text-[12px] font-medium`}
+                    className={`flex-shrink-0 rounded-sm px-[6px] py-[2px] ${classes.bg} ${classes.text} text-[12px] font-medium`}
                   >
                     {text}
                   </span>
