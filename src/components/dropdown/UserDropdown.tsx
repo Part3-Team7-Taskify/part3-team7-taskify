@@ -1,8 +1,8 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import ChevronDown from '../../../public/icon/arrow_drop_down_FILL0_wght300_GRAD0_opsz24 2.svg';
-import { UserDropdownContextType } from './DropdownTypes';
+import { IDropdownRef, UserDropdownContextType } from './DropdownTypes';
 import { UserDropdownContext, useUserDropdownContext } from './DropdownContext';
 import { UserChip } from '../chip/UserChip';
 import { UserType } from '@/types/UserTypes';
@@ -14,16 +14,18 @@ const DropdownRoot = ({
   children: ReactNode;
   valueCallback: (item: UserType | null) => void;
 }) => {
+  const dropdownRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<UserType | null>(null);
 
-  const toggleDropdown = () => setIsOpen(!isOpen);
+  const openDropdown = () => setIsOpen(true);
   const closeDropdown = () => setIsOpen(false);
 
-  const contextValue: UserDropdownContextType = {
+  const contextValue: UserDropdownContextType & IDropdownRef = {
     isOpen,
     selectedItem,
-    toggleDropdown,
+    ref: dropdownRef,
+    openDropdown,
     closeDropdown,
     setSelectedItem,
   };
@@ -40,13 +42,14 @@ const DropdownRoot = ({
 };
 
 const DropdownTrigger = ({ children }: { children: ReactNode }) => {
-  const { isOpen, toggleDropdown, selectedItem } = useUserDropdownContext();
+  const { isOpen, openDropdown, selectedItem, ref } = useUserDropdownContext();
 
   return (
     <button
+      ref={ref}
       onClick={(e) => {
         e.stopPropagation();
-        toggleDropdown();
+        openDropdown();
       }}
       className='w-56 flex items-center justify-between px-4 py-2 bg-white border border-gray-200 text-black rounded'
     >
