@@ -67,11 +67,18 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
-  const { imageUrl, handleFileChange } = useImageUpload(columnId);
+  const { imageUrl, handleFileChange, isUploading } = useImageUpload(columnId);
   const [selectedItem, setSelectedItem] = useState<number | null>();
   const [actionButtonText, setActionButtonText] = useState<string>('생성');
+  const [isSubmitting, setIsSubmitting] = useState(false); // 제출 상태 추가
+
   const isFormValid =
-    title.trim() !== '' && description.trim() !== '' && userData?.id !== undefined;
+    title.trim() !== '' &&
+    description.trim() !== '' &&
+    userData?.id !== undefined &&
+    !isUploading &&
+    !isSubmitting; // 제출 중일 때도 비활성화
+
   // 카드 상세 보기 열때, 카드 ID도 저장
   const [columns, setColumns] = useState<Column[]>([]);
   // 선택된 컬럼 ID 저장 (초기에는 빈값 또는 null)
@@ -79,37 +86,46 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
-    if (actionButtonText === '수정') {
-      await handleUpdate();
-    } else {
-      const formattedDueDate = formatDueDate(dueDate);
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        console.error('토큰이 없습니다.');
-        return;
-      }
-      if (!userData?.id || !dashboardId || !columnId || !title) {
-        console.error('필수 정보를 입력 해 주세요.');
-        return;
-      }
-      const cardData: CardRequest = {
-        assigneeUserId: selectedItem,
-        dashboardId: dashboardId,
-        columnId: columnId,
-        title: title,
-        description: description,
-        ...(tags ? { tags } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
-        ...(dueDate ? { dueDate: formattedDueDate } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
-        ...(imageUrl ? { imageUrl } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
-      };
-      try {
+
+    // 이미 제출 중이면 리턴 (중복 방지)
+    if (isSubmitting) return;
+
+    setIsSubmitting(true); // 제출 시작
+
+    try {
+      if (actionButtonText === '수정') {
+        await handleUpdate();
+      } else {
+        const formattedDueDate = formatDueDate(dueDate);
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          console.error('토큰이 없습니다.');
+          return;
+        }
+        if (!userData?.id || !dashboardId || !columnId || !title) {
+          console.error('필수 정보를 입력 해 주세요.');
+          return;
+        }
+        const cardData: CardRequest = {
+          assigneeUserId: selectedItem,
+          dashboardId: dashboardId,
+          columnId: columnId,
+          title: title,
+          description: description,
+          ...(tags ? { tags } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
+          ...(dueDate ? { dueDate: formattedDueDate } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
+          ...(imageUrl ? { imageUrl } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
+        };
+
         await apiClient.post('/cards', cardData);
         onCreated?.(); // 포스트완료하면 리랜더링 일어나서 컬럼업데이트됨.
         modalOpenSetState(false); // 모달 닫아줌
-      } catch (error) {
-        console.error('할 일 생성 실패:', error);
-        alert('할 일 생성 실패');
       }
+    } catch (error) {
+      console.error('처리 실패:', error);
+      alert(actionButtonText === '수정' ? '수정 실패' : '할 일 생성 실패');
+    } finally {
+      setIsSubmitting(false); // 제출 완료 (성공/실패 관계없이)
     }
   };
 
@@ -163,7 +179,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       modalOpenSetState(false); // 완료되면 모달 닫기
     } catch (err) {
       console.error('카드 수정 실패:', err);
-      alert('수정 실패');
+      throw err; // 에러를 다시 던져서 handleSubmit에서 처리
     }
   };
 
@@ -418,17 +434,17 @@ const TaskForm: React.FC<TaskFormProps> = ({
             <Button
               size='small'
               variant='primary'
-              onClick={() => {
-                if (actionButtonText === '수정') {
-                  handleUpdate(); // 수정 함수 호출
-                } else {
-                  handleSubmit(); // 생성 함수 호출
-                }
-              }}
+              onClick={handleSubmit}
               disabled={!isFormValid}
-              className='w-1/2 h-[54px] font-semibold'
+              className={`w-1/2 h-[54px] font-semibold ${!isFormValid ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {actionButtonText}
+              {isUploading
+                ? '이미지 업로드 중...'
+                : isSubmitting
+                  ? actionButtonText === '수정'
+                    ? '수정 중...'
+                    : '생성 중...'
+                  : actionButtonText}
             </Button>
           </div>
         </div>
