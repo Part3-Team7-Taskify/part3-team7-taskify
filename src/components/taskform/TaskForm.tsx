@@ -99,7 +99,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         title: title,
         description: description,
         ...(tags ? { tags } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
-        ...(dueDate ? { formattedDueDate } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
+        ...(dueDate ? { dueDate: formattedDueDate } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
         ...(imageUrl ? { imageUrl } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
       };
       try {
