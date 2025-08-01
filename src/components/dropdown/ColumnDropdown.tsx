@@ -10,9 +10,11 @@ import { Column } from '@/api/card/getColumns';
 const DropdownRoot = ({
   children,
   valueCallback,
+  hydrateValue,
 }: {
   children: ReactNode;
   valueCallback: (item: Column | null) => void;
+  hydrateValue?: Column;
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<Column | null>(null);
@@ -30,6 +32,7 @@ const DropdownRoot = ({
     isOpen,
     selectedItem,
     ref: dropdownRef,
+    hydrateValue,
     openDropdown,
     closeDropdown,
     setSelectedItem,
@@ -55,7 +58,7 @@ const DropdownRoot = ({
 };
 
 const DropdownTrigger = ({ children }: { children: ReactNode }) => {
-  const { isOpen, openDropdown, selectedItem, ref } = useColumnDropdownContext();
+  const { isOpen, openDropdown, hydrateValue, selectedItem, ref } = useColumnDropdownContext();
 
   return (
     <button
@@ -63,7 +66,11 @@ const DropdownTrigger = ({ children }: { children: ReactNode }) => {
       onClick={openDropdown}
       className='w-full flex items-center justify-between px-4 py-2 bg-white border border-gray-300 text-black-200 rounded-lg'
     >
-      {selectedItem ? <ColumnChip>{selectedItem.title}</ColumnChip> : children}
+      {selectedItem || hydrateValue ? (
+        <ColumnChip>{selectedItem?.title || hydrateValue?.title}</ColumnChip>
+      ) : (
+        children
+      )}
       <ChevronDown className={`transition-transform ${isOpen && 'rotate-180'}`} />
     </button>
   );
@@ -71,10 +78,6 @@ const DropdownTrigger = ({ children }: { children: ReactNode }) => {
 
 const DropdownContent = ({ children }: { children: ReactNode }) => {
   const { isOpen } = useColumnDropdownContext();
-
-  useEffect(() => {
-    console.log(isOpen);
-  }, [isOpen]);
 
   const beforeRenderedClasses = 'mt-0 invisible opacity-0';
   const afterRenderedClasses = 'mt-2 visible opacity-100';

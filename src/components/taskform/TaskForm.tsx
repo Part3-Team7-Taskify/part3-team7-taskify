@@ -29,7 +29,11 @@ interface TaskFormProps {
     dueDate: string;
     tags: string[];
     imageUrl?: string | null;
-    assigneeUserId?: number | null;
+    assignee?: {
+      id: number;
+      nickname: string;
+      profileImageUrl: string | null;
+    } | null;
     columnId?: number | null;
     cardId?: number | null;
   };
@@ -73,6 +77,9 @@ const TaskForm: React.FC<TaskFormProps> = ({
     title.trim() !== '' && description.trim() !== '' && userData?.id !== undefined;
   // 카드 상세 보기 열때, 카드 ID도 저장
   const [columns, setColumns] = useState<Column[]>([]);
+  // initialValues가 있을 때 받아온 정보 찾아서 저장하는 State
+  const [column, setColumn] = useState<Column>();
+  const [assignee, setAssignee] = useState<UserType>();
   // 선택된 컬럼 ID 저장 (초기에는 빈값 또는 null)
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
 
@@ -143,9 +150,18 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
       return { cols, columnId: initialValues?.columnId };
     };
-    fetchColumns().then((res) => {
-      setColumns(res.cols);
-      if (res.columnId) setSelectedColumnId(res.columnId);
+
+    const fetchMembers = async (): Promise<Members[]> => {
+      const { members } = await getMembersApi(dashboardId);
+      return members;
+    };
+
+    Promise.all([fetchColumns(), fetchMembers()]).then((res) => {
+      const [{ cols, columnId }, members] = res;
+      setColumns(cols);
+      if (columnId) setSelectedColumnId(columnId);
+      setColumn(cols.find((el) => el.id === initialValues?.columnId));
+      setAssignee(members.find((el) => el.userId === initialValues?.assignee?.id));
     });
   }, [initialValues]);
 
@@ -271,6 +287,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                   <div className='text-gray-800'>
                     <ColumnDropdown.Root
                       valueCallback={(item) => setSelectedColumnId(item?.id ?? null)}
+                      hydrateValue={column}
                     >
                       {/* valueCallback={(item) => setSelectedColumnId(item?.id ?? '')} */}
                       <ColumnDropdown.Trigger>컬럼 선택</ColumnDropdown.Trigger>
@@ -290,6 +307,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                     valueCallback={(item) => {
                       setSelectedItem(item?.userId ?? null);
                     }}
+                    hydrateValue={assignee}
                   >
                     <UserDropdown.Trigger>담당자 선택</UserDropdown.Trigger>
                     <UserDropdown.Content>
@@ -318,8 +336,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 <UserDropdown.Root
                   valueCallback={(item) => {
                     setSelectedItem(item?.userId ?? null);
-                    console.log(item);
                   }}
+                  hydrateValue={assignee}
                 >
                   <UserDropdown.Trigger>이름을 입력해 주세요</UserDropdown.Trigger>
                   <UserDropdown.Content>
