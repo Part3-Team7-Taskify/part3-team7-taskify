@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DropdownContextType } from './DropdownTypes';
 import { DropdownContext, useDropdownContext } from './DropdownContext';
 
@@ -11,20 +11,35 @@ const DropdownRoot = ({
   children: React.ReactNode;
   className?: string;
 }) => {
+  const dropdownRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
-  const toggleDropdown = () => setIsOpen(!isOpen);
+  const openDropdown = () => setIsOpen(true);
   const closeDropdown = () => setIsOpen(false);
+  const handleClickOutside = (e: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      closeDropdown();
+    }
+  };
 
   const contextValue: DropdownContextType = {
     isOpen,
     selectedItem,
     className,
-    toggleDropdown,
+    ref: dropdownRef,
+    openDropdown,
     closeDropdown,
     setSelectedItem,
   };
+
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   return (
     <DropdownContext.Provider value={contextValue}>
@@ -34,10 +49,10 @@ const DropdownRoot = ({
 };
 
 const DropdownTrigger = ({ children }: { children: React.ReactNode }) => {
-  const { toggleDropdown } = useDropdownContext();
+  const { openDropdown, ref } = useDropdownContext();
 
   return (
-    <button className='cursor-pointer' onClick={toggleDropdown}>
+    <button className='cursor-pointer' onClick={openDropdown} ref={ref}>
       {children}
     </button>
   );

@@ -1,18 +1,20 @@
 import { createContext, useContext } from 'react';
-import { DropdownContextType, UserDropdownContextType } from './DropdownTypes';
+import { DropdownContextType, IDropdownRef, UserDropdownContextType } from './DropdownTypes';
 
-const DropdownContextDefaultValues: DropdownContextType = {
+const DropdownContextDefaultValues: DropdownContextType & IDropdownRef = {
   isOpen: false,
   selectedItem: null,
-  toggleDropdown: () => {},
+  ref: null,
+  openDropdown: () => {},
   closeDropdown: () => {},
   setSelectedItem: () => {},
 };
 
-const UserDropdownContextDefaultValues: UserDropdownContextType = {
+const UserDropdownContextDefaultValues: UserDropdownContextType & IDropdownRef = {
   isOpen: false,
   selectedItem: null,
-  toggleDropdown: () => {},
+  ref: null,
+  openDropdown: () => {},
   closeDropdown: () => {},
   setSelectedItem: () => {},
 };

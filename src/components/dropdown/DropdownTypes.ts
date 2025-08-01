@@ -1,18 +1,23 @@
 import { UserType } from '@/types/UserTypes';
+import { RefObject } from 'react';
 
-export interface DropdownContextType {
+export interface IDropdownRef {
+  ref: RefObject<HTMLButtonElement | null> | null;
+}
+
+export interface DropdownContextType extends IDropdownRef {
   isOpen: boolean;
   selectedItem: string | null;
   className?: string;
-  toggleDropdown: () => void;
+  openDropdown: () => void;
   closeDropdown: () => void;
   setSelectedItem: (item: string | null) => void;
 }
 
-export interface UserDropdownContextType {
+export interface UserDropdownContextType extends IDropdownRef {
   isOpen: boolean;
   selectedItem: UserType | null;
-  toggleDropdown: () => void;
+  openDropdown: () => void;
   closeDropdown: () => void;
   setSelectedItem: (item: UserType | null) => void;
 }
