@@ -71,14 +71,12 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [selectedItem, setSelectedItem] = useState<number | null>();
   const [actionButtonText, setActionButtonText] = useState<string>('생성');
   const [isSubmitting, setIsSubmitting] = useState(false); // 제출 상태 추가
-
   const isFormValid =
     title.trim() !== '' &&
     description.trim() !== '' &&
     userData?.id !== undefined &&
     !isUploading &&
-    !isSubmitting; // 제출 중일 때도 비활성화
-
+    !isSubmitting;
   // 카드 상세 보기 열때, 카드 ID도 저장
   const [columns, setColumns] = useState<Column[]>([]);
   // 선택된 컬럼 ID 저장 (초기에는 빈값 또는 null)
@@ -87,10 +85,9 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
 
-    // 이미 제출 중이면 리턴 (중복 방지)
+    // 중복 제출 방지
     if (isSubmitting) return;
-
-    setIsSubmitting(true); // 제출 시작
+    setIsSubmitting(true);
 
     try {
       if (actionButtonText === '수정') {
@@ -122,10 +119,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
         modalOpenSetState(false); // 모달 닫아줌
       }
     } catch (error) {
-      console.error('처리 실패:', error);
-      alert(actionButtonText === '수정' ? '수정 실패' : '할 일 생성 실패');
+      console.error('할 일 생성 실패:', error);
+      alert('할 일 생성 실패');
     } finally {
-      setIsSubmitting(false); // 제출 완료 (성공/실패 관계없이)
+      setIsSubmitting(false); // 제출 완료
     }
   };
 
@@ -179,7 +176,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       modalOpenSetState(false); // 완료되면 모달 닫기
     } catch (err) {
       console.error('카드 수정 실패:', err);
-      throw err; // 에러를 다시 던져서 handleSubmit에서 처리
+      alert('수정 실패');
     }
   };
 
@@ -434,17 +431,21 @@ const TaskForm: React.FC<TaskFormProps> = ({
             <Button
               size='small'
               variant='primary'
-              onClick={handleSubmit}
+              onClick={() => {
+                if (actionButtonText === '수정') {
+                  handleUpdate(); // 수정 함수 호출
+                } else {
+                  handleSubmit(); // 생성 함수 호출
+                }
+              }}
               disabled={!isFormValid}
-              className={`w-1/2 h-[54px] font-semibold ${!isFormValid ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className='w-1/2 h-[54px] font-semibold'
             >
-              {isUploading
-                ? '이미지 업로드 중...'
-                : isSubmitting
-                  ? actionButtonText === '수정'
-                    ? '수정 중...'
-                    : '생성 중...'
-                  : actionButtonText}
+              {isSubmitting
+                ? actionButtonText === '수정'
+                  ? '수정 중...'
+                  : '생성 중...'
+                : actionButtonText}
             </Button>
           </div>
         </div>
