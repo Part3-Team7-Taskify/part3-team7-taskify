@@ -4,11 +4,7 @@ import { ReactNode, useEffect, useRef, useState } from 'react';
 import ChevronDown from '../../../public/icon/arrow_drop_down_FILL0_wght300_GRAD0_opsz24 2.svg';
 import { ColumnChip } from '../chip/ColumnChip';
 import { DropdownColumnContextType } from './DropdownTypes';
-import {
-  ColumnDropdownContext,
-  useColumnDropdownContext,
-  useDropdownContext,
-} from './DropdownContext';
+import { ColumnDropdownContext, useColumnDropdownContext } from './DropdownContext';
 import { Column } from '@/api/card/getColumns';
 
 const DropdownRoot = ({
@@ -24,14 +20,11 @@ const DropdownRoot = ({
 
   const openDropdown = () => setIsOpen(true);
   const closeDropdown = () => setIsOpen(false);
-
-  useEffect(() => {
-    document.addEventListener('click', closeDropdown);
-
-    return () => {
-      document.removeEventListener('click', closeDropdown);
-    };
-  }, []);
+  const handleClickOutside = (e: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      closeDropdown();
+    }
+  };
 
   const contextValue: DropdownColumnContextType = {
     isOpen,
@@ -45,6 +38,14 @@ const DropdownRoot = ({
   useEffect(() => {
     valueCallback(selectedItem);
   }, [selectedItem, valueCallback]);
+
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   return (
     <ColumnDropdownContext.Provider value={contextValue}>
@@ -60,7 +61,7 @@ const DropdownTrigger = ({ children }: { children: ReactNode }) => {
     <button
       ref={ref}
       onClick={openDropdown}
-      className='w-100 flex items-center justify-between px-4 py-2 bg-white border border-gray-300 text-black-200 rounded'
+      className='w-full flex items-center justify-between px-4 py-2 bg-white border border-gray-300 text-black-200 rounded-lg'
     >
       {selectedItem ? <ColumnChip>{selectedItem.title}</ColumnChip> : children}
       <ChevronDown className={`transition-transform ${isOpen && 'rotate-180'}`} />
@@ -69,7 +70,11 @@ const DropdownTrigger = ({ children }: { children: ReactNode }) => {
 };
 
 const DropdownContent = ({ children }: { children: ReactNode }) => {
-  const { isOpen } = useDropdownContext();
+  const { isOpen } = useColumnDropdownContext();
+
+  useEffect(() => {
+    console.log(isOpen);
+  }, [isOpen]);
 
   const beforeRenderedClasses = 'mt-0 invisible opacity-0';
   const afterRenderedClasses = 'mt-2 visible opacity-100';

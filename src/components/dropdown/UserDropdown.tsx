@@ -20,6 +20,11 @@ const DropdownRoot = ({
 
   const openDropdown = () => setIsOpen(true);
   const closeDropdown = () => setIsOpen(false);
+  const handleClickOutside = (e: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      closeDropdown();
+    }
+  };
 
   const contextValue: UserDropdownContextType = {
     isOpen,
@@ -33,6 +38,14 @@ const DropdownRoot = ({
   useEffect(() => {
     valueCallback(selectedItem);
   }, [selectedItem, valueCallback]);
+
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   return (
     <UserDropdownContext.Provider value={contextValue}>

@@ -63,7 +63,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [userData, setUserData] = useState<UserType | null>(null);
 
   const [tags, setTags] = useState<string[]>([]);
-  // const [colorMap, setColorMap] = useState<{ [tag: string]: string }>({});
 
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -130,17 +129,24 @@ const TaskForm: React.FC<TaskFormProps> = ({
   }, [initialValues]);
 
   useEffect(() => {
-    const fetchColumns = async () => {
+    const fetchColumns = async (): Promise<{
+      cols: Column[];
+      columnId: number | null | undefined;
+    }> => {
       const cols = await getColumnsByDashboardId(dashboardId);
-      setColumns(cols);
 
       // initialvalues 있다면 여기서 선택 컬럼 세팅
       // 예: props.initialColumnId이 있으면
-      if (initialValues?.columnId) {
-        setSelectedColumnId(initialValues.columnId);
-      }
+      // if (initialValues?.columnId) {
+      //   return [cols, initialValues.columnId]
+      // }
+
+      return { cols, columnId: initialValues?.columnId };
     };
-    fetchColumns();
+    fetchColumns().then((res) => {
+      setColumns(res.cols);
+      if (res.columnId) setSelectedColumnId(res.columnId);
+    });
   }, [initialValues]);
 
   const handleUpdate = async () => {
