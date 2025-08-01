@@ -61,11 +61,14 @@ const CommentsWrapper = ({
           입력
         </button>
       </div>
-      <div className='flex flex-col gap-[8px] h-[100px] sm:h-[130px] overflow-y-scroll'>
-        {comments?.map((comment) => (
-          <Comments comment={comment} key={comment.id} getCommentsHandler={getCommentsHandler} />
-        ))}
-      </div>
+
+      {comments && comments.length > 0 && (
+        <div className='flex flex-col gap-[8px] h-[100px] sm:h-[130px] overflow-y-scroll'>
+          {comments.map((comment) => (
+            <Comments comment={comment} key={comment.id} getCommentsHandler={getCommentsHandler} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

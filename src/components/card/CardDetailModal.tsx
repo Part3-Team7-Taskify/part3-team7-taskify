@@ -6,6 +6,7 @@ import { ModalRoot } from '../modal/ModalRoot';
 import { Card } from '@/api/card/apis';
 import { UserType } from '@/types/UserTypes';
 import { useEffect, useState } from 'react';
+import { colorMap } from '../taskform/TaskForm';
 
 interface Props {
   modalOpenState: boolean;
@@ -14,8 +15,9 @@ interface Props {
   columnTitle: string;
   columnId: number;
   dashboardId: number;
-
   meatballEditButtonClick: () => void;
+  meatballDeleteButtonClick: () => void;
+  onCreated: () => void;
 }
 
 const CardDetailModal = ({
@@ -25,8 +27,9 @@ const CardDetailModal = ({
   columnTitle,
   columnId,
   dashboardId,
-
   meatballEditButtonClick,
+  meatballDeleteButtonClick,
+  onCreated,
 }: Props) => {
   const assignee: UserType = cardInfo.assignee;
   const tags = cardInfo.tags;
@@ -46,17 +49,22 @@ const CardDetailModal = ({
       getCommentsHandler();
     }
   }, [modalOpenState]);
+
   return (
     <ModalRoot
       modalButtonType='none'
       modalOpenState={modalOpenState}
-      modalOpenSetState={(state) => {}}
+      modalOpenSetState={modalOpenSetState}
       meatballMenu={true}
       meatballMenuEditCallback={meatballEditButtonClick}
-      meatballMenuDeleteCallback={() => console.log('삭제버튼')}
+      meatballMenuDeleteCallback={() => {
+        meatballDeleteButtonClick();
+        onCreated?.();
+        modalOpenSetState(false);
+      }}
     >
       <div className='flex flex-col gap-[16px] sm:min-w-[614px] min-w-[327px]'>
-        <h1 className='text-xl font-bold text-black-200'>새로운 일정관리 Taskify</h1>
+        <h1 className='text-xl font-bold text-black-200'>{cardInfo.title}</h1>
         <div className='flex flex-col gap-[16px] sm:flex-row-reverse sm:justify-between'>
           <div>
             {assignee && (
@@ -81,12 +89,19 @@ const CardDetailModal = ({
                 <ColumnChip>{columnTitle}</ColumnChip>
               </div>
               {tags.length > 0 && <span className='h-[20px] w-px bg-gray-300' />}
-              {tags &&
-                tags.map((tag, idx) => (
-                  <span key={idx} className='px-[6px] py-[4px] rounded-sm bg-amber-100'>
-                    {tag}
+              {tags.map((tag, index) => {
+                const [color, text] = tag.split('/');
+                const classes = colorMap[color] || colorMap.lime;
+
+                return (
+                  <span
+                    key={index}
+                    className={`rounded-sm px-[6px] py-[2px] ${classes.bg} ${classes.text} text-[12px] font-medium`}
+                  >
+                    {text}
                   </span>
-                ))}
+                );
+              })}
             </div>
 
             <div className='leading-[18px] text-[12px] w-[290px] sm:[w-420px]'>

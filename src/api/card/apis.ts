@@ -115,3 +115,12 @@ export const getCardDetailApi = async (cardId: number): Promise<Card> => {
     throw error;
   }
 };
+// 카드 삭제 api
+export const deleteCardApi = async (cardId: number): Promise<void> => {
+  try {
+    await apiClient.delete(`${baseUrl}/cards/${cardId}`);
+  } catch (error: unknown) {
+    console.error('카드 삭제 실패:', error);
+    throw error;
+  }
+};

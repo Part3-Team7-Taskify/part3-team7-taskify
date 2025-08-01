@@ -1,11 +1,12 @@
+import { Column } from '@/api/card/getColumns';
 import { UserType } from '@/types/UserTypes';
 
 export interface DropdownContextType {
   isOpen: boolean;
-  selectedItem: string | null;
+  selectedItem: Column | null;
   toggleDropdown: () => void;
   closeDropdown: () => void;
-  setSelectedItem: (item: string | null) => void;
+  setSelectedItem: (item: Column | null) => void;
 }
 
 export interface UserDropdownContextType {

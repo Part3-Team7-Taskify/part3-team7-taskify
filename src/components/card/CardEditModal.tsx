@@ -7,6 +7,8 @@ const CardEditModal = ({
   initialValues,
   dashboardId,
   columnId,
+  onCreated,
+  cardId,
 }: {
   modalOpenState: boolean;
   modalOpenSetState: (state: boolean) => void;
@@ -18,22 +20,27 @@ const CardEditModal = ({
     imageUrl?: string | null;
     assigneeUserId?: number | null;
     columnId?: number | null;
+    cardId?: number | null;
   };
   dashboardId: number;
   columnId: number;
+  onCreated: () => void;
+  cardId: number;
 }) => {
   return (
     <ModalRoot
       modalOpenState={modalOpenState}
       modalOpenSetState={modalOpenSetState}
       modalButtonType='none'
+      title='할일 수정'
     >
-      <span>수정 모달</span>
       <TaskForm
         initialValues={initialValues}
         modalOpenSetState={modalOpenSetState}
         dashboardId={dashboardId}
         columnId={columnId}
+        cardId={cardId}
+        onEditUpdate={onCreated}
       />
     </ModalRoot>
   );
