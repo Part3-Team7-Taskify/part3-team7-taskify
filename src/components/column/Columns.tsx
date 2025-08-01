@@ -5,7 +5,7 @@ import Cards from '../card/Cards';
 import { Button } from '../button/Button';
 
 import CardCreateModal from '@/components/card/CardCreateModal';
-import { GetCardApi, getCardDetailApi, Card } from '@/api/card/apis';
+import { GetCardApi, getCardDetailApi, Card, deleteCardApi } from '@/api/card/apis';
 import CardDetailModal from '../card/CardDetailModal';
 import CardEditModal from '../card/CardEditModal';
 
@@ -24,6 +24,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
     'detailModal' | 'editModal' | null
   >(null);
   const [targetCardData, setTargetCardData] = useState<Card | null>(null);
+  const [cardId, setCardId] = useState<number>(0);
 
   const fetchCards = async () => {
     try {
@@ -43,15 +44,23 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
   }, [columnId]);
 
   const onCardEdit = () => setIsModalOpen(true);
-  const onCardCreate = () => setIsCardModalOpen(true);
 
   const onCardDetailModal = async (id: number) => {
+    setCardId(id);
     try {
       const res = await getCardDetailApi(id);
       setTargetCardData(res);
       setIsCardDetailModalOpen('detailModal');
     } catch (err) {
       console.error('카드 상세 데이터 불러오기 실패:', err);
+    }
+  };
+
+  const cardDeleteHandler = async () => {
+    try {
+      await deleteCardApi(targetCardData?.id ?? 0);
+    } catch (err) {
+      console.error('카드 삭제 실패:', err);
     }
   };
 
@@ -99,7 +108,9 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
               imageUrl={card.imageUrl}
               columnId={card.columnId}
               assignee={card.assignee}
-              onCardDetailClick={() => onCardDetailModal(card.id)}
+              onCardDetailClick={() => {
+                onCardDetailModal(card.id);
+              }}
             />
           ))}
         </div>
@@ -118,7 +129,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
           dashboardId={dashboardId}
           modalOpenState={isCardModalOpen}
           modalOpenSetState={setIsCardModalOpen}
-          onCreated={onCardCreate}
+          onCreated={fetchCards} //셍성 후 컬럼 업데이트해야함
           columnId={columnId}
         />
       )}
@@ -135,6 +146,8 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
             columnId={columnId}
             dashboardId={dashboardId}
             meatballEditButtonClick={() => setIsCardDetailModalOpen('editModal')}
+            meatballDeleteButtonClick={cardDeleteHandler}
+            onCreated={fetchCards}
           />
           <CardEditModal
             modalOpenState={isCardDetailModalOpen === 'editModal' && true}
@@ -145,6 +158,8 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
             dashboardId={dashboardId}
             columnId={columnId}
             initialValues={targetCardData}
+            cardId={cardId}
+            onCreated={onColumnUpdate}
           />
         </>
       )}

@@ -33,7 +33,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ handleFileChange }) => {
           className='z-10 absolute inset-0 opacity-0 w-[76px] h-[76px] cursor-pointer'
         />
         <div className='absolute top-0'>
-          <div className='relative w-[76px] h-[76px] bg-gray-200'>
+          <div className='relative w-[76px] h-[76px] bg-gray-200 rounded-lg'>
             <Image
               src='/icon/icon_add.svg'
               className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer'

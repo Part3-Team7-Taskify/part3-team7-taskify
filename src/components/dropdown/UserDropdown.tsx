@@ -51,7 +51,7 @@ const DropdownTrigger = ({ children }: { children: ReactNode }) => {
         e.stopPropagation();
         openDropdown();
       }}
-      className='w-56 flex items-center justify-between px-4 py-2 bg-white border border-gray-200 text-black rounded'
+      className='w-full flex items-center justify-between px-4 py-2 bg-white border border-gray-300 text-black rounded-lg'
     >
       {selectedItem ? <UserChip user={selectedItem} size='small' hideName={false} /> : children}
       <ChevronDown className={`transition-transform ${isOpen && 'rotate-180'}`} />
@@ -67,7 +67,7 @@ const DropdownContent = ({ children }: { children: ReactNode }) => {
 
   return (
     <div
-      className={`absolute left-0 w-56 z-[1] bg-white border border-gray-200 text-black rounded transition-all duration-200 ease-out ${isOpen ? afterRenderedClasses : beforeRenderedClasses}`}
+      className={`absolute left-0 w-full z-[1] bg-white border border-gray-300 text-black rounded-lg transition-all duration-200 ease-out ${isOpen ? afterRenderedClasses : beforeRenderedClasses}`}
     >
       {children}
     </div>

@@ -11,7 +11,7 @@ type FinalButtonType =
   | ConditionalButtonType<'small'>
   | ConditionalButtonType<'extraSmall'>;
 
-const baseClasses = 'rounded-sm';
+const baseClasses = 'rounded-lg';
 const sizeClasses = {
   large: 'py-3.5 w-[351px] border-none cursor-pointer lg:w-[520px]',
   small: 'px-7 py-2 cursor-pointer lg:px-5.5 md:px-6',

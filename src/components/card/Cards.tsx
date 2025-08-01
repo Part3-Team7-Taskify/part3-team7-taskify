@@ -1,4 +1,6 @@
 import Image from 'next/image';
+import { UserChip } from '@/components/chip/UserChip';
+import { colorMap } from '../taskform/TaskForm';
 interface assigneeInterface {
   profileImageUrl: string;
   nickname: string;
@@ -26,7 +28,6 @@ const Cards = ({
   onCardDetailClick,
 }: Props) => {
   const DateCustom = dueDate?.split(' ')[0];
-  const nickNameChar = assignee.nickname.charAt(0);
   return (
     <div
       onClick={onCardDetailClick}
@@ -42,14 +43,19 @@ const Cards = ({
         <div className='lg:flex-col lg:items-start sm:flex-row sm:items-center flex flex-col gap-[6px]'>
           <p className='flex gap-[6px]'>
             {tags &&
-              tags.map((tag, index) => (
-                <span
-                  className='rounded-sm px-[6px] py-[2px] bg-amber-100 text-amber-600'
-                  key={index}
-                >
-                  {tag}
-                </span>
-              ))}
+              tags.map((tag, index) => {
+                const [color, text] = tag.split('/');
+                const classes = colorMap[color] || colorMap.lime;
+
+                return (
+                  <span
+                    key={index}
+                    className={`rounded-sm px-[6px] py-[2px] ${classes.bg} ${classes.text} text-[12px] font-medium`}
+                  >
+                    {text}
+                  </span>
+                );
+              })}
           </p>
           <p className='flex gap-[4px] font-medium text-[12px] text-gray-100'>
             <Image src='/icons/icon_calendar.svg' alt='달력 아이콘' width={14} height={14} />
@@ -58,11 +64,17 @@ const Cards = ({
         </div>
       </div>
 
-      {assignee.profileImageUrl !== null ? (
-        <p>이미지</p>
+      {assignee && assignee.profileImageUrl ? (
+        <Image
+          src={assignee.profileImageUrl}
+          alt='프로필이미지'
+          width='24'
+          height='24'
+          className='rounded-full absolute bottom-[16px] right-[20px]'
+        />
       ) : (
         <p className='absolute bottom-[16px] right-[20px] flex justify-center items-center w-[22px] h-[22px] rounded-full bg-[#A3C4A2] text-[10px] text-white font-semibold'>
-          {nickNameChar}
+          <UserChip hideName={true} user={assignee} size='small' />
         </p>
       )}
     </div>

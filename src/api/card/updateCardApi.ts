@@ -1,13 +1,14 @@
 import { apiClient } from '@/api/auth/apiClient';
 
 export interface UpdateCardRequestDto {
-  columnId: number;
+  columnId: number | null;
   assigneeUserId?: number | null; // nullable
   title: string;
   description: string;
   dueDate: string;
   tags: string[];
   imageUrl: string | null;
+  cardId?: number | null;
 }
 
 export const updateCardApi = async (cardId: number | null, data: UpdateCardRequestDto) => {

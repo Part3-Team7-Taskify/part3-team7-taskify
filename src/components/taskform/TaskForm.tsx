@@ -1,9 +1,8 @@
 'use client';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import ImageUpload from '@/components/taskform/ImageUpload';
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, forwardRef, useEffect, useRef, useState } from 'react';
 import { formatDueDate } from '@/utils/formatDueDate';
-import InputField from '@/components/taskform/InputField';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { apiClient } from '@/api/auth/apiClient';
@@ -12,13 +11,17 @@ import { Members } from '@/components/taskform/formTypes';
 import { UserType } from '@/types/UserTypes';
 import { CardRequest } from '@/api/cards/apis';
 import { getMembersApi, getUserMeAPI } from '@/api/cards/apis';
-import { backgroundColors } from '@/components/taskform/tagColors';
 import { Button } from '@/components/button/Button';
 import { updateCardApi, UpdateCardRequestDto } from '@/api/card/updateCardApi';
-import { getColumns, Column } from '@/api/card/getColumns';
+import { Column } from '@/api/card/getColumns';
+
+import ColumnDropdown from '../dropdown/ColumnDropdown';
+import { getColumnsByDashboardId } from '@/api/snb/apis';
+
 interface TaskFormProps {
   columnId: number;
   dashboardId: number;
+  cardId?: number | null;
   modalOpenSetState: (state: boolean) => void;
   initialValues?: {
     title: string;
@@ -30,9 +33,19 @@ interface TaskFormProps {
     columnId?: number | null;
     cardId?: number | null;
   };
-
   onCreated?: () => void;
+  onEditUpdate?: () => void;
 }
+/*태그 - 배경색, 폰트색상 맵핑*/
+export const colorMap: Record<string, { bg: string; text: string }> = {
+  pink: { bg: 'bg-pink-100', text: 'text-pink-500' },
+  green: { bg: 'bg-green-100', text: 'text-green-500' },
+  blue: { bg: 'bg-blue-100', text: 'text-blue-500' },
+  yellow: { bg: 'bg-yellow-100', text: 'text-yellow-500' },
+  red: { bg: 'bg-red-100', text: 'text-red-500' },
+  purple: { bg: 'bg-purple-100', text: 'text-purple-500' },
+  lime: { bg: 'bg-lime-100', text: 'text-lime-500' }, //기본값
+};
 
 const TaskForm: React.FC<TaskFormProps> = ({
   dashboardId,
@@ -40,6 +53,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
   onCreated,
   modalOpenSetState,
   initialValues,
+  cardId,
+  onEditUpdate,
 }: TaskFormProps): React.ReactNode => {
   const [members, setMembers] = useState<Members[]>([]);
   const [title, setTitle] = useState<string>(initialValues?.title || '');
@@ -48,7 +63,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [userData, setUserData] = useState<UserType | null>(null);
 
   const [tags, setTags] = useState<string[]>([]);
-  const [colorMap, setColorMap] = useState<{ [tag: string]: string }>({});
+  // const [colorMap, setColorMap] = useState<{ [tag: string]: string }>({});
 
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -57,13 +72,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [actionButtonText, setActionButtonText] = useState<string>('생성');
   const isFormValid =
     title.trim() !== '' && description.trim() !== '' && userData?.id !== undefined;
-  const [cardId, setCardId] = useState<number | null>(initialValues?.cardId || null);
   // 카드 상세 보기 열때, 카드 ID도 저장
   const [columns, setColumns] = useState<Column[]>([]);
   // 선택된 컬럼 ID 저장 (초기에는 빈값 또는 null)
-  const [selectedColumnId, setSelectedColumnId] = useState<number | ''>('');
-  // 선택된 컬럼 이름 (제목) 저장
-  const [selectedColumnName, setSelectedColumnName] = useState<string>('');
+  const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
 
   const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
@@ -72,7 +84,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
     } else {
       const formattedDueDate = formatDueDate(dueDate);
       const token = localStorage.getItem('accessToken');
-
       if (!token) {
         console.error('토큰이 없습니다.');
         return;
@@ -87,15 +98,14 @@ const TaskForm: React.FC<TaskFormProps> = ({
         columnId: columnId,
         title: title,
         description: description,
-        colorMap: colorMap,
         ...(tags ? { tags } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
         ...(dueDate ? { formattedDueDate } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
         ...(imageUrl ? { imageUrl } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
       };
       try {
         await apiClient.post('/cards', cardData);
-        console.log('POST 요청 데이터:', { ...cardData });
-        if (onCreated) onCreated();
+        onCreated?.(); // 포스트완료하면 리랜더링 일어나서 컬럼업데이트됨.
+        modalOpenSetState(false); // 모달 닫아줌
       } catch (error) {
         console.error('할 일 생성 실패:', error);
         alert('할 일 생성 실패');
@@ -105,9 +115,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   useEffect(() => {
     if (initialValues) {
-      if (initialValues.cardId !== undefined && initialValues.cardId !== null) {
-        setCardId(initialValues.cardId);
-      }
       setTitle(initialValues.title || '');
       setDescription(initialValues.description || '');
       setDueDate(initialValues.dueDate ? new Date(initialValues.dueDate) : null);
@@ -124,17 +131,13 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   useEffect(() => {
     const fetchColumns = async () => {
-      const cols = await getColumns();
+      const cols = await getColumnsByDashboardId(dashboardId);
       setColumns(cols);
 
       // initialvalues 있다면 여기서 선택 컬럼 세팅
       // 예: props.initialColumnId이 있으면
       if (initialValues?.columnId) {
         setSelectedColumnId(initialValues.columnId);
-        const selectedCol = cols.find((c) => c.id === initialValues.columnId);
-        if (selectedCol) {
-          setSelectedColumnName(selectedCol.title);
-        }
       }
     };
     fetchColumns();
@@ -144,20 +147,20 @@ const TaskForm: React.FC<TaskFormProps> = ({
     // 수정 버튼 제출시 호출 함수!
     // 데이터 준비
     const payload: UpdateCardRequestDto = {
-      columnId,
+      columnId: selectedColumnId,
       assigneeUserId: selectedItem,
       title,
       description,
       dueDate: formatDueDate(dueDate),
       tags,
       imageUrl, // 업로드된 URL
+      cardId,
     };
 
     try {
-      await updateCardApi(cardId, payload);
-      alert('수정 완료!');
-      // 수정 후, 부모에 알리거나 모달 종료 후 갱신 요청 등
-      if (onCreated) onCreated();
+      await updateCardApi(cardId ?? null, payload);
+      onEditUpdate?.(); //대시보드 업데이트 !!!!!!!!애가 문제임 리랜더링이 안이루어짐
+      modalOpenSetState(false); // 완료되면 모달 닫기
     } catch (err) {
       console.error('카드 수정 실패:', err);
       alert('수정 실패');
@@ -169,18 +172,21 @@ const TaskForm: React.FC<TaskFormProps> = ({
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // 태그에 배경색, 폰트색 설정해서 api로 보냄
+    const colors = Object.keys(colorMap); // ['pink', 'green', ...]
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const fullTag = `${randomColor}/${inputValue}`;
+
     if (e.key === 'Enter') {
-      e.preventDefault(); //엔터키 등 기본 제출 방지 추가
-      e.stopPropagation(); //이벤트버블 방지
+      e.preventDefault();
       if (inputValue.trim() !== '') {
-        setTags([...tags, inputValue.trim()]);
+        setTags([...tags, fullTag]); // API로 전송될 데이터
         setInputValue('');
       }
-      e.preventDefault(); //엔터키 등 기본 제출 방지 추가
     } else if (e.key === 'Backspace') {
       if (inputValue === '' && tags.length > 0) {
         setTags(tags.slice(0, tags.length - 1));
-        e.preventDefault(); // 백스페이스 뒤로가기 등 방지 추가
+        e.preventDefault();
       }
     }
   };
@@ -229,21 +235,24 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const handleDueDateChange = (date: Date | null) => {
     setDueDate(date);
   };
-
-  const getColorForTag = (tag: string): string => {
-    if (colorMap[tag]) {
-      return colorMap[tag]; // 이미 할당된 색상 반환
-    }
-    // 새 태그의 경우, 색상 맵에 할당
-    const assignedColor = backgroundColors[Object.keys(colorMap).length % backgroundColors.length];
-    setColorMap((prev) => ({ ...prev, [tag]: assignedColor }));
-    return assignedColor;
-  };
-
+  // 리액트 데이트 피커에서 자동완성 기능 끄기 :: 커스텀으로 만들었어야했음.
+  const CustomDateInput = forwardRef<HTMLInputElement, React.HTMLProps<HTMLInputElement>>(
+    ({ value, onClick, onChange }, ref) => (
+      <input
+        ref={ref}
+        value={value}
+        onClick={onClick}
+        onChange={onChange}
+        autoComplete='off' // 자동완성 끔
+        className='border border-gray-300 rounded-lg p-2 w-full'
+      />
+    ),
+  );
+  CustomDateInput.displayName = 'CustomDateInput';
   return (
-    <form onSubmit={handleSubmit}>
-      <div className='mx-auto px-4 max-w-[520px] min-w-[295px]'>
-        <h1 className='text-[24px]'>할일 생성</h1>
+    <div>
+      <div className='mx-auto max-w-[520px] min-w-[295px]'>
+        {/* <h1 className='text-[24px]'>할일 수정</h1> */}
         <div className='w-full h-auto '>
           {/* 담당자 영역 절반 나누기 */}
           <div className='flex mb-4'>
@@ -252,33 +261,28 @@ const TaskForm: React.FC<TaskFormProps> = ({
               <>
                 {/* 왼쪽: 수정할 때 선택 상태선택 */}
                 <div className='w-1/2 p-2 border-r'>
-                  <label className='block mb-1 font-semibold text-gray-700'>선택 컬럼 제목</label>
+                  <label className='block mb-1 font-medium text-gray-700'>선택 컬럼 제목</label>
                   <div className='text-gray-800'>
-                    <select //상태 선택 드롭다운(컬럼 리스트) 임시
-                      value={selectedColumnId}
-                      onChange={(e) => {
-                        setSelectedColumnId(Number(e.target.value));
-                        const selectedCol = columns.find((c) => c.id === Number(e.target.value));
-                        setSelectedColumnName(selectedCol?.title || '');
-                      }}
+                    <ColumnDropdown.Root
+                      valueCallback={(item) => setSelectedColumnId(item?.id ?? null)}
                     >
-                      <option value=''>{selectedColumnName}</option>
-                      {columns.map((col) => (
-                        <option key={col.id} value={col.id}>
-                          {col.title}
-                        </option>
-                      ))}
-                    </select>
+                      {/* valueCallback={(item) => setSelectedColumnId(item?.id ?? '')} */}
+                      <ColumnDropdown.Trigger>컬럼 선택</ColumnDropdown.Trigger>
+                      <ColumnDropdown.Content>
+                        {columns.map((column) => (
+                          <ColumnDropdown.Item key={column.id} item={column} />
+                        ))}
+                      </ColumnDropdown.Content>
+                    </ColumnDropdown.Root>
                   </div>
                 </div>
 
                 {/* 오른쪽: (initialValues 있을 때)기존 담당자 보여주기 */}
                 <div className='w-1/2 p-2'>
-                  <label className='block mb-1 font-semibold'>담당자 선택</label>
+                  <label className='block mb-1 font-medium'>담당자 선택</label>
                   <UserDropdown.Root
                     valueCallback={(item) => {
-                      setSelectedItem(item?.id ?? null);
-                      console.log(item);
+                      setSelectedItem(item?.userId ?? null);
                     }}
                   >
                     <UserDropdown.Trigger>담당자 선택</UserDropdown.Trigger>
@@ -301,14 +305,14 @@ const TaskForm: React.FC<TaskFormProps> = ({
               </>
             ) : (
               /* 케이스1: 기존 UI 그대로 담당자만 보여주기 */
-              <div className='w-full p-2 border'>
-                <label htmlFor='assigneeUserId' className='block mb-1 font-semibold text-gray-700'>
+              <div className='w-full pt-[12px]'>
+                <label htmlFor='assigneeUserId' className='block mb-1 font-medium text-gray-700'>
                   담당자
                 </label>
                 <UserDropdown.Root
                   valueCallback={(item) => {
                     setSelectedItem(item?.userId ?? null);
-                    console.log(members);
+                    console.log(item);
                   }}
                 >
                   <UserDropdown.Trigger>이름을 입력해 주세요</UserDropdown.Trigger>
@@ -331,27 +335,28 @@ const TaskForm: React.FC<TaskFormProps> = ({
             )}
           </div>
 
-          <label htmlFor='title' className='block mb-1 font-semibold text-gray-700'>
+          <label htmlFor='title' className='block mb-1 font-medium text-gray-700'>
             제목<span className='text-pri'>*</span>
           </label>
-          <InputField
-            label=''
+          <input
+            className='w-full border border-gray-300 rounded-lg p-2'
             type='text'
             placeholder='제목을 입력해 주세요'
             onChange={(e) => titleSetting(e)}
-          ></InputField>
+            value={title}
+          ></input>
 
-          <label htmlFor='description' className='block mb-1 font-semibold text-gray-700'>
+          <label htmlFor='description' className='block mb-1 font-medium text-gray-700'>
             설명<span className='text-pri'>*</span>
           </label>
           <textarea
             onChange={(e) => setDescription(e.target.value)}
             value={description}
             placeholder='설명을 입력해 주세요'
-            className='border border-gray-400 rounded p-2 w-full h-24 resize-none'
+            className='border border-gray-300 rounded-lg p-2 w-full h-24 resize-none'
           ></textarea>
 
-          <label htmlFor='dueDate' className='block mb-1 font-semibold text-gray-700'>
+          <label htmlFor='dueDate' className='block mb-1 font-medium text-gray-700'>
             마감일
           </label>
           <DatePicker
@@ -363,22 +368,26 @@ const TaskForm: React.FC<TaskFormProps> = ({
             timeFormat='HH:mm' // 시간 포맷 (기본값이 HH:mm)
             timeIntervals={30} // 15분 간격으로 선택 가능
             dateFormat='yyyy-MM-dd HH:mm' // 보여주는 포맷
-            className='border border-gray-400 rounded p-2 w-full'
+            className='border border-gray-300 rounded p-2 w-full'
+            customInput={<CustomDateInput />}
           />
 
-          <label className='block mb-1 font-semibold text-gray-700'>태그</label>
-          <div className='flex flex-wrap items-center gap-2 p-3 border border-gray-300 rounded-lg shadow-sm bg-white min-h-[44px] w-full max-w-md cursor-text focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-200 transition-all duration-200'>
-            {tags.map((tag, index) => {
-              const colorClass = getColorForTag(tag);
-              return (
-                <span
-                  key={index}
-                  className={`flex items-center ${colorClass} text-blue-800 text-sm font-medium px-2.5 py-1 rounded-full whitespace-nowrap`}
-                >
-                  {tag}
-                </span>
-              );
-            })}
+          <label className='block mb-1 font-medium text-gray-700'>태그</label>
+          <div className='flex flex-nowrap overflow-hidden w-[295px] items-center gap-2 p-3 border border-gray-300 rounded-lg bg-white min-h-[44px] max-w-md cursor-text transition-all duration-200'>
+            {tags &&
+              tags.map((tag, index) => {
+                const [color, text] = tag.split('/');
+                const classes = colorMap[color] ?? colorMap.lime;
+
+                return (
+                  <span
+                    key={index}
+                    className={`rounded-sm px-[6px] py-[2px] ${classes.bg} ${classes.text} text-[12px] font-medium`}
+                  >
+                    {text}
+                  </span>
+                );
+              })}
             <div>
               <input
                 ref={inputRef} // inputRef 연결
@@ -387,22 +396,22 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 onChange={handleInputChange}
                 onKeyUp={handleInputKeyDown}
                 placeholder={tags.length === 0 ? '태그를 입력하고 Enter를 누르세요' : ''} // 태그가 없을 때만 플레이스홀더 표시
-                className='flex-grow min-w-[80px] p-0 border-none outline-none bg-transparent text-gray-800 text-base'
+                className='flex-grow min-w-[250px] p-0 border-none outline-none bg-transparent text-gray-800 text-base'
               />
             </div>
           </div>
 
           <div className='mb-4'>
-            <label className='block mb-1 font-semibold text-gray-700'>이미지 업로드</label>
+            <label className='block mb-1 font-medium text-gray-700'>이미지 업로드</label>
             <ImageUpload previewUrl={imageUrl} handleFileChange={handleFileChange} />
           </div>
 
-          <div>
+          <div className='flex w-full gap-[7px]'>
             <Button
               size='small'
               variant='outline'
               onClick={() => modalOpenSetState(false)}
-              className='mr-2'
+              className='w-1/2 h-[54px] font-semibold'
             >
               취소
             </Button>
@@ -417,14 +426,14 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 }
               }}
               disabled={!isFormValid}
-              className='mr-2'
+              className='w-1/2 h-[54px] font-semibold'
             >
               {actionButtonText}
             </Button>
           </div>
         </div>
       </div>
-    </form>
+    </div>
   );
 };
 
