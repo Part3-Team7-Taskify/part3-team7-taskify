@@ -29,7 +29,11 @@ interface TaskFormProps {
     dueDate: string;
     tags: string[];
     imageUrl?: string | null;
-    assigneeUserId?: number | null;
+    assignee?: {
+      id: number;
+      nickname: string;
+      profileImageUrl: string | null;
+    } | null;
     columnId?: number | null;
     cardId?: number | null;
   };
@@ -63,7 +67,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [userData, setUserData] = useState<UserType | null>(null);
 
   const [tags, setTags] = useState<string[]>([]);
-  // const [colorMap, setColorMap] = useState<{ [tag: string]: string }>({});
 
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -74,6 +77,9 @@ const TaskForm: React.FC<TaskFormProps> = ({
     title.trim() !== '' && description.trim() !== '' && userData?.id !== undefined;
   // 카드 상세 보기 열때, 카드 ID도 저장
   const [columns, setColumns] = useState<Column[]>([]);
+  // initialValues가 있을 때 받아온 정보 찾아서 저장하는 State
+  const [column, setColumn] = useState<Column>();
+  const [assignee, setAssignee] = useState<UserType>();
   // 선택된 컬럼 ID 저장 (초기에는 빈값 또는 null)
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
 
@@ -92,6 +98,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         console.error('필수 정보를 입력 해 주세요.');
         return;
       }
+
       const cardData: CardRequest = {
         assigneeUserId: selectedItem,
         dashboardId: dashboardId,
@@ -130,28 +137,42 @@ const TaskForm: React.FC<TaskFormProps> = ({
   }, [initialValues]);
 
   useEffect(() => {
-    const fetchColumns = async () => {
+    const fetchColumns = async (): Promise<{
+      cols: Column[];
+      columnId: number | null | undefined;
+    }> => {
       const cols = await getColumnsByDashboardId(dashboardId);
-      setColumns(cols);
 
       // initialvalues 있다면 여기서 선택 컬럼 세팅
       // 예: props.initialColumnId이 있으면
-      if (initialValues?.columnId) {
-        setSelectedColumnId(initialValues.columnId);
-      }
+      // if (initialValues?.columnId) {
+      //   return [cols, initialValues.columnId]
+      // }
+
+      return { cols, columnId: initialValues?.columnId };
     };
-    fetchColumns();
-  }, [initialValues]);
+    fetchColumns().then((res) => {
+      const { cols, columnId } = res;
+      setColumns(cols);
+      if (columnId) setSelectedColumnId(columnId);
+      const filteredColumnId = cols.find((el) => el.id === initialValues?.columnId);
+      const assignee = members.find((el) => el.userId === initialValues?.assignee?.id);
+      setColumn(filteredColumnId);
+      setAssignee(assignee);
+      setSelectedColumnId(filteredColumnId?.id ?? null);
+      setSelectedItem(assignee?.userId);
+    });
+  }, [initialValues, members]);
 
   const handleUpdate = async () => {
     // 수정 버튼 제출시 호출 함수!
     // 데이터 준비
     const payload: UpdateCardRequestDto = {
-      columnId: selectedColumnId,
-      assigneeUserId: selectedItem,
+      columnId: selectedColumnId ?? column?.id ?? 0,
+      assigneeUserId: selectedItem ?? assignee?.userId ?? 0,
       title,
       description,
-      dueDate: formatDueDate(dueDate),
+      ...(dueDate ? { dueDate: formatDueDate(dueDate) } : {}),
       tags,
       imageUrl, // 업로드된 URL
       cardId,
@@ -159,7 +180,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
     try {
       await updateCardApi(cardId ?? null, payload);
-      onEditUpdate?.(); //대시보드 업데이트 !!!!!!!!애가 문제임 리랜더링이 안이루어짐
+      if (onEditUpdate) onEditUpdate();
       modalOpenSetState(false); // 완료되면 모달 닫기
     } catch (err) {
       console.error('카드 수정 실패:', err);
@@ -264,9 +285,12 @@ const TaskForm: React.FC<TaskFormProps> = ({
                   <label className='block mb-1 font-medium text-gray-700'>선택 컬럼 제목</label>
                   <div className='text-gray-800'>
                     <ColumnDropdown.Root
-                      valueCallback={(item) => setSelectedColumnId(item?.id ?? null)}
+                      valueCallback={(item) => {
+                        if (column) setSelectedColumnId(column.id);
+                        setSelectedColumnId(item?.id ?? null);
+                      }}
+                      hydrateValue={column}
                     >
-                      {/* valueCallback={(item) => setSelectedColumnId(item?.id ?? '')} */}
                       <ColumnDropdown.Trigger>컬럼 선택</ColumnDropdown.Trigger>
                       <ColumnDropdown.Content>
                         {columns.map((column) => (
@@ -282,8 +306,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
                   <label className='block mb-1 font-medium'>담당자 선택</label>
                   <UserDropdown.Root
                     valueCallback={(item) => {
+                      if (assignee) setSelectedItem(assignee.userId);
                       setSelectedItem(item?.userId ?? null);
                     }}
+                    hydrateValue={assignee}
                   >
                     <UserDropdown.Trigger>담당자 선택</UserDropdown.Trigger>
                     <UserDropdown.Content>
@@ -311,9 +337,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 </label>
                 <UserDropdown.Root
                   valueCallback={(item) => {
+                    if (assignee) setSelectedItem(assignee.userId);
                     setSelectedItem(item?.userId ?? null);
-                    console.log(item);
                   }}
+                  hydrateValue={assignee}
                 >
                   <UserDropdown.Trigger>이름을 입력해 주세요</UserDropdown.Trigger>
                   <UserDropdown.Content>
