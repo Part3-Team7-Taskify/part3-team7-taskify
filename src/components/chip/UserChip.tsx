@@ -83,7 +83,7 @@ export const UserChip = ({
           </span>
         </div>
       )}
-      {!hideName && width > SMALL_DISPLAY && <span className='ml-2'>{user.nickname}</span>}
+      {(!hideName || width > SMALL_DISPLAY) && <span className='ml-2'>{user.nickname}</span>}
     </div>
   );
 };

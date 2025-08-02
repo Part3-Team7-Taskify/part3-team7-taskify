@@ -89,7 +89,7 @@ const DropdownContent = ({ children }: { children: ReactNode }) => {
 
   return (
     <div
-      className={`absolute left-0 w-full z-[1] bg-white border border-gray-300 text-black rounded-lg transition-all duration-200 ease-out ${isOpen ? afterRenderedClasses : beforeRenderedClasses}`}
+      className={`absolute left-0 z-10 w-full bg-white border border-gray-300 text-black rounded-lg transition-all duration-200 ease-out ${isOpen ? afterRenderedClasses : beforeRenderedClasses}`}
     >
       {children}
     </div>

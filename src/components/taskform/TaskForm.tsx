@@ -286,13 +286,13 @@ const TaskForm: React.FC<TaskFormProps> = ({
         {/* <h1 className='text-[24px]'>할일 수정</h1> */}
         <div className='w-full h-auto '>
           {/* 담당자 영역 절반 나누기 */}
-          <div className='flex mb-[30px]'>
+          <div className='flex flex-col mb-[30px]'>
             {/* 케이스2: initialValues 있다면 */}
             {initialValues ? (
               <>
                 {/* 왼쪽: 수정할 때 선택 상태선택 */}
-                <div className='w-1/2 p-2 border-r'>
-                  <label className='block mb-1 font-medium text-gray-700'>선택 컬럼 제목</label>
+                <div className='w-full sm:w-1/2'>
+                  <label className='block mb-1 font-medium text-gray-700'>상태</label>
                   <div className='text-gray-800'>
                     <ColumnDropdown.Root
                       valueCallback={(item) => {
@@ -312,8 +312,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 </div>
 
                 {/* 오른쪽: (initialValues 있을 때)기존 담당자 보여주기 */}
-                <div className='w-1/2 p-2'>
-                  <label className='block mb-1 font-medium'>담당자 선택</label>
+                <div className='w-full sm:w-1/2'>
+                  <label className='block mb-1 font-medium'>담당자</label>
                   <UserDropdown.Root
                     valueCallback={(item) => {
                       if (assignee) setSelectedItem(assignee.userId);
