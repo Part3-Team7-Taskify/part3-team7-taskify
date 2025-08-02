@@ -272,7 +272,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   CustomDateInput.displayName = 'CustomDateInput';
   return (
     <div>
-      <div className='mx-auto max-w-[520px] min-w-[295px]'>
+      <div className='mx-auto w-[295px] sm:w-[520px]'>
         {/* <h1 className='text-[24px]'>할일 수정</h1> */}
         <div className='w-full h-auto '>
           {/* 담당자 영역 절반 나누기 */}
@@ -395,12 +395,12 @@ const TaskForm: React.FC<TaskFormProps> = ({
             timeFormat='HH:mm' // 시간 포맷 (기본값이 HH:mm)
             timeIntervals={30} // 15분 간격으로 선택 가능
             dateFormat='yyyy-MM-dd HH:mm' // 보여주는 포맷
-            className='border border-gray-300 rounded p-2 w-full'
+            wrapperClassName='w-full'
             customInput={<CustomDateInput />}
           />
 
           <label className='block mb-1 font-medium text-gray-700'>태그</label>
-          <div className='flex flex-nowrap overflow-hidden w-[295px] items-center gap-2 p-3 border border-gray-300 rounded-lg bg-white min-h-[44px] max-w-md cursor-text transition-all duration-200'>
+          <div className='flex flex-nowrap overflow-hidden w-full items-center gap-2 p-3 border border-gray-300 rounded-lg bg-white min-h-[44px] cursor-text transition-all duration-200'>
             {tags &&
               tags.map((tag, index) => {
                 const [color, text] = tag.split('/');
@@ -415,7 +415,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                   </span>
                 );
               })}
-            <div>
+            <div className='w-full'>
               <input
                 ref={inputRef} // inputRef 연결
                 type='text'
@@ -423,7 +423,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 onChange={handleInputChange}
                 onKeyUp={handleInputKeyDown}
                 placeholder={tags.length === 0 ? '태그를 입력하고 Enter를 누르세요' : ''} // 태그가 없을 때만 플레이스홀더 표시
-                className='flex-grow min-w-[250px] p-0 border-none outline-none bg-transparent text-gray-800 text-base'
+                className='flex-grow w-full p-0 border-none outline-none bg-transparent text-gray-800 text-base'
               />
             </div>
           </div>

@@ -89,7 +89,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId, cards }: ColumnP
         <Button
           variant='outline'
           onClick={openCreateCardModal}
-          className='border-gray-300 mt-[24px] mb-[10px] flex justify-center items-center '
+          className='border-gray-300 mt-[24px] mb-[10px] flex justify-center items-center transition-shadow hover:shadow'
         >
           <Image
             src={'/icons/icon_addButton.svg'}
