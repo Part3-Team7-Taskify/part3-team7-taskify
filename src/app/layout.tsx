@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Taskify',
   description: '오늘도 만나서 반가워요!',
-  // icons: {
-  //   icon: '/favicon.icon',
-  // },
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
