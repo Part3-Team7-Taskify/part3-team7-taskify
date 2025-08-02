@@ -12,14 +12,7 @@
 
 ## 기술 스택
 
-- HTML & CSS
-- Typescript
-- tailwind
-- Next.js
-- React
-- OAuth
-- Drag n Drop UI
-- Zustand
+[![stackticon](https://firebasestorage.googleapis.com/v0/b/stackticon-81399.appspot.com/o/images%2F1754136962956?alt=media&token=7ff1061e-1de1-4eea-b2d0-535a3d2279b2)](https://github.com/msdio/stackticon)
   
 ## 배포 사이트
 
