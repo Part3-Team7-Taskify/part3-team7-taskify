@@ -18,6 +18,8 @@ import { Column } from '@/api/card/getColumns';
 import ColumnDropdown from '../dropdown/ColumnDropdown';
 import { getColumnsByDashboardId } from '@/api/snb/apis';
 
+import clsx from 'clsx';
+
 interface TaskFormProps {
   columnId: number;
   dashboardId: number;
@@ -83,8 +85,19 @@ const TaskForm: React.FC<TaskFormProps> = ({
   // 선택된 컬럼 ID 저장 (초기에는 빈값 또는 null)
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
 
+  useEffect(() => {
+    console.log('title:', title);
+    console.log('description:', description);
+    console.log('userData:', userData);
+    console.log('isFormValid:', isFormValid);
+  }, [title, description, userData]);
+
   const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
+    if (!title.trim() || !description.trim() || userData?.id === undefined) {
+      alert('제목과 내용을 반드시 입력해주세요!');
+      return;
+    }
     if (actionButtonText === '수정') {
       await handleUpdate();
     } else {
@@ -115,7 +128,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         modalOpenSetState(false); // 모달 닫아줌
       } catch (error) {
         console.error('할 일 생성 실패:', error);
-        alert('할 일 생성 실패');
+        alert('담당자, 제목, 설명을 입력해 주세요.');
       }
     }
   };
@@ -453,7 +466,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 }
               }}
               disabled={!isFormValid}
-              className='w-1/2 h-[54px] font-semibold'
+              className={clsx(
+                'w-1/2 h-[54px] font-semibold',
+                !isFormValid && 'pointer-events-none opacity-50 cursor-not-allowed',
+              )}
             >
               {actionButtonText}
             </Button>
