@@ -89,27 +89,50 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
 
   const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
-    if (e) e.preventDefault();
+  if (e) e.preventDefault();
 
     // 중복 제출 방지
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-
-    try {
-      if (actionButtonText === '수정') {
-        await handleUpdate();
-      } else {
-        const formattedDueDate = formatDueDate(dueDate);
-        const token = localStorage.getItem('accessToken');
-        if (!token) {
-          console.error('토큰이 없습니다.');
-          return;
-        }
-        if (!userData?.id || !dashboardId || !columnId || !title) {
-          console.error('필수 정보를 입력 해 주세요.');
-          return;
-        }
+  if (isSubmitting) return;
+  setIsSubmitting(true);
   
+  try {
+    if (actionButtonText === '수정') {
+      await handleUpdate();
+    } else {
+      const formattedDueDate = formatDueDate(dueDate);
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.error('토큰이 없습니다.');
+        return;
+      }
+      if (!userData?.id || !dashboardId || !columnId || !title) {
+        console.error('필수 정보를 입력 해 주세요.');
+        return;
+      }
+      
+      const cardData: CardRequest = {
+        assigneeUserId: selectedItem,
+        dashboardId: dashboardId,
+        columnId: columnId,
+        title: title,
+        description: description,
+        ...(tags ? { tags } : {}),
+        ...(dueDate ? { dueDate: formattedDueDate } : {}),
+        ...(imageUrl ? { imageUrl } : {}),
+      };
+      
+      await apiClient.post('/cards', cardData);
+      onCreated?.();
+      modalOpenSetState(false);
+    }
+  } catch (error) {
+    console.error('할 일 생성 실패:', error);
+    alert('할 일 생성 실패');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
       const cardData: CardRequest = {
           assigneeUserId: selectedItem,
           dashboardId: dashboardId,
