@@ -13,6 +13,7 @@ interface IDropdown {
 export interface DropdownColumnContextType extends IDropdown {
   selectedItem: Column | null;
   setSelectedItem: (item: Column | null) => void;
+  hydrateValue: Column | undefined;
 }
 
 export interface DropdownContextType extends IDropdown {
@@ -23,4 +24,5 @@ export interface DropdownContextType extends IDropdown {
 export interface UserDropdownContextType extends IDropdown {
   selectedItem: UserType | null;
   setSelectedItem: (item: UserType | null) => void;
+  hydrateValue: UserType | undefined;
 }

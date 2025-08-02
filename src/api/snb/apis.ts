@@ -47,6 +47,21 @@ export const getDashboards = async (pageParam: number): Promise<DashboardRespons
   }
 };
 
+export const getDashboardsWithSize = async (
+  pageParam: number,
+  size: number,
+): Promise<DashboardResponse> => {
+  try {
+    const res = await apiClient.get<DashboardResponse>(
+      `${baseUrl}/dashboards?navigationMethod=pagination&size=${size}&page=${pageParam}`,
+    );
+    return res.data;
+  } catch (error: unknown) {
+    console.error('대시보드 가져오기 실패:', error);
+    throw error;
+  }
+};
+
 export const getSingleDashboard = async (dashboardId: number): Promise<Dashboard> => {
   try {
     const { data } = await apiClient.get(`${baseUrl}/dashboards/${dashboardId}`);

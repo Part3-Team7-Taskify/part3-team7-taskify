@@ -1,47 +1,48 @@
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import ColumnEditModal from './ColumnEditModal';
 import Cards from '../card/Cards';
 import { Button } from '../button/Button';
 
 import CardCreateModal from '@/components/card/CardCreateModal';
-import { GetCardApi, getCardDetailApi, Card, deleteCardApi } from '@/api/card/apis';
+import { getCardDetailApi, Card, deleteCardApi } from '@/api/card/apis';
 import CardDetailModal from '../card/CardDetailModal';
 import CardEditModal from '../card/CardEditModal';
 
 interface ColumnProps {
   title: string;
   columnId: number;
+  cards: Card[];
   onColumnUpdate: () => void;
   dashboardId: number;
 }
 
-const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) => {
+const Column = ({ title, columnId, onColumnUpdate, dashboardId, cards }: ColumnProps) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isCardModalOpen, setIsCardModalOpen] = useState<boolean>(false);
-  const [targetCards, setTargetCards] = useState<Card[]>([]);
+  // const [targetCards, setTargetCards] = useState<Card[]>([]);
   const [isCardDetailModalOpen, setIsCardDetailModalOpen] = useState<
     'detailModal' | 'editModal' | null
   >(null);
   const [targetCardData, setTargetCardData] = useState<Card | null>(null);
   const [cardId, setCardId] = useState<number>(0);
 
-  const fetchCards = async () => {
-    try {
-      const res = await GetCardApi(columnId);
-      setTargetCards(res.cards);
-    } catch (err) {
-      console.error('카드 가져오기 실패:', err);
-    }
-  };
+  // const fetchCards = async () => {
+  //   try {
+  //     const res = await GetCardApi(columnId);
+  //     setTargetCards(res.cards);
+  //   } catch (err) {
+  //     console.error('카드 가져오기 실패:', err);
+  //   }
+  // };
 
   const openCreateCardModal = () => {
     setIsCardModalOpen(true);
   };
 
-  useEffect(() => {
-    fetchCards();
-  }, [columnId]);
+  // useEffect(() => {
+  //   fetchCards();
+  // }, [columnId]);
 
   const onCardEdit = () => setIsModalOpen(true);
 
@@ -72,7 +73,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
             <span className='bg-pri w-[8px] h-[8px] block rounded-full'></span>
             <h5 className='font-bold text-[16px]'>{title}</h5>
             <span className='bg-gray-400 text-xs text-gray-100 font-medium w-[20px] h-[20px] rounded-sm flex items-center justify-center'>
-              {targetCards.length}
+              {cards.length}
             </span>
           </div>
           <button className='cursor-pointer'>
@@ -88,7 +89,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
         <Button
           variant='outline'
           onClick={openCreateCardModal}
-          className='border-gray-300 mt-[24px] mb-[10px] flex justify-center items-center '
+          className='border-gray-300 mt-[24px] mb-[10px] flex justify-center items-center transition-shadow hover:shadow'
         >
           <Image
             src={'/icons/icon_addButton.svg'}
@@ -98,7 +99,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
           />
         </Button>
         <div className='flex flex-col gap-[16px]'>
-          {targetCards.map((card) => (
+          {cards.map((card) => (
             <Cards
               key={card.id}
               title={card.title}
@@ -129,7 +130,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
           dashboardId={dashboardId}
           modalOpenState={isCardModalOpen}
           modalOpenSetState={setIsCardModalOpen}
-          onCreated={fetchCards} //셍성 후 컬럼 업데이트해야함
+          onCreated={onColumnUpdate} //셍성 후 컬럼 업데이트해야함
           columnId={columnId}
         />
       )}
@@ -147,7 +148,7 @@ const Column = ({ title, columnId, onColumnUpdate, dashboardId }: ColumnProps) =
             dashboardId={dashboardId}
             meatballEditButtonClick={() => setIsCardDetailModalOpen('editModal')}
             meatballDeleteButtonClick={cardDeleteHandler}
-            onCreated={fetchCards}
+            onCreated={onColumnUpdate}
           />
           <CardEditModal
             modalOpenState={isCardDetailModalOpen === 'editModal' && true}

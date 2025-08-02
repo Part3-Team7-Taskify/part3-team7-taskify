@@ -31,7 +31,7 @@ const Cards = ({
   return (
     <div
       onClick={onCardDetailClick}
-      className='cursor-pointer lg:flex-col lg:items-start sm:flex-row sm:justify-start sm:gap-[20px] flex justify-between sm:items-center flex-col gap-[6px] rounded-md border border-gray-300 bg-white px-[20px] py-[16px] relative'
+      className='cursor-pointer lg:flex-col lg:items-start sm:flex-row sm:justify-start sm:gap-[20px] flex justify-between sm:items-center flex-col gap-[6px] rounded-md border border-gray-300 bg-white px-[20px] py-[16px] relative transition-shadow hover:shadow-lg'
     >
       {imageUrl && (
         <p className='lg:w-full lg:h-[160px] sm:w-[90px] sm:h-[53px] relative w-full h-[151px]'>
@@ -73,9 +73,9 @@ const Cards = ({
           className='rounded-full absolute bottom-[16px] right-[20px]'
         />
       ) : (
-        <p className='absolute bottom-[16px] right-[20px] flex justify-center items-center w-[22px] h-[22px] rounded-full bg-[#A3C4A2] text-[10px] text-white font-semibold'>
+        <div className='absolute bottom-[16px] right-[20px] flex justify-center items-center w-[22px] h-[22px] rounded-full bg-[#A3C4A2] text-[10px] text-white font-semibold'>
           <UserChip hideName={true} user={assignee} size='small' />
-        </p>
+        </div>
       )}
     </div>
   );
