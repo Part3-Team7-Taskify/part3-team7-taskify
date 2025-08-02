@@ -281,12 +281,12 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   CustomDateInput.displayName = 'CustomDateInput';
   return (
-    <div className='max-h-[600px] overflow-y-scroll'>
-      <div className='mx-auto max-w-[520px] min-w-[295px]'>
+    <div className='max-h-[600px] overflow-y-scroll w-[327px] sm:w-[584px]'>
+      <div>
         {/* <h1 className='text-[24px]'>할일 수정</h1> */}
         <div className='w-full h-auto '>
           {/* 담당자 영역 절반 나누기 */}
-          <div className='flex flex-col mb-[30px]'>
+          <div className='flex flex-col mb-[30px] sm:flex-row gap-[30px]'>
             {/* 케이스2: initialValues 있다면 */}
             {initialValues ? (
               <>
@@ -412,7 +412,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
           </div>
 
           <label className='block mb-1 font-medium text-gray-700'>태그</label>
-          <div className='flex mb-[30px] flex-nowrap overflow-hidden w-[295px] items-center gap-2 p-3 border border-gray-300 rounded-lg bg-white min-h-[44px] max-w-md cursor-text transition-all duration-200'>
+          <div className='flex mb-[30px] flex-nowrap overflow-hidden w-[327px] sm:w-[584px] items-center gap-2 p-3 border border-gray-300 rounded-lg bg-white min-h-[44px] cursor-text transition-all duration-200'>
             {tags &&
               tags.map((tag, index) => {
                 const [color, text] = tag.split('/');

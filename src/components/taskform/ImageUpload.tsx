@@ -51,7 +51,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ handleFileChange }) => {
           alt='이미지업로드'
           width={76}
           height={76}
-          className='absolute mb-1 w-[76px] h-[76px] object-cover '
+          className='absolute mb-1 w-[76px] h-[76px] rounded-md object-cover '
         />
       )}
     </div>
