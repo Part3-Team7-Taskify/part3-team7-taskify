@@ -90,38 +90,44 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
-    if (actionButtonText === '수정') {
-      await handleUpdate();
-    } else {
-      const formattedDueDate = formatDueDate(dueDate);
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        console.error('토큰이 없습니다.');
-        return;
-      }
-      if (!userData?.id || !dashboardId || !columnId || !title) {
-        console.error('필수 정보를 입력 해 주세요.');
-        return;
-      }
 
-      const cardData: CardRequest = {
-        assigneeUserId: selectedItem,
-        dashboardId: dashboardId,
-        columnId: columnId,
-        title: title,
-        description: description,
-        ...(tags ? { tags } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
-        ...(dueDate ? { dueDate: formattedDueDate } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
-        ...(imageUrl ? { imageUrl } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
-      };
-      try {
+    // 중복 제출 방지
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      if (actionButtonText === '수정') {
+        await handleUpdate();
+      } else {
+        const formattedDueDate = formatDueDate(dueDate);
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          console.error('토큰이 없습니다.');
+          throw new Error('토큰이 없습니다.');
+        }
+        if (!userData?.id || !dashboardId || !columnId || !title) {
+          console.error('필수 정보를 입력 해 주세요.');
+          throw new Error('필수 정보를 입력 해 주세요.');
+        }
+
+        const cardData: CardRequest = {
+          assigneeUserId: selectedItem,
+          dashboardId: dashboardId,
+          columnId: columnId,
+          title: title,
+          description: description,
+          ...(tags ? { tags } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
+          ...(dueDate ? { dueDate: formattedDueDate } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
+          ...(imageUrl ? { imageUrl } : {}), // POST 필수값 제외 옵셔널 파라미터 지정
+        };
+
         await apiClient.post('/cards', cardData);
         onCreated?.(); // 포스트완료하면 리랜더링 일어나서 컬럼업데이트됨.
         modalOpenSetState(false); // 모달 닫아줌
       }
     } catch (error) {
-      console.error('할 일 생성 실패:', error);
-      alert('할 일 생성 실패');
+      console.error('처리 실패:', error);
+      alert(actionButtonText === '수정' ? '수정 실패' : '할 일 생성 실패');
     } finally {
       setIsSubmitting(false); // 제출 완료
     }
@@ -191,7 +197,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       modalOpenSetState(false); // 완료되면 모달 닫기
     } catch (err) {
       console.error('카드 수정 실패:', err);
-      alert('수정 실패');
+      throw err; // 에러를 다시 던져서 handleSubmit에서 처리
     }
   };
 
