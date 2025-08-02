@@ -20,7 +20,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ handleFileChange }) => {
     reader.readAsDataURL(file);
   };
   return (
-    <div className='mb-[90px]'>
+    <div className='mb-[90px] relative'>
       <div className='relative'>
         <input
           id='file'

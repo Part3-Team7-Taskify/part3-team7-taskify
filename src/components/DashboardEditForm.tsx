@@ -97,14 +97,14 @@ const DashboardEditForm = ({ dashboardId }: DashboardEditFormProps) => {
 
   if (loading) {
     return (
-      <div className='bg-white rounded-lg p-4 md:p-6 lg:p-8 shadow-sm w-full max-w-none md:max-w-2xl lg:max-w-4xl'>
+      <div className='bg-white rounded-lg p-4 md:p-6 lg:p-8 shadow-sm w-full max-w-none md:max-w-2xl'>
         로딩 중...
       </div>
     );
   }
 
   return (
-    <div className='bg-white rounded-lg md:rounded-2xl p-4 md:p-6 lg:p-8 shadow-sm w-full max-w-none md:max-w-2xl lg:max-w-4xl'>
+    <div className='bg-white rounded-lg md:rounded-2xl p-4 md:p-6 lg:p-8 shadow-sm w-full max-w-none md:max-w-2xl'>
       {/* 대시보드 이름 (큰 제목) - 원본 데이터 표시 */}
       <h1 className='text-[20px] md:text-[24px] font-bold text-gray-900 mb-[24px] md:mb-6 lg:mb-8'>
         {originalName}
