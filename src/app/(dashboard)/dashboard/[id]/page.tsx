@@ -68,7 +68,7 @@ const DashboardDetailPage = () => {
   };
 
   return (
-    <section className='flex grow-1 bg-gray-500 h-full sm:p-[20px] p-[12px]'>
+    <section className='flex grow-1 bg-gray-500 h-full sm:p-[20px] p-[12px] pb-[100px] sm:pb-[100px]'>
       <div className='lg:flex-row lg:w-fit lg:overflow-x-scroll overflow-y-auto flex flex-col w-full'>
         {cards ? (
           <>

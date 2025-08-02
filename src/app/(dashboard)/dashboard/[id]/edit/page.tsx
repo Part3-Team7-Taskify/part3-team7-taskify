@@ -147,9 +147,9 @@ const DashboardEditPage = () => {
   }
 
   return (
-    <div className='flex flex-col'>
+    <div className='flex flex-col h-full overflow-y-scroll pb-[70px] bg-gray-50'>
       {/* 메인 콘텐츠 - 반응형 적용 */}
-      <div className='p-[16px] md:p-[20px] bg-gray-50'>
+      <div className='p-[16px] md:p-[20px'>
         <button
           onClick={handleGoBack}
           disabled={isDeleting}
@@ -179,7 +179,7 @@ const DashboardEditPage = () => {
           <button
             onClick={handleDeleteClick}
             disabled={isDeleting}
-            className='w-full h-[52px] md:h-[62px] hover:border-pri px-6 py-3 cursor-pointer font-medium rounded-lg border-1 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+            className='w-full h-[52px] max-w-none md:max-w-2xl md:h-[62px] hover:border-pri px-6 py-3 cursor-pointer font-medium rounded-lg border-1 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
           >
             {isDeleting ? '삭제 중...' : '대시보드 삭제하기'}
           </button>
