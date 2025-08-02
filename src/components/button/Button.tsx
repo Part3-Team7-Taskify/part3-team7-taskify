@@ -20,7 +20,7 @@ const sizeClasses = {
 const variantClasses = {
   primary: 'bg-pri text-white border-none cursor-pointer',
   outline: 'bg-white border border-gray-200 text-pri cursor-pointer',
-  disabled: 'bg-gray-300 text-white cursor-not-allowed',
+  disabled: 'disabled:bg-gray-300 disabled:text-white disabled:cursor-not-allowed',
   gnb: 'flex items-center gap-2 text-gray-600 bg-white border border-gray-200 rounded-xl',
 };
 
@@ -32,7 +32,7 @@ export const Button: FC<FinalButtonType> = ({
   disabled,
   className,
 }) => {
-  const classes = `${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${className || ''}`;
+  const classes = `${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${disabled && variantClasses['disabled']} ${className}`;
 
   return (
     <button className={classes} onClick={onClick} disabled={disabled}>
