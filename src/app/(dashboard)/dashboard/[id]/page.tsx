@@ -1,12 +1,13 @@
 'use client';
 
-import { getColumnsByDashboardId } from '@/api/snb/apis';
-import React, { useEffect, useState, Suspense } from 'react';
+import { Column, getColumnsByDashboardId } from '@/api/snb/apis';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import ColumnCreateModal from '@/components/column/ColumnCreateModal';
 import Image from 'next/image';
-import Loading from './loading';
 import { useColumnStore } from '@/store/ColumnStore';
+import { Card, GetCardApi } from '@/api/card/apis';
+import Loading from './custom-loading';
 
 const ColumnComponent = React.lazy(() => import('@/components/column/Columns'));
 
@@ -14,6 +15,13 @@ const DashboardDetailPage = () => {
   const params = useParams();
   const { initializeColumns, columns } = useColumnStore();
   const dashboardId = Number(params.id);
+  const [cards, setCards] = useState<
+    | {
+        column: Column;
+        cards: Card[];
+      }[]
+    | null
+  >(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const fetchColumns = async () => {
@@ -23,9 +31,20 @@ const DashboardDetailPage = () => {
     }
 
     try {
-      const fetched = await getColumnsByDashboardId(dashboardId);
-      initializeColumns(fetched);
-      // setColumns(fetched);
+      const columns = await getColumnsByDashboardId(dashboardId);
+      initializeColumns(columns);
+      const cards = await Promise.all(
+        columns.map(async (column) => {
+          const cards = await GetCardApi(column.id).then((cards) => {
+            return {
+              column: column,
+              cards: cards.cards,
+            };
+          });
+          return cards;
+        }),
+      );
+      setCards(cards);
     } catch (err) {
       console.error('컬럼 가져오기 실패:', err);
     }
@@ -49,20 +68,24 @@ const DashboardDetailPage = () => {
   };
 
   return (
-    <section className='flex grow-1 bg-gray-500 h-full'>
-      <div className='lg:flex-row lg:w-fit lg:overflow-x-scroll overflow-y-auto sm:p-[20px] flex p-[12px] flex-col w-full'>
-        <Suspense fallback={<Loading />}>
-          {columns.map((column) => (
-            <ColumnComponent
-              key={column.id}
-              columnId={column.id}
-              title={column.title}
-              onColumnUpdate={fetchColumns}
-              dashboardId={dashboardId}
-            />
-          ))}
-        </Suspense>
-
+    <section className='flex grow-1 bg-gray-500 h-full sm:p-[20px] p-[12px]'>
+      <div className='lg:flex-row lg:w-fit lg:overflow-x-scroll overflow-y-auto flex flex-col w-full'>
+        {cards ? (
+          <>
+            {cards.map((card) => (
+              <ColumnComponent
+                key={card.column.id}
+                columnId={card.column.id}
+                title={card.column.title}
+                cards={card.cards}
+                onColumnUpdate={fetchColumns}
+                dashboardId={dashboardId}
+              />
+            ))}
+          </>
+        ) : (
+          <Loading />
+        )}
         <button
           className='lg:w-[354px] lg:shrink-0 lg:mt-[60px] lg:ml-[20px] sm:mt-[20px] h-[66px] shrink-0 cursor-pointer flex justify-center items-center gap-[12px] bg-white w-full text-base border font-bold border-gray-300 mt-[16px] rounded-lg'
           onClick={handleNewColumnAdd}

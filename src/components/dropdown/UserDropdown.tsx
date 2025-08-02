@@ -10,9 +10,11 @@ import { UserType } from '@/types/UserTypes';
 const DropdownRoot = ({
   children,
   valueCallback,
+  hydrateValue,
 }: {
   children: ReactNode;
   valueCallback: (item: UserType | null) => void;
+  hydrateValue?: UserType;
 }) => {
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -20,11 +22,17 @@ const DropdownRoot = ({
 
   const openDropdown = () => setIsOpen(true);
   const closeDropdown = () => setIsOpen(false);
+  const handleClickOutside = (e: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      closeDropdown();
+    }
+  };
 
   const contextValue: UserDropdownContextType = {
     isOpen,
     selectedItem,
     ref: dropdownRef,
+    hydrateValue,
     openDropdown,
     closeDropdown,
     setSelectedItem,
@@ -34,6 +42,14 @@ const DropdownRoot = ({
     valueCallback(selectedItem);
   }, [selectedItem, valueCallback]);
 
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
   return (
     <UserDropdownContext.Provider value={contextValue}>
       <div className='relative'>{children}</div>
@@ -42,7 +58,7 @@ const DropdownRoot = ({
 };
 
 const DropdownTrigger = ({ children }: { children: ReactNode }) => {
-  const { isOpen, openDropdown, selectedItem, ref } = useUserDropdownContext();
+  const { isOpen, openDropdown, selectedItem, hydrateValue, ref } = useUserDropdownContext();
 
   return (
     <button
@@ -53,7 +69,13 @@ const DropdownTrigger = ({ children }: { children: ReactNode }) => {
       }}
       className='w-full flex items-center justify-between px-4 py-2 bg-white border border-gray-300 text-black rounded-lg'
     >
-      {selectedItem ? <UserChip user={selectedItem} size='small' hideName={false} /> : children}
+      {selectedItem ? (
+        <UserChip user={selectedItem} size='small' hideName={false} />
+      ) : hydrateValue ? (
+        <UserChip user={hydrateValue} size='small' hideName={false} />
+      ) : (
+        children
+      )}
       <ChevronDown className={`transition-transform ${isOpen && 'rotate-180'}`} />
     </button>
   );
