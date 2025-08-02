@@ -23,7 +23,11 @@
   
 ## 배포 사이트
 
+[🔗Vercel](https://part3-team7-taskify.vercel.app/)
+
 ## 수행 계획서
+
+[🔗Notion](https://www.notion.so/232f2610afd0819fb11afa1f6af7d58b)
 
 ## 디자인 시안
 
