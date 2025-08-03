@@ -283,6 +283,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   return (
     <div className='max-h-[600px] overflow-y-scroll w-[327px] sm:w-[584px]'>
       <div>
+
         {/* <h1 className='text-[24px]'>할일 수정</h1> */}
         <div className='w-full h-auto '>
           {/* 담당자 영역 절반 나누기 */}
@@ -427,7 +428,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                   </span>
                 );
               })}
-            <div>
+            <div className='w-full'>
               <input
                 ref={inputRef} // inputRef 연결
                 type='text'
@@ -435,7 +436,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 onChange={handleInputChange}
                 onKeyUp={handleInputKeyDown}
                 placeholder={tags.length === 0 ? '태그를 입력하고 Enter를 누르세요' : ''} // 태그가 없을 때만 플레이스홀더 표시
-                className='flex-grow min-w-[250px] p-0 border-none outline-none bg-transparent text-gray-800 text-base'
+                className='flex-grow w-full p-0 border-none outline-none bg-transparent text-gray-800 text-base'
               />
             </div>
           </div>

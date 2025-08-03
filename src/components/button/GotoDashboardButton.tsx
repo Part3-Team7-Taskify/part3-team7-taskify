@@ -14,7 +14,7 @@ const GotoDashboardButton = ({
 }) => {
   return (
     <button
-      className='w-[260px] md:w-[247px] lg:w-[332px] h-[66px] cursor-pointer px-6 flex justify-between items-center gap-3 bg-white text-base border font-bold border-gray-300 rounded-lg'
+      className='w-full h-[66px] cursor-pointer px-6 flex justify-between items-center gap-3 bg-white text-base border font-bold border-gray-300 rounded-lg'
       onClick={onClick}
     >
       <div className='flex gap-2 items-center'>

@@ -57,16 +57,16 @@ export const UserChip = ({
     }
   };
 
-  const bgColorIndex = user.id % 8;
+  const bgColorIndex = (user.userId ?? user.id) % 8;
 
   useEffect(() => {
     setBgColor(colors[bgColorIndex]);
-  }, []);
+  }, [bgColorIndex]);
 
   if (!width) return;
 
   return (
-    <div className={`flex items-center${className ? className : ''}`}>
+    <div className={`flex items-center${className && className}`}>
       {user.profileImageUrl ? (
         <img
           src={user.profileImageUrl}
