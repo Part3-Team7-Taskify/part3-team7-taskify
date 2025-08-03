@@ -189,14 +189,14 @@ const InvitationsSection = ({ dashboardId }: InvitationsSectionProps) => {
 
   if (loading) {
     return (
-      <div className='bg-white rounded-lg p-4 md:p-6 shadow-sm w-full max-w-none md:max-w-2xl lg:max-w-4xl'>
+      <div className='bg-white rounded-lg p-4 md:p-6 shadow-sm w-full max-w-none md:max-w-2xl'>
         <div className='text-center py-8 text-gray-500'>초대 내역 로딩 중...</div>
       </div>
     );
   }
 
   return (
-    <div className='bg-white rounded-lg p-4 md:p-6 shadow-sm w-full max-w-none md:max-w-2xl lg:max-w-4xl'>
+    <div className='bg-white rounded-lg p-4 md:p-6 shadow-sm w-full max-w-none md:max-w-2xl'>
       <div className='flex justify-between items-center mb-6'>
         <h2 className='text-xl font-bold'>초대 내역</h2>
         <button

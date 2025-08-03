@@ -108,7 +108,7 @@ const MembersSection = ({ dashboardId, members, onMembersUpdate }: MembersSectio
   };
 
   return (
-    <div className='bg-white rounded-lg p-4 md:p-6 shadow-sm w-full max-w-none md:max-w-2xl lg:max-w-4xl'>
+    <div className='bg-white rounded-lg p-4 md:p-6 shadow-sm w-full max-w-none md:max-w-2xl'>
       <div className='flex justify-between items-center mb-6'>
         <h2 className='text-xl font-bold'>구성원</h2>
         <div className='flex items-center gap-4'>

@@ -17,6 +17,7 @@ import { Column } from '@/api/card/getColumns';
 
 import ColumnDropdown from '../dropdown/ColumnDropdown';
 import { getColumnsByDashboardId } from '@/api/snb/apis';
+import Image from 'next/image';
 
 interface TaskFormProps {
   columnId: number;
@@ -258,31 +259,41 @@ const TaskForm: React.FC<TaskFormProps> = ({
   };
   // 리액트 데이트 피커에서 자동완성 기능 끄기 :: 커스텀으로 만들었어야했음.
   const CustomDateInput = forwardRef<HTMLInputElement, React.HTMLProps<HTMLInputElement>>(
-    ({ value, onClick, onChange }, ref) => (
-      <input
-        ref={ref}
-        value={value}
-        onClick={onClick}
-        onChange={onChange}
-        autoComplete='off' // 자동완성 끔
-        className='border border-gray-300 rounded-lg p-2 w-full'
-      />
+    ({ value, onClick }, ref) => (
+      <div className='relative w-full' onClick={onClick}>
+        <Image
+          src='/icons/icon_calendar.svg'
+          alt='달력아이콘'
+          width={20}
+          height={20}
+          className='absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none'
+        />
+        <input
+          ref={ref}
+          value={value}
+          readOnly
+          autoComplete='off'
+          className='w-full border border-gray-300 rounded-lg pl-10 pr-2 py-2'
+        />
+      </div>
     ),
   );
+
   CustomDateInput.displayName = 'CustomDateInput';
   return (
-    <div>
-      <div className='mx-auto w-[295px] sm:w-[520px]'>
+    <div className='max-h-[600px] overflow-y-scroll w-[327px] sm:w-[584px]'>
+      <div>
+
         {/* <h1 className='text-[24px]'>할일 수정</h1> */}
         <div className='w-full h-auto '>
           {/* 담당자 영역 절반 나누기 */}
-          <div className='flex mb-4'>
+          <div className='flex flex-col mb-[30px] sm:flex-row gap-[30px]'>
             {/* 케이스2: initialValues 있다면 */}
             {initialValues ? (
               <>
                 {/* 왼쪽: 수정할 때 선택 상태선택 */}
-                <div className='w-1/2 p-2 border-r'>
-                  <label className='block mb-1 font-medium text-gray-700'>선택 컬럼 제목</label>
+                <div className='w-full sm:w-1/2'>
+                  <label className='block mb-1 font-medium text-gray-700'>상태</label>
                   <div className='text-gray-800'>
                     <ColumnDropdown.Root
                       valueCallback={(item) => {
@@ -302,8 +313,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 </div>
 
                 {/* 오른쪽: (initialValues 있을 때)기존 담당자 보여주기 */}
-                <div className='w-1/2 p-2'>
-                  <label className='block mb-1 font-medium'>담당자 선택</label>
+                <div className='w-full sm:w-1/2'>
+                  <label className='block mb-1 font-medium'>담당자</label>
                   <UserDropdown.Root
                     valueCallback={(item) => {
                       if (assignee) setSelectedItem(assignee.userId);
@@ -361,12 +372,11 @@ const TaskForm: React.FC<TaskFormProps> = ({
               </div>
             )}
           </div>
-
           <label htmlFor='title' className='block mb-1 font-medium text-gray-700'>
             제목<span className='text-pri'>*</span>
           </label>
           <input
-            className='w-full border border-gray-300 rounded-lg p-2'
+            className='w-full border border-gray-300 rounded-lg p-2 mb-[30px]'
             type='text'
             placeholder='제목을 입력해 주세요'
             onChange={(e) => titleSetting(e)}
@@ -380,27 +390,30 @@ const TaskForm: React.FC<TaskFormProps> = ({
             onChange={(e) => setDescription(e.target.value)}
             value={description}
             placeholder='설명을 입력해 주세요'
-            className='border border-gray-300 rounded-lg p-2 w-full h-24 resize-none'
+            className='border border-gray-300 rounded-lg p-2 w-full h-24 resize-none mb-[30px]'
           ></textarea>
 
           <label htmlFor='dueDate' className='block mb-1 font-medium text-gray-700'>
             마감일
           </label>
-          <DatePicker
-            id='dueDate'
-            shouldCloseOnSelect
-            onChange={handleDueDateChange}
-            selected={dueDate}
-            showTimeSelect // 시간 선택 기능 활성화
-            timeFormat='HH:mm' // 시간 포맷 (기본값이 HH:mm)
-            timeIntervals={30} // 15분 간격으로 선택 가능
-            dateFormat='yyyy-MM-dd HH:mm' // 보여주는 포맷
-            wrapperClassName='w-full'
-            customInput={<CustomDateInput />}
-          />
+          <div className='w-full block mb-[30px]'>
+            <DatePicker
+              id='dueDate'
+              shouldCloseOnSelect
+              onChange={handleDueDateChange}
+              selected={dueDate}
+              showTimeSelect // 시간 선택 기능 활성화
+              timeFormat='HH:mm' // 시간 포맷 (기본값이 HH:mm)
+              timeIntervals={30} // 15분 간격으로 선택 가능
+              dateFormat='yyyy-MM-dd HH:mm' // 보여주는 포맷
+              className='border border-gray-300 rounded p-2 w-full'
+              customInput={<CustomDateInput />}
+              wrapperClassName='w-full'
+            />
+          </div>
 
           <label className='block mb-1 font-medium text-gray-700'>태그</label>
-          <div className='flex flex-nowrap overflow-hidden w-full items-center gap-2 p-3 border border-gray-300 rounded-lg bg-white min-h-[44px] cursor-text transition-all duration-200'>
+          <div className='flex mb-[30px] flex-nowrap overflow-hidden w-[327px] sm:w-[584px] items-center gap-2 p-3 border border-gray-300 rounded-lg bg-white min-h-[44px] cursor-text transition-all duration-200'>
             {tags &&
               tags.map((tag, index) => {
                 const [color, text] = tag.split('/');
@@ -428,7 +441,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
             </div>
           </div>
 
-          <div className='mb-4'>
+          <div>
             <label className='block mb-1 font-medium text-gray-700'>이미지 업로드</label>
             <ImageUpload previewUrl={imageUrl} handleFileChange={handleFileChange} />
           </div>

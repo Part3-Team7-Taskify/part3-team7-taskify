@@ -1,6 +1,5 @@
 'use client';
 
-import { SMALL_DISPLAY } from '@/constants/windowWidth';
 import { useWindowSize } from '@/hooks/useWindowSize';
 import { UserType } from '@/types/UserTypes';
 import { useEffect, useState } from 'react';
@@ -83,7 +82,7 @@ export const UserChip = ({
           </span>
         </div>
       )}
-      {!hideName && width > SMALL_DISPLAY && <span className='ml-2'>{user.nickname}</span>}
+      {!hideName && <span className='ml-2'>{user.nickname}</span>}
     </div>
   );
 };

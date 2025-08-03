@@ -20,7 +20,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ handleFileChange }) => {
     reader.readAsDataURL(file);
   };
   return (
-    <div className='mb-[90px]'>
+    <div className='mb-[90px] relative'>
       <div className='relative'>
         <input
           id='file'
@@ -36,7 +36,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ handleFileChange }) => {
           <div className='relative w-[76px] h-[76px] bg-gray-200 rounded-lg'>
             <Image
               src='/icon/icon_add.svg'
-              className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer'
+              className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-md'
               width={28}
               height={28}
               alt='업로드 아이콘'
@@ -51,7 +51,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ handleFileChange }) => {
           alt='이미지업로드'
           width={76}
           height={76}
-          className='absolute mb-1 w-[76px] h-[76px] object-cover '
+          className='absolute mb-1 w-[76px] h-[76px] rounded-md object-cover '
         />
       )}
     </div>
